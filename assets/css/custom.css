@@ -1,0 +1,166 @@
+	<style>
+		* {
+		  box-sizing: border-box;
+		}
+
+		body {
+		  font-family: 400 15px/1.8 Lato, sans-serif, arial;
+		  margin: 0; padding: 0;
+		}
+		
+		.container {
+		  padding: 30px 20px;
+		}
+
+		/* Style the header */
+		.header {
+		  width: 100%;
+		  background-color: #f1f1f1;
+		  text-align: center;
+		  font-size: 15px;
+		}
+
+		/* Create three unequal columns that floats next to each other */
+		.column {
+		  float: left;
+		  padding: 10px;
+		  height: 300px; /* Should be removed. Only for demonstration */
+		}
+
+		/* Left and right column */
+		.column.side {
+		  width: 25%;
+		}
+
+		/* Middle column */
+		.column.middle {
+		  width: 50%;
+		}
+
+		/* Clear floats after the columns */
+		.row:after {
+		  content: "";
+		  display: table;
+		  clear: both;
+		}
+
+		/* Style the footer */
+		.footer {
+		  position: fixed;
+		  left: 0;
+		  bottom: 0;
+		  width: 100%;
+		  background-color: #f1f1f1;
+		  padding: 10px;
+		  text-align: center;
+		}
+
+		/* Responsive layout - makes the three columns stack on top of each other instead of next to each other */
+		@media (max-width: 600px) {
+		  .column.side, .column.middle {
+			width: 100%;
+		  }
+		}
+
+		/* unvisited link */
+		a:link {
+		  color: white;
+		}
+
+		/* visited link */
+		a:visited {
+		  color: white;
+		}
+
+		/* mouse over link */
+		a:hover {
+		  color: hotpink;
+		}
+
+		/* selected link */
+		a:active {
+		  color: blue;
+		}
+		
+		.menu-satu {
+		  position: absolute;
+		  top: 40px;
+		  left: 100px;
+		}
+		.menu-dua {
+		  position: absolute;
+		  top: 140px;
+		  left: 100px;
+		}
+		.menu-tiga {
+		  position: absolute;
+		  top: 240px;
+		  left: 100px;
+		}
+		.menu-empat {
+		  position: absolute;
+		  top: 340px;
+		  left: 100px;
+		}
+		
+		.bg-company-red {
+			background-color:#6fad48;
+		}
+
+		.tank-tittle {
+		  border-radius: 10px;
+		  border: 2px solid white;
+		  background: #6fad48;
+		  padding: 5px;
+		  margin-bottom: 10px;
+		}
+		  
+		.tank-isi {
+		  background: white;
+		  padding: 5px;
+		  margin: 5px;
+		}
+		
+		.tank-caption {
+		  position: absolute;
+		  top: 220px;
+		  left: 80px;
+		}
+
+		.sidenav {
+		  height: 100%;
+		  width: 320px;
+		  position: fixed;
+		  z-index: 1;
+		  top: 50;
+		  left: 0;
+		  background-color: #6fad48;
+		  overflow-x: hidden;
+		  padding-top: 20px;
+		}
+		
+		.leftmenu {
+		  width: 320px;
+		  z-index: 1;
+		  top: 50;
+		  left: 0;
+		  background-color: #6fad48;
+		  overflow-x: hidden;
+		  padding-top: 20px;
+		  padding: 0;
+		  margin: 0;
+		}
+		
+		.leftmenufilter {
+		  width: 320px;
+		  z-index: 1;
+		  top: 0;
+		  left: 10;
+		  background-color: white;
+		  overflow-x: hidden;
+		  padding-top: 20px;
+		  padding: 0;
+		  margin: 0;
+		}
+		
+	</style>
