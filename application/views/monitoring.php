@@ -179,9 +179,24 @@ console.log(chartData);
 				text: 'Fuel Receiving'
 			},
 			responsive: true,
+			tooltips: {
+			  callbacks: {
+					label: function(tooltipItem, data) {
+						var value = tooltipItem.xLabel;
+						value = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+						return data.datasets[tooltipItem.datasetIndex].label+' : '+value;
+					}
+			  } // end callbacks:
+			},
 			scales: {
 				xAxes: [{
-					stacked: true // this should be set to make the bars stacked
+					stacked: true, // this should be set to make the bars stacked
+					ticks: {
+									// Include a dollar sign in the ticks
+									callback: function(value, index, values) {
+											return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+									}
+                }
 				}],
 				yAxes: [{
 					stacked: true // this also..
