@@ -7,6 +7,24 @@ class Model_monitoring extends CI_Model {
 		$this->load->database();
     }
 	
+	function fuel_receiving_with_transporter($start, $end) {
+		$SQL = "SELECT mst_transporter.transporter_id as id_transporter, mst_transporter.transporter_name, qw.*
+						FROM mst_transporter
+						LEFT JOIN (
+											SELECT trans_po.transporter_id, mst_vendor.vendor_id, trans_po.quantity
+											FROM trans_po_received
+											INNER JOIN trans_po ON trans_po_received.trans_id=trans_po.trans_id
+											INNER JOIN mst_vendor ON mst_vendor.vendor_id =trans_po.vendor_id
+											WHERE DATE_FORMAT(created_date, '%Y-%m-%d') BETWEEN '$start' AND '$end'
+											) AS qw on qw.transporter_id=mst_transporter.transporter_id
+
+						ORDER BY mst_transporter.transporter_id ASC";
+		$query = $this->db->query($SQL);
+
+		return $query->result_array();
+	}
+	
+	
 	function get_trans_atg_($id) {
 		$this->db->select('trans_atg.*, mst_storage.*');
 		$this->db->from('trans_atg');
@@ -62,6 +80,14 @@ class Model_monitoring extends CI_Model {
 		//$this->db->where('salesperson_id', $id);
 		$query = $this->db->get();
 		return $query->row()->max_id;
+	}
+	
+	function get_vendor(){
+		$this->db->select('vendor_id, vendor_name');
+		$this->db->from('mst_vendor');
+		$this->db->order_by('vendor_id', 'ASC');
+		$query = $this->db->get();
+		return $query->result_array();
 	}
 	
 	function insert_atg($data){

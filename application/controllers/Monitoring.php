@@ -58,42 +58,81 @@ class Monitoring extends CI_Controller {
 		$data['bulan'] = substr($tanggal,-2);
 		$data['tahun'] = date('Y');
 		
-		$data['tanggal_dari'] = '';
-		$data['tanggal_sampai'] = '';
-		$data['filter_result'] = '';
+		$tanggal_dari = '';
+		$tanggal_sampai = '';
+		$filter_result = '';
+
+		$p_period = $this->input->get('p_period');
+		$filter_result = 'period = ' .$p_period. '<br>';
 		
-		$data_mst_storage = $this->Model_monitoring->get_data_mst_storage('1');
-		$data['data_mst_storage'] = $data_mst_storage;
-		foreach ($data_mst_storage as $row) {
-			$data['s1_storage_name'] = $row->storage_name;
-			$data['s1_storage_height'] = $row->storage_height;
+		if ($p_period == 'daily' || empty($p_period)) {
+			$tgl = $this->input->get('p_period_sub_date');
+			$tanggal_dari = (empty($tgl))? date('Y-m-d') : $tgl;
+			$tanggal_sampai = $tanggal_dari;
 		}
-		
-		$data_trans_atg = $this->Model_monitoring->get_trans_atg($tanggal);
-		$data['data_trans_atg'] = $data_trans_atg;
-		
-		// //tampung
-		// foreach ($data_trans_atg as $row) {
-			// $max_id = $this->Model_monitoring->get_atg_max();
+		if ($p_period == 'monthly') {
+			$filter_result = $filter_result.'sub period = ' .$this->input->get('p_period_sub_month'). '<br>';
+
+			$tahun = $this->input->get('p_year');
+			$bulan = substr(('0' .$this->input->get('p_period_sub_month')),-2);
 			
-			// if ($row->trans_id > $max_id) {
-				// $data_insert = array(
-					// 'trans_id' => $row->trans_id,
-					// 'trans_date' => $row->trans_date,
-					// 'trans_time' => $row->trans_time,
-					// 'tankno' => $row->tankno,
-					// 'volume' => $row->volume,
-					// 'tc_vol' => $row->tc_vol,
-					// 'ullage' => $row->ullage,
-					// 'product_height' => $row->product_height,
-					// 'water' => $row->water,
-					// 'temp_c' => $row->temp_c,
-					// 'water_vol' => $row->water_vol,
-					// 'atg_id' => $row->atg_id
-				// );
-				// $this->Model_monitoring->insert_atg($data_insert);				
-			// }
-		// }
+			$tanggal_dari = ($tahun .'-'. $bulan .'-01');
+			$tanggal_sampai = date('Y-m-t', strtotime($tanggal_dari));
+		}
+		if ($p_period == 'quarterly') {
+			$tahun = $this->input->get('p_year');
+			$filter_result = $filter_result.'sub period = ' .$this->input->get('p_period_sub_quarter'). '<br>';
+			
+			if ($this->input->get('p_period_sub_quarter')=='q1') {
+				$bulan1 = '01';				
+				$tanggal_dari = ($tahun .'-'. $bulan1 .'-01');
+				
+				$bulan2 = '03';				
+				$tanggal2 = ($tahun .'-'. $bulan2 .'-01');
+				$tanggal_sampai = date('Y-m-t', strtotime($tanggal2));
+			}
+			
+			if ($this->input->get('p_period_sub_quarter')=='q2') {
+				$bulan1 = '04';				
+				$tanggal_dari = ($tahun .'-'. $bulan1 .'-01');
+				
+				$bulan2 = '06';				
+				$tanggal2 = ($tahun .'-'. $bulan2 .'-01');
+				$tanggal_sampai = date('Y-m-t', strtotime($tanggal2));
+			}
+			
+			if ($this->input->get('p_period_sub_quarter')=='q3') {
+				$bulan1 = '07';				
+				$tanggal_dari = ($tahun .'-'. $bulan1 .'-01');
+				
+				$bulan2 = '09';				
+				$tanggal2 = ($tahun .'-'. $bulan2 .'-01');
+				$tanggal_sampai = date('Y-m-t', strtotime($tanggal2));
+			}
+			
+			if ($this->input->get('p_period_sub_quarter')=='q4') {
+				$bulan1 = '10';				
+				$tanggal_dari = ($tahun .'-'. $bulan1 .'-01');
+				
+				$bulan2 = '12';				
+				$tanggal2 = ($tahun .'-'. $bulan2 .'-01');
+				$tanggal_sampai = date('Y-m-t', strtotime($tanggal2));
+			}
+		}
+		if ($p_period == 'yearly') {
+			$tahun = $this->input->get('p_year');
+			
+			$tanggal_dari = ($tahun .'-01-01');
+			$tanggal_sampai = ($tahun .'-12-31');
+		}
+		$data['tanggal_dari'] = $tanggal_dari;
+		$data['tanggal_sampai'] = $tanggal_sampai;
+		
+		$msg_depan = '<div class="alert alert-success text-center">';
+		$msg_belakang = '</div>';
+		
+		$filter_result = $msg_depan.$filter_result.'from <b>'.$tanggal_dari. '</b> to <b>'.$tanggal_sampai.'</b>'.$msg_belakang;
+		$data['filter_result'] = $filter_result;
 		
 		$this->load->view('header', $datasesion);
 		$this->load->view('monitoring',$data);
