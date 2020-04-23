@@ -1,0 +1,49 @@
+- purchase order to vendor
+		trans_sap_log -> trans_po_received -> trans_po -> mst_vendor -> mst_storage
+		master trans_po
+		status error_type -> null
+		filter date trans_po
+
+- fuel distribution to mining contractor
+	skip
+
+- fuel distribution based on activity
+	skip
+	
+- fuel price by purchace order history
+	trans_sap_log -> trans_po_received -> trans_po -> mst_vendor
+	master trans_po
+	status error_type -> null
+	date trans_po
+	
+- fuel positive difference
+	trans_po_received -> trans_po -> mst_storage
+	trans_po_received (qty_observe-qty_volcomp)
+	filter date trans_po
+
+- fuel negative difference
+	skip
+	
+	
+- vendor csi performance
+	trans_po_received -> mst_movement_reason -> trans_po -> mst_vendor
+	filter date trans_po
+
+- trasporter csi performance
+	trans_po_received -> mst_movement_reason -> trans_po -> mst_transpoter
+	filter date trans_po
+
+- inventory storage performance
+	trans_atg
+	col volume
+	filter date trans_atg
+
+- availability performance storage
+	skip
+	trans_atg
+	col volume
+	filter date trans_atg
+	
+- schedule performance average
+	skip
+	

@@ -58,6 +58,82 @@ class Supply extends CI_Controller {
 		$data['bulan'] = substr($tanggal,-2);
 		$data['tahun'] = date('Y');
 		
+		$tanggal_dari = '';
+		$tanggal_sampai = '';
+		$filter_result = '';
+
+		$p_period = $this->input->get('p_period');
+		$filter_result = 'period = ' .$p_period. '<br>';
+		
+		if ($p_period == 'daily' || empty($p_period)) {
+			$tgl = $this->input->get('p_period_sub_date');
+			$tanggal_dari = (empty($tgl))? date('Y-m-d') : $tgl;
+			$tanggal_sampai = $tanggal_dari;
+		}
+		if ($p_period == 'monthly') {
+			$filter_result = $filter_result.'sub period = ' .$this->input->get('p_period_sub_month'). '<br>';
+
+			$tahun = $this->input->get('p_year');
+			$bulan = substr(('0' .$this->input->get('p_period_sub_month')),-2);
+			
+			$tanggal_dari = ($tahun .'-'. $bulan .'-01');
+			$tanggal_sampai = date('Y-m-t', strtotime($tanggal_dari));
+		}
+		if ($p_period == 'quarterly') {
+			$tahun = $this->input->get('p_year');
+			$filter_result = $filter_result.'sub period = ' .$this->input->get('p_period_sub_quarter'). '<br>';
+			
+			if ($this->input->get('p_period_sub_quarter')=='q1') {
+				$bulan1 = '01';				
+				$tanggal_dari = ($tahun .'-'. $bulan1 .'-01');
+				
+				$bulan2 = '03';				
+				$tanggal2 = ($tahun .'-'. $bulan2 .'-01');
+				$tanggal_sampai = date('Y-m-t', strtotime($tanggal2));
+			}
+			
+			if ($this->input->get('p_period_sub_quarter')=='q2') {
+				$bulan1 = '04';				
+				$tanggal_dari = ($tahun .'-'. $bulan1 .'-01');
+				
+				$bulan2 = '06';				
+				$tanggal2 = ($tahun .'-'. $bulan2 .'-01');
+				$tanggal_sampai = date('Y-m-t', strtotime($tanggal2));
+			}
+			
+			if ($this->input->get('p_period_sub_quarter')=='q3') {
+				$bulan1 = '07';				
+				$tanggal_dari = ($tahun .'-'. $bulan1 .'-01');
+				
+				$bulan2 = '09';				
+				$tanggal2 = ($tahun .'-'. $bulan2 .'-01');
+				$tanggal_sampai = date('Y-m-t', strtotime($tanggal2));
+			}
+			
+			if ($this->input->get('p_period_sub_quarter')=='q4') {
+				$bulan1 = '10';				
+				$tanggal_dari = ($tahun .'-'. $bulan1 .'-01');
+				
+				$bulan2 = '12';				
+				$tanggal2 = ($tahun .'-'. $bulan2 .'-01');
+				$tanggal_sampai = date('Y-m-t', strtotime($tanggal2));
+			}
+		}
+		if ($p_period == 'yearly') {
+			$tahun = $this->input->get('p_year');
+			
+			$tanggal_dari = ($tahun .'-01-01');
+			$tanggal_sampai = ($tahun .'-12-31');
+		}
+		$data['tanggal_dari'] = $tanggal_dari;
+		$data['tanggal_sampai'] = $tanggal_sampai;
+		
+		$msg_depan = '<div class="alert alert-success text-center">';
+		$msg_belakang = '</div>';
+		
+		$filter_result = $msg_depan.$filter_result.'from <b>'.$tanggal_dari. '</b> to <b>'.$tanggal_sampai.'</b>'.$msg_belakang;
+		$data['filter_result'] = $filter_result;
+		
 		$data_mst_storage = $this->Model_supply->get_data_mst_storage('1');
 		$data['data_mst_storage'] = $data_mst_storage;
 		foreach ($data_mst_storage as $row) {

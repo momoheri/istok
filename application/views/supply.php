@@ -12,18 +12,19 @@
 	
 <div class="leftmenufilter card shadow">
 	<div class="leftmenufilter"><center>
+		<?php echo form_open("supply", array('method'=>'get')); ?>
 		<table cellpadding="2">
 		  <tr>
 			<td colspan="3" align="center"><h3>Snapshot</h3></td>
 		  </tr>
 		  <tr>
-			<td>Year</td>
-			<td><input type="number" name="p_year" class="form-control" placeholder="Year" value="<?php echo $tahun; ?>" required></td>
+			<td id="p_year_text">Year</td>
+			<td><input type="number" name="p_year" id="p_year" class="form-control" placeholder="Year" value="<?php echo $tahun; ?>" required></td>
 		  </tr>
 		  <tr>
-			<td>Period</td>
+			<td id="p_period_text">Period</td>
 			<td>
-				<select name="p_period" class="form-control">
+				<select name="p_period" id="p_period" class="form-control">
 				  <option value="daily">Daily</option>
 				  <option value="monthly">Monthly</option>
 				  <option value="quarterly">Quarterly</option>
@@ -32,10 +33,44 @@
 			</td>
 		  </tr>
 		  <tr>
-			<td>Sub Period</td>
-			<td><input type="date" name="p_period_sub" class="form-control" placeholder="Year" value="<?php echo $tahun; ?>" required></td>
+			<td id="p_period_sub_text">Sub Period</td>
+			<td>
+				<input type="date" name="p_period_sub_date" id="p_period_sub_date" class="form-control" placeholder="Daily" value="<?php echo $tanggal; ?>" required>
+
+				<select name="p_period_sub_month" id="p_period_sub_month" class="form-control">
+				  <option value="1">January</option>
+				  <option value="2">February</option>
+				  <option value="3">March</option>
+				  <option value="4">April</option>
+				  <option value="5">May</option>
+				  <option value="6">June</option>
+				  <option value="7">July</option>
+				  <option value="8">August</option>
+				  <option value="9">September</option>
+				  <option value="10">October</option>
+				  <option value="11">November</option>
+				  <option value="12">December</option>
+				</select>
+
+				<select name="p_period_sub_quarter" id="p_period_sub_quarter" class="form-control">
+				  <option value="q1">Q1</option>
+				  <option value="q2">Q2</option>
+				  <option value="q3">Q3</option>
+				  <option value="q4">Q4</option>
+				</select>
+			</td>
+		  </tr>
+		  <tr>
+			<td></td>
+			<td>
+				<button class="btn btn-primary btn-icon-split" type="submit">
+					<span class="icon text-white-50"><i class="fas fa-check"></i></span>
+					<span class="text">Search</span></button>
+			</td>
 		  </tr>
 		</table>
+		<?php echo form_close(); ?>
+		<?php echo $filter_result; ?>
 	</div>
 	<div class="leftmenufilter"><canvas id="myChart" height="300"></canvas></div>	
 	<div class="leftmenufilter"><canvas id="myChart2" height="300"></canvas></div>
@@ -69,268 +104,406 @@
 </div>
 
 <script>
-setTimeout(function() {
-  location.reload();
-}, 30000);
+$(document).ready(function(){
+	$("#p_period_sub_date_text").show();
+	$("#p_period_sub_date").show();
+	$("#p_year_text").hide();
+	$("#p_year").hide();
+	$("#p_period_text").show();
+	$("#p_period_sub_text").show();	
+	$("#p_period_sub_month").hide();
+	$("#p_period_sub_quarter").hide();
+		var queryString = window.location.search;
+		var urlParams = new URLSearchParams(queryString);
+		var status = urlParams.get('p_period');
+		var year = urlParams.get('p_year');
+		var date = urlParams.get('p_period_sub_date');
+		var month = urlParams.get('p_period_sub_month');
+		var quarter = urlParams.get('p_period_sub_quarter');
+		
+		if (status=="daily") {
+			$("#p_period").val(status);
+			$("#p_period_sub_date_text").show();
+			$("#p_period_sub_date").show();
+			$("#p_period_sub_date").val(date);
+			$("#p_year_text").hide();
+			$("#p_year").hide();
+			$("#p_period_text").show();
+			$("#p_period_sub_text").show();	
+			$("#p_period_sub_month").hide();
+			$("#p_period_sub_quarter").hide();
+		};
+		
+		if (status=="monthly") {
+			$("#p_period").val(status);
+			$("#p_period_sub_date_text").hide();
+			$("#p_period_sub_date").hide();
+			$("#p_year_text").show();
+			$("#p_year").show();
+			$("#p_year").val(year);
+			$("#p_period_text").show();
+			$("#p_period_sub_text").show();	
+			$("#p_period_sub_month").show();
+			$("#p_period_sub_month").val(month);
+			$("#p_period_sub_quarter").hide();
+		};
+		
+		if (status=="quarterly") {
+			$("#p_period").val(status);
+			$("#p_period_sub_date_text").hide();
+			$("#p_period_sub_date").hide();
+			$("#p_year_text").show();
+			$("#p_year").show();
+			$("#p_year").val(year);
+			$("#p_period_text").show();
+			$("#p_period_sub_text").show();	
+			$("#p_period_sub_month").hide();
+			$("#p_period_sub_quarter").show();
+			$("#p_period_sub_quarter").val(quarter);
+		};
+
+		if (status=="yearly") {
+			$("#p_period").val(status);
+			$("#p_period_sub_date_text").hide();
+			$("#p_period_sub_date").hide();
+			$("#p_year_text").show();
+			$("#p_year").show();
+			$("#p_year").val(year);
+			$("#p_period_text").show();
+			$("#p_period_sub_text").hide();	
+			$("#p_period_sub_month").hide();
+			$("#p_period_sub_quarter").hide();
+		};
+
+    $("#p_period").change(function(){		
+			var status = this.value;
+
+			if (status=="daily") {
+				$("#p_period_sub_date_text").show();
+				$("#p_period_sub_date").show();
+				$("#p_year_text").hide();
+				$("#p_year").hide();
+				$("#p_period_text").show();
+				$("#p_period_sub_text").show();	
+				$("#p_period_sub_month").hide();
+				$("#p_period_sub_quarter").hide();
+			};
+			
+			if (status=="monthly") {
+				$("#p_period_sub_date_text").hide();
+				$("#p_period_sub_date").hide();
+				$("#p_year_text").show();
+				$("#p_year").show();
+				$("#p_period_text").show();
+				$("#p_period_sub_text").show();	
+				$("#p_period_sub_month").show();
+				$("#p_period_sub_quarter").hide();
+			};
+			
+			if (status=="quarterly") {
+				$("#p_period_sub_date_text").hide();
+				$("#p_period_sub_date").hide();
+				$("#p_year_text").show();
+				$("#p_year").show();
+				$("#p_period_text").show();
+				$("#p_period_sub_text").show();	
+				$("#p_period_sub_month").hide();
+				$("#p_period_sub_quarter").show();
+			};
+
+			if (status=="yearly") {
+				$("#p_period_sub_date_text").hide();
+				$("#p_period_sub_date").hide();
+				$("#p_year_text").show();
+				$("#p_year").show();
+				$("#p_period_text").show();
+				$("#p_period_sub_text").hide();	
+				$("#p_period_sub_month").hide();
+				$("#p_period_sub_quarter").hide();
+			};
+
+		});
+});
 </script>
 
 <script>
-var ctx = document.getElementById('myChart').getContext('2d');
-var chart = new Chart(ctx, {
-    // The type of chart we want to create
-    type: 'bar',
-    // The data for our dataset
-    data: {
-        labels: ['AKR', 'PTM', 'PAN'],
-        datasets: [{
-            label: '9001 Target Memuaskan',
-            backgroundColor: 'blue',
-            borderColor: 'rgb(255, 99, 132)',
-            data: [32, 32, 12]
-        }, {
-            label: '9002 Memuaskan',
-            backgroundColor: 'orange',
-            borderColor: 'rgb(255, 99, 132)',
-            data: [8, 1, 11]
-		}, {
-            label: '9003 Cukup Memuaskan',
-            backgroundColor: 'grey',
-            borderColor: 'rgb(255, 99, 132)',
-            data: [5, 12, 22]
-		}, {
-            label: '9004 Tidak Memuaskan',
-            backgroundColor: 'yellow',
-            borderColor: 'rgb(255, 99, 132)',
-            data: [5, 12, 22]
-		}, {
-            label: '9005 Sangat Buruk',
-            backgroundColor: 'green',
-            borderColor: 'rgb(255, 99, 132)',
-            data: [5, 12, 22]
-		}]
-    },
+const api_url_vendor_performance = "<?php echo base_url().'chart/vendor_performance?'.$_SERVER['QUERY_STRING']; ?>";
+
+var departments_vendor_performance = [];
+
+async function getData_vendor_performance() {
+	const response = await fetch(api_url_vendor_performance);
+	const data = await response.json();
+	const data_label = data.vendor;
+	for (var department in data.chart) {
+		var departmentObject = prepareDepartmentDetails_vendor_performance(data.chart[department].movement_reason_name, data.chart[department].total, data.chart[department].color);
+		departments_vendor_performance.push(departmentObject);
+	}
+	return {data_label, departments_vendor_performance};	
+}
+
+
+ async function setup() {
+	const ctx = document.getElementById('myChart').getContext('2d');
+	const globalTemps = await getData_vendor_performance();
 	
-	options: {
+	var chartData = {
+			labels: globalTemps.data_label.split('|'),
+			datasets : globalTemps.departments_vendor_performance
+	};
+console.log(chartData);
+	const myChart = new Chart(ctx, {
+		type: 'bar',
+		data: chartData,
+		options: {
 			title: {
 				display: true,
 				text: 'Vendor CSI Performance'
 			},
-		responsive: true,
-		legend: {
-			display: true,
-			position: 'bottom', // place legend on the right side of chart
-			align: 'start',
-		},
-		scales: {
-			xAxes: [{
-				stacked: false // this should be set to make the bars stacked
-			}],
-			yAxes: [{
-				stacked: false // this also..
-			}]
+			responsive: true,
+			legend: {
+				display: true,
+				position: 'bottom', // place legend on the right side of chart
+				align: 'start',
+			},
+			scales: {
+				xAxes: [{
+					stacked: false // this should be set to make the bars stacked
+				}],
+				yAxes: [{
+					stacked: false // this also..
+				}]
+			}
 		}
-	}
-});
+	});
+}
+	
+function prepareDepartmentDetails_vendor_performance(movement_reason_name, total, color){
+    return {
+        label : movement_reason_name,
+        data : total.split(','),
+        backgroundColor: color,
+        borderColor: 'rgb(255, 99, 132)'
+    }
+}
+ setup();
 </script>
 
 <script>
-var ctx = document.getElementById('myChart2').getContext('2d');
-var chart = new Chart(ctx, {
-    // The type of chart we want to create
-    type: 'bar',
-    // The data for our dataset
-    data: {
-        labels: ['TBS', 'BRK', 'AKR', 'WRK'],
-        datasets: [{
-            label: '9001 Target Memuaskan',
-            backgroundColor: 'blue',
-            borderColor: 'rgb(255, 99, 132)',
-            data: [25, 18, 12, 7]
-        }, {
-            label: '9002 Memuaskan',
-            backgroundColor: 'orange',
-            borderColor: 'rgb(255, 99, 132)',
-            data: [8, 1, 11, 2]
-		}, {
-            label: '9003 Cukup Memuaskan',
-            backgroundColor: 'grey',
-            borderColor: 'rgb(255, 99, 132)',
-            data: [5, 12, 15, 8]
-		}, {
-            label: '9004 Tidak Memuaskan',
-            backgroundColor: 'yellow',
-            borderColor: 'rgb(255, 99, 132)',
-            data: [5, 12, 16, 10]
-		}, {
-            label: '9005 Sangat Buruk',
-            backgroundColor: 'green',
-            borderColor: 'rgb(255, 99, 132)',
-            data: [5, 12, 22, 12]
-		}]
-    },
+const api_url_transporter_performance = "<?php echo base_url().'chart/transporter_performance?'.$_SERVER['QUERY_STRING']; ?>";
+
+var departments_transporter_performance = [];
+
+async function getData_transporter_performance() {
+	const response = await fetch(api_url_transporter_performance);
+	const data = await response.json();
+	const data_label = data.transporter;
+	for (var department in data.chart) {
+		var departmentObject = prepareDepartmentDetails_vendor_performance(data.chart[department].movement_reason_name, data.chart[department].total, data.chart[department].color);
+		departments_transporter_performance.push(departmentObject);
+	}
+	return {data_label, departments_transporter_performance};	
+}
+
+
+ async function setup_chart2() {
+	const ctx = document.getElementById('myChart2').getContext('2d');
+	const globalTemps = await getData_transporter_performance();
 	
-	options: {
+	var chartData = {
+			labels: globalTemps.data_label.split('|'),
+			datasets : globalTemps.departments_transporter_performance
+	};
+console.log(chartData);
+	const myChart = new Chart(ctx, {
+		type: 'bar',
+		data: chartData,
+		options: {
 			title: {
 				display: true,
-				text: 'Transporter CSI Performance'
+				text: 'transporter CSI Performance'
 			},
-		responsive: true,
-		legend: {
-			display: true,
-			position: 'bottom', // place legend on the right side of chart
-			align: 'start',
-		},
-		scales: {
-			xAxes: [{
-				stacked: false // this should be set to make the bars stacked
-			}],
-			yAxes: [{
-				stacked: false // this also..
-			}]
+			responsive: true,
+			legend: {
+				display: true,
+				position: 'bottom', // place legend on the right side of chart
+				align: 'start',
+			},
+			scales: {
+				xAxes: [{
+					stacked: false // this should be set to make the bars stacked
+				}],
+				yAxes: [{
+					stacked: false // this also..
+				}]
+			}
 		}
-	}
-});
+	});
+}
+
+setup_chart2();
 </script>
 
 <script>
-var ctx = document.getElementById('myChart3').getContext('2d');
-var chart = new Chart(ctx, {
-    // The type of chart we want to create
-    type: 'line',
-    // The data for our dataset
-    data: {
-        labels: ['jan', 'feb', 'mar', 'apr', 'mei', 'jun', 'jul', 'agt', 'sep', 'oct', 'nov', 'dec'],
-        datasets: [{
-            label: 'SUM of Average Inventory',
-            backgroundColor: 'green',
-            borderColor: 'green',
-            data: [5000000, 5200000, 5300000, 5100000, 4800000, 5000000, 5000000, 4500000, 5000000, 5200000, 5000000, 5100000],
-			fill: false,
-		}, {
-            label: 'SUM of Max Baseline',
-            backgroundColor: 'blue',
-            borderColor: 'blue',
-            data: [4000000, 4500000, 3300000, 3100000, 2800000, 5000000, 3000000, 4500000, 3000000, 3800000, 3000000, 4100000],
-			fill: false,
-		}, {
-            label: 'SUM of Min Baseline',
-            backgroundColor: 'red',
-            borderColor: 'red',
-            data: [3000000, 3200000, 3300000, 3100000, 2800000, 3000000, 3000000, 2500000, 3000000, 3200000, 3000000, 3100000],
-			fill: false,
-		}]
-    },
+const api_url_invenory_1 = "<?php echo base_url().'chart/inventory_performance/1?'.$_SERVER['QUERY_STRING']; ?>";
+
+var departments_inventory_1 = [];
+
+async function getData_inventory_1() {
+	const response = await fetch(api_url_invenory_1);
+	const data = await response.json();
+	const data_label = data.labels;
 	
-	options: {
-			title: {
-				display: true,
-				text: 'Inventory Performance Lati Storage'
-			},
-		responsive: true,
-		scales: {
-			xAxes: [{
-				stacked: false // this should be set to make the bars stacked
-			}],
-			yAxes: [{
-				stacked: false // this also..
-			}]
-		}
+	for (var department in data.chart) {
+		var departmentObject = prepare_inventory_data(data.chart[department].label, data.chart[department].datas, data.chart[department].color);
+		departments_inventory_1.push(departmentObject);
 	}
-});
+	return {data_label, departments_inventory_1};	
+}
+
+
+ async function setup_lati() {
+	const ctx = document.getElementById('myChart3').getContext('2d');
+	const globalTemps = await getData_inventory_1();
+	
+	var chartData = {
+			labels: globalTemps.data_label.split(','),
+			datasets : globalTemps.departments_inventory_1
+	};
+	const myChart = new Chart(ctx, {
+		type: 'line',
+		data: chartData,
+		options: {
+				title: {
+					display: true,
+					text: 'Inventory Performance Lati Storage'
+				},
+			responsive: true,
+			scales: {
+				xAxes: [{
+					stacked: false // this should be set to make the bars stacked
+				}],
+				yAxes: [{
+					stacked: false // this also..
+				}]
+			}
+		}
+	});
+}
+
+function prepare_inventory_data(label, datas, color){
+	return {
+			label : label,
+			data : datas.split(','),
+			backgroundColor: color,
+			fill: false,
+			borderColor: color
+	}
+}
+setup_lati();
 </script>
 
 <script>
-var ctx = document.getElementById('myChart4').getContext('2d');
-var chart = new Chart(ctx, {
-    // The type of chart we want to create
-    type: 'line',
-    // The data for our dataset
-    data: {
-        labels: ['jan', 'feb', 'mar', 'apr', 'mei', 'jun', 'jul', 'agt', 'sep', 'oct', 'nov', 'dec'],
-        datasets: [{
-            label: 'SUM of Average Inventory',
-            backgroundColor: 'green',
-            borderColor: 'green',
-            data: [5000000, 5200000, 5300000, 5100000, 4800000, 5000000, 5000000, 4500000, 5000000, 5200000, 5000000, 5100000],
-			fill: false,
-		}, {
-            label: 'SUM of Max Baseline',
-            backgroundColor: 'blue',
-            borderColor: 'blue',
-            data: [4000000, 4500000, 3300000, 3100000, 2800000, 5000000, 3000000, 4500000, 3000000, 3800000, 3000000, 4100000],
-			fill: false,
-		}, {
-            label: 'SUM of Min Baseline',
-            backgroundColor: 'red',
-            borderColor: 'red',
-            data: [3000000, 3200000, 3300000, 3100000, 2800000, 3000000, 3000000, 2500000, 3000000, 3200000, 3000000, 3100000],
-			fill: false,
-		}]
-    },
+const api_url_invenory_2 = "<?php echo base_url().'chart/inventory_performance/2?'.$_SERVER['QUERY_STRING']; ?>";
+
+var departments_inventory_2 = [];
+
+async function getData_inventory_2() {
+	const response = await fetch(api_url_invenory_2);
+	const data = await response.json();
+	const data_label = data.labels;
 	
-	options: {
-			title: {
-				display: true,
-				text: 'Inventory Performance Suaran Storage'
-			},
-		responsive: true,
-		scales: {
-			xAxes: [{
-				stacked: false // this should be set to make the bars stacked
-			}],
-			yAxes: [{
-				stacked: false // this also..
-			}]
-		}
+	for (var department in data.chart) {
+		var departmentObject = prepare_inventory_data(data.chart[department].label, data.chart[department].datas, data.chart[department].color);
+		departments_inventory_2.push(departmentObject);
 	}
-});
+	return {data_label, departments_inventory_2};	
+}
+
+
+ async function setup_suaran() {
+	const ctx = document.getElementById('myChart4').getContext('2d');
+	const globalTemps = await getData_inventory_2();
+	
+	var chartData = {
+			labels: globalTemps.data_label.split(','),
+			datasets : globalTemps.departments_inventory_2
+	};
+console.log(globalTemps);
+	const myChart = new Chart(ctx, {
+		type: 'line',
+		data: chartData,
+		options: {
+				title: {
+					display: true,
+					text: 'Inventory Performance Suaran Storage'
+				},
+			responsive: true,
+			scales: {
+				xAxes: [{
+					stacked: false // this should be set to make the bars stacked
+				}],
+				yAxes: [{
+					stacked: false // this also..
+				}]
+			}
+		}
+	});
+}
+
+setup_suaran();
 </script>
 
 <script>
-var ctx = document.getElementById('myChart5').getContext('2d');
-var chart = new Chart(ctx, {
-    // The type of chart we want to create
-    type: 'line',
-    // The data for our dataset
-    data: {
-        labels: ['jan', 'feb', 'mar', 'apr', 'mei', 'jun', 'jul', 'agt', 'sep', 'oct', 'nov', 'dec'],
-        datasets: [{
-            label: 'SUM of Average Inventory',
-            backgroundColor: 'green',
-            borderColor: 'green',
-            data: [5000000, 5200000, 5300000, 5100000, 4800000, 5000000, 5000000, 4500000, 5000000, 5200000, 5000000, 5100000],
-			fill: false,
-		}, {
-            label: 'SUM of Max Baseline',
-            backgroundColor: 'blue',
-            borderColor: 'blue',
-            data: [4000000, 4500000, 3300000, 3100000, 2800000, 5000000, 3000000, 4500000, 3000000, 3800000, 3000000, 4100000],
-			fill: false,
-		}, {
-            label: 'SUM of Min Baseline',
-            backgroundColor: 'red',
-            borderColor: 'red',
-            data: [3000000, 3200000, 3300000, 3100000, 2800000, 3000000, 3000000, 2500000, 3000000, 3200000, 3000000, 3100000],
-			fill: false,
-		}]
-    },
+
+const api_url_invenory_3 = "<?php echo base_url().'chart/inventory_performance/3?'.$_SERVER['QUERY_STRING']; ?>";
+
+var departments_inventory_3 = [];
+
+async function getData_inventory_3() {
+	const response = await fetch(api_url_invenory_3);
+	const data = await response.json();
+	const data_label = data.labels;
 	
-	options: {
-			title: {
-				display: true,
-				text: 'Inventory Performance Sambarata Storage'
-			},
-		responsive: true,
-		scales: {
-			xAxes: [{
-				stacked: false // this should be set to make the bars stacked
-			}],
-			yAxes: [{
-				stacked: false // this also..
-			}]
-		}
+	for (var department in data.chart) {
+		var departmentObject = prepare_inventory_data(data.chart[department].label, data.chart[department].datas, data.chart[department].color);
+		departments_inventory_3.push(departmentObject);
 	}
-});
+	return {data_label, departments_inventory_3};	
+}
+
+
+ async function setup_sambarata() {
+	const ctx = document.getElementById('myChart5').getContext('2d');
+	const globalTemps = await getData_inventory_3();
+	
+	var chartData = {
+			labels: globalTemps.data_label.split(','),
+			datasets : globalTemps.departments_inventory_3
+	};
+console.log(globalTemps);
+	const myChart = new Chart(ctx, {
+		type: 'line',
+		data: chartData,
+		options: {
+				title: {
+					display: true,
+					text: 'Inventory Performance Sambarata Storage'
+				},
+			responsive: true,
+			scales: {
+				xAxes: [{
+					stacked: false // this should be set to make the bars stacked
+				}],
+				yAxes: [{
+					stacked: false // this also..
+				}]
+			}
+		}
+	});
+}
+
+setup_sambarata();
 </script>
 
 <script>

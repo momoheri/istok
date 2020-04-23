@@ -12,7 +12,7 @@
 	
 <div class="leftmenufilter card shadow">
 	<div class="leftmenufilter"><center>
-		<?php echo form_open("monitoring/cari"); ?>
+		<?php echo form_open("monitoring", array('method'=>'get')); ?>
 		<table cellpadding="2">
 		  <tr>
 			<td colspan="3" align="center"><h3>Snapshot</h3></td>
@@ -145,6 +145,94 @@
 </div>
 
 <script>
+const api_url = "<?php echo base_url().'chart/fuel_receiving?'.$_SERVER['QUERY_STRING']; ?>";
+
+var departments = [];
+
+async function getData() {
+	const response = await fetch(api_url);
+	const data = await response.json();
+	const data_label = data.vendor;
+	for (var department in data.chart) {
+		var departmentObject = prepareDepartmentDetails(data.chart[department].transporter_name, data.chart[department].quantity);
+		departments.push(departmentObject);
+	}
+	return {data_label, departments};	
+}
+
+
+ async function setup() {
+	const ctx = document.getElementById('myChart2').getContext('2d');
+	const globalTemps = await getData();
+	
+	var chartData = {
+			labels: globalTemps.data_label.split('|'),
+			datasets : globalTemps.departments
+	};
+console.log(chartData);
+	const myChart2 = new Chart(ctx, {
+		type: 'horizontalBar',
+		data: chartData,
+		options: {
+			title: {
+				display: true,
+				text: 'Fuel Receiving'
+			},
+			responsive: true,
+			tooltips: {
+			  callbacks: {
+					label: function(tooltipItem, data) {
+						var value = tooltipItem.xLabel;
+						value = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+						return data.datasets[tooltipItem.datasetIndex].label+' : '+value;
+					}
+			  } // end callbacks:
+			},
+			scales: {
+				xAxes: [{
+					stacked: true, // this should be set to make the bars stacked
+					ticks: {
+									// Include a dollar sign in the ticks
+									callback: function(value, index, values) {
+											return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+									}
+                }
+				}],
+				yAxes: [{
+					stacked: true // this also..
+				}]
+			}
+		}
+	});
+}
+	
+function prepareDepartmentDetails(transporter_name, quantity){
+    var dataColor = getRandomColor();
+    return {
+        label : transporter_name,
+        data : quantity.split(','),
+        backgroundColor: dataColor,
+        borderColor: dataColor,
+        pointBackgroundColor : dataColor,
+        fill: false,
+        lineTension: 0,
+        pointRadius: 5
+    }
+}
+
+function getRandomColor() {
+    var letters = '0123456789ABCDEF'.split('');
+    var color = '#';
+    for (var i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+}
+
+setup();
+</script>
+
+<script>
 $(document).ready(function(){
 	$("#p_period_sub_date_text").show();
 	$("#p_period_sub_date").show();
@@ -154,14 +242,19 @@ $(document).ready(function(){
 	$("#p_period_sub_text").show();	
 	$("#p_period_sub_month").hide();
 	$("#p_period_sub_quarter").hide();
-	
-    $("#p_period").change(function(){		
-		var status = this.value;
-		// alert(status);
-
+		var queryString = window.location.search;
+		var urlParams = new URLSearchParams(queryString);
+		var status = urlParams.get('p_period');
+		var year = urlParams.get('p_year');
+		var date = urlParams.get('p_period_sub_date');
+		var month = urlParams.get('p_period_sub_month');
+		var quarter = urlParams.get('p_period_sub_quarter');
+		
 		if (status=="daily") {
+			$("#p_period").val(status);
 			$("#p_period_sub_date_text").show();
 			$("#p_period_sub_date").show();
+			$("#p_period_sub_date").val(date);
 			$("#p_year_text").hide();
 			$("#p_year").hide();
 			$("#p_period_text").show();
@@ -171,39 +264,94 @@ $(document).ready(function(){
 		};
 		
 		if (status=="monthly") {
+			$("#p_period").val(status);
 			$("#p_period_sub_date_text").hide();
 			$("#p_period_sub_date").hide();
 			$("#p_year_text").show();
 			$("#p_year").show();
+			$("#p_year").val(year);
 			$("#p_period_text").show();
 			$("#p_period_sub_text").show();	
 			$("#p_period_sub_month").show();
+			$("#p_period_sub_month").val(month);
 			$("#p_period_sub_quarter").hide();
 		};
 		
 		if (status=="quarterly") {
+			$("#p_period").val(status);
 			$("#p_period_sub_date_text").hide();
 			$("#p_period_sub_date").hide();
 			$("#p_year_text").show();
 			$("#p_year").show();
+			$("#p_year").val(year);
 			$("#p_period_text").show();
 			$("#p_period_sub_text").show();	
 			$("#p_period_sub_month").hide();
 			$("#p_period_sub_quarter").show();
+			$("#p_period_sub_quarter").val(quarter);
 		};
 
 		if (status=="yearly") {
+			$("#p_period").val(status);
 			$("#p_period_sub_date_text").hide();
 			$("#p_period_sub_date").hide();
 			$("#p_year_text").show();
 			$("#p_year").show();
+			$("#p_year").val(year);
 			$("#p_period_text").show();
 			$("#p_period_sub_text").hide();	
 			$("#p_period_sub_month").hide();
 			$("#p_period_sub_quarter").hide();
 		};
 
-	});
+    $("#p_period").change(function(){		
+			var status = this.value;
+
+			if (status=="daily") {
+				$("#p_period_sub_date_text").show();
+				$("#p_period_sub_date").show();
+				$("#p_year_text").hide();
+				$("#p_year").hide();
+				$("#p_period_text").show();
+				$("#p_period_sub_text").show();	
+				$("#p_period_sub_month").hide();
+				$("#p_period_sub_quarter").hide();
+			};
+			
+			if (status=="monthly") {
+				$("#p_period_sub_date_text").hide();
+				$("#p_period_sub_date").hide();
+				$("#p_year_text").show();
+				$("#p_year").show();
+				$("#p_period_text").show();
+				$("#p_period_sub_text").show();	
+				$("#p_period_sub_month").show();
+				$("#p_period_sub_quarter").hide();
+			};
+			
+			if (status=="quarterly") {
+				$("#p_period_sub_date_text").hide();
+				$("#p_period_sub_date").hide();
+				$("#p_year_text").show();
+				$("#p_year").show();
+				$("#p_period_text").show();
+				$("#p_period_sub_text").show();	
+				$("#p_period_sub_month").hide();
+				$("#p_period_sub_quarter").show();
+			};
+
+			if (status=="yearly") {
+				$("#p_period_sub_date_text").hide();
+				$("#p_period_sub_date").hide();
+				$("#p_year_text").show();
+				$("#p_year").show();
+				$("#p_period_text").show();
+				$("#p_period_sub_text").hide();	
+				$("#p_period_sub_month").hide();
+				$("#p_period_sub_quarter").hide();
+			};
+
+		});
 });
 </script>
 
@@ -243,54 +391,6 @@ var chart = new Chart(ctx, {
 			display: false,
 			position: 'right' // place legend on the right side of chart
 		},
-		scales: {
-			xAxes: [{
-				stacked: true // this should be set to make the bars stacked
-			}],
-			yAxes: [{
-				stacked: true // this also..
-			}]
-		}
-	}
-});
-</script>
-
-<script>
-var ctx = document.getElementById('myChart2').getContext('2d');
-var chart = new Chart(ctx, {
-    // The type of chart we want to create
-    type: 'horizontalBar',
-    // The data for our dataset
-    data: {
-        labels: ['PAN', 'PTM', 'AKR'],
-        datasets: [{
-            label: 'SMO',
-            backgroundColor: 'orange',
-            borderColor: 'rgb(255, 99, 132)',
-            data: [5000000, 6000000, 7000000]
-        }, {
-            label: 'SUR',
-            backgroundColor: 'green',
-            borderColor: 'rgb(255, 99, 132)',
-            data: [13000000, 11000000, 11000000]
-		}, {
-            label: 'LMO',
-            backgroundColor: 'blue',
-            borderColor: 'rgb(255, 99, 132)',
-            data: [12000000, 11000000, 10000000]
-		}]
-    },
-	
-	options: {
-			title: {
-				display: true,
-				text: 'Fuel Receiving'
-			},
-		responsive: true,
-		// legend: {
-			// display: false,
-			// position: 'right' // place legend on the right side of chart
-		// },
 		scales: {
 			xAxes: [{
 				stacked: true // this should be set to make the bars stacked
