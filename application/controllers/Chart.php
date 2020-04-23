@@ -331,13 +331,15 @@ class Chart extends CI_Controller {
 	
 	public function inventory_performance($storage_id)	{
 		$p_period = $this->input->get('p_period');
-		
+		$label_type = 'month';
 		if ($p_period == 'daily' || empty($p_period)) {
+			$label_type = 'day';
 			$tgl = $this->input->get('p_period_sub_date');
 			$tanggal_dari = (empty($tgl))? date('Y-m-d') : $tgl;
 			$tanggal_sampai = $tanggal_dari;
 		}
 		if ($p_period == 'monthly') {
+			$label_type = 'day';
 			$tahun = $this->input->get('p_year');
 			$bulan = substr(('0' .$this->input->get('p_period_sub_month')),-2);
 			
@@ -347,6 +349,7 @@ class Chart extends CI_Controller {
 		if ($p_period == 'quarterly') {
 			$tahun = $this->input->get('p_year');
 			if ($this->input->get('p_period_sub_quarter')=='q1') {
+				$label_type = 'quarterly';
 				$bulan1 = '01';				
 				$tanggal_dari = ($tahun .'-'. $bulan1 .'-01');
 				
@@ -355,7 +358,8 @@ class Chart extends CI_Controller {
 				$tanggal_sampai = date('Y-m-t', strtotime($tanggal2));
 			}
 			
-			if ($this->input->get('p_period_sub_quarter')=='q2') {
+			if ($this->input->get('p_period_sub_quarter')=='q2') {				
+				$label_type = 'quarterly';
 				$bulan1 = '04';				
 				$tanggal_dari = ($tahun .'-'. $bulan1 .'-01');
 				
@@ -365,6 +369,7 @@ class Chart extends CI_Controller {
 			}
 			
 			if ($this->input->get('p_period_sub_quarter')=='q3') {
+				$label_type = 'quarterly';
 				$bulan1 = '07';				
 				$tanggal_dari = ($tahun .'-'. $bulan1 .'-01');
 				
@@ -374,6 +379,7 @@ class Chart extends CI_Controller {
 			}
 			
 			if ($this->input->get('p_period_sub_quarter')=='q4') {
+				$label_type = 'quarterly';
 				$bulan1 = '10';				
 				$tanggal_dari = ($tahun .'-'. $bulan1 .'-01');
 				
@@ -383,6 +389,7 @@ class Chart extends CI_Controller {
 			}
 		}
 		if ($p_period == 'yearly') {
+				$label_type = 'month';
 			$tahun = $this->input->get('p_year');
 			
 			$tanggal_dari = ($tahun .'-01-01');
@@ -391,15 +398,35 @@ class Chart extends CI_Controller {
 		$start = $tanggal_dari;
 		$end = $tanggal_sampai;
 		
-		$inventory_performance = $this->Model_supply->get_inventory_performance($storage_id,$start, $end);
-		$x = 0;
-		while($x++ < 12) {
-			$MonthNumbers[] = $x;
-		}
+		$inventory_performance = $this->Model_supply->get_inventory_performance($storage_id,$start, $end, $label_type);
+		if($label_type == 'month'){
+			$x = 0;
+			while($x++ < 12) {
+				$MonthNumbers[] = $x;
+			}
 
-		foreach ($MonthNumbers as $MonthNumber) {
-			$mon = $MonthNumber-1;
-			$months[] = date("F", strtotime("+".$mon."month",strtotime('2020-01-01')));
+			foreach ($MonthNumbers as $MonthNumber) {
+				$mon = $MonthNumber-1;
+				$months[] = date("F", strtotime("+".$mon."month",strtotime('2020-01-01')));
+			}
+		}elseif($label_type == 'quarterly'){
+			$start = date("n", strtotime($tanggal_dari));
+			$end = date("n", strtotime($tanggal_sampai));
+			$x = $start-1;
+			while($x++ < $end) {
+				$MonthNumbers[] = $x;
+			}
+			foreach ($MonthNumbers as $MonthNumber) {
+				$mon = $MonthNumber-1;
+				$months[] = date("F", strtotime("+".$mon."month",strtotime('2020-01-01')));
+			}
+		}elseif($label_type == 'day'){
+			$start = $tanggal_dari;
+			$end = $tanggal_sampai;
+			while(strtotime($start) <= strtotime($end)) {
+				$months[] = $start;
+				$start = date ("Y-m-d", strtotime("+1 day", strtotime($start)));
+			}
 		}
 		
 		foreach ($inventory_performance as $inventory) {
