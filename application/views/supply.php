@@ -227,121 +227,121 @@ $(document).ready(function(){
 </script>
 
 <script>
-var ctx = document.getElementById('myChart').getContext('2d');
-var chart = new Chart(ctx, {
-    // The type of chart we want to create
-    type: 'bar',
-    // The data for our dataset
-    data: {
-        labels: ['AKR', 'PTM', 'PAN'],
-        datasets: [{
-            label: '9001 Target Memuaskan',
-            backgroundColor: 'blue',
-            borderColor: 'rgb(255, 99, 132)',
-            data: [32, 32, 12]
-        }, {
-            label: '9002 Memuaskan',
-            backgroundColor: 'orange',
-            borderColor: 'rgb(255, 99, 132)',
-            data: [8, 1, 11]
-		}, {
-            label: '9003 Cukup Memuaskan',
-            backgroundColor: 'grey',
-            borderColor: 'rgb(255, 99, 132)',
-            data: [5, 12, 22]
-		}, {
-            label: '9004 Tidak Memuaskan',
-            backgroundColor: 'yellow',
-            borderColor: 'rgb(255, 99, 132)',
-            data: [5, 12, 22]
-		}, {
-            label: '9005 Sangat Buruk',
-            backgroundColor: 'green',
-            borderColor: 'rgb(255, 99, 132)',
-            data: [5, 12, 22]
-		}]
-    },
+const api_url_vendor_performance = "<?php echo base_url().'chart/vendor_performance?'.$_SERVER['QUERY_STRING']; ?>";
+
+var departments_vendor_performance = [];
+
+async function getData_vendor_performance() {
+	const response = await fetch(api_url_vendor_performance);
+	const data = await response.json();
+	const data_label = data.vendor;
+	for (var department in data.chart) {
+		var departmentObject = prepareDepartmentDetails_vendor_performance(data.chart[department].movement_reason_name, data.chart[department].total, data.chart[department].color);
+		departments_vendor_performance.push(departmentObject);
+	}
+	return {data_label, departments_vendor_performance};	
+}
+
+
+ async function setup() {
+	const ctx = document.getElementById('myChart').getContext('2d');
+	const globalTemps = await getData_vendor_performance();
 	
-	options: {
+	var chartData = {
+			labels: globalTemps.data_label.split('|'),
+			datasets : globalTemps.departments_vendor_performance
+	};
+console.log(chartData);
+	const myChart = new Chart(ctx, {
+		type: 'bar',
+		data: chartData,
+		options: {
 			title: {
 				display: true,
 				text: 'Vendor CSI Performance'
 			},
-		responsive: true,
-		legend: {
-			display: true,
-			position: 'bottom', // place legend on the right side of chart
-			align: 'start',
-		},
-		scales: {
-			xAxes: [{
-				stacked: false // this should be set to make the bars stacked
-			}],
-			yAxes: [{
-				stacked: false // this also..
-			}]
+			responsive: true,
+			legend: {
+				display: true,
+				position: 'bottom', // place legend on the right side of chart
+				align: 'start',
+			},
+			scales: {
+				xAxes: [{
+					stacked: false // this should be set to make the bars stacked
+				}],
+				yAxes: [{
+					stacked: false // this also..
+				}]
+			}
 		}
-	}
-});
+	});
+}
+	
+function prepareDepartmentDetails_vendor_performance(movement_reason_name, total, color){
+    return {
+        label : movement_reason_name,
+        data : total.split(','),
+        backgroundColor: color,
+        borderColor: 'rgb(255, 99, 132)'
+    }
+}
+ setup();
 </script>
 
 <script>
-var ctx = document.getElementById('myChart2').getContext('2d');
-var chart = new Chart(ctx, {
-    // The type of chart we want to create
-    type: 'bar',
-    // The data for our dataset
-    data: {
-        labels: ['TBS', 'BRK', 'AKR', 'WRK'],
-        datasets: [{
-            label: '9001 Target Memuaskan',
-            backgroundColor: 'blue',
-            borderColor: 'rgb(255, 99, 132)',
-            data: [25, 18, 12, 7]
-        }, {
-            label: '9002 Memuaskan',
-            backgroundColor: 'orange',
-            borderColor: 'rgb(255, 99, 132)',
-            data: [8, 1, 11, 2]
-		}, {
-            label: '9003 Cukup Memuaskan',
-            backgroundColor: 'grey',
-            borderColor: 'rgb(255, 99, 132)',
-            data: [5, 12, 15, 8]
-		}, {
-            label: '9004 Tidak Memuaskan',
-            backgroundColor: 'yellow',
-            borderColor: 'rgb(255, 99, 132)',
-            data: [5, 12, 16, 10]
-		}, {
-            label: '9005 Sangat Buruk',
-            backgroundColor: 'green',
-            borderColor: 'rgb(255, 99, 132)',
-            data: [5, 12, 22, 12]
-		}]
-    },
+const api_url_transporter_performance = "<?php echo base_url().'chart/transporter_performance?'.$_SERVER['QUERY_STRING']; ?>";
+
+var departments_transporter_performance = [];
+
+async function getData_transporter_performance() {
+	const response = await fetch(api_url_transporter_performance);
+	const data = await response.json();
+	const data_label = data.transporter;
+	for (var department in data.chart) {
+		var departmentObject = prepareDepartmentDetails_vendor_performance(data.chart[department].movement_reason_name, data.chart[department].total, data.chart[department].color);
+		departments_transporter_performance.push(departmentObject);
+	}
+	return {data_label, departments_transporter_performance};	
+}
+
+
+ async function setup_chart2() {
+	const ctx = document.getElementById('myChart2').getContext('2d');
+	const globalTemps = await getData_transporter_performance();
 	
-	options: {
+	var chartData = {
+			labels: globalTemps.data_label.split('|'),
+			datasets : globalTemps.departments_transporter_performance
+	};
+console.log(chartData);
+	const myChart = new Chart(ctx, {
+		type: 'bar',
+		data: chartData,
+		options: {
 			title: {
 				display: true,
-				text: 'Transporter CSI Performance'
+				text: 'transporter CSI Performance'
 			},
-		responsive: true,
-		legend: {
-			display: true,
-			position: 'bottom', // place legend on the right side of chart
-			align: 'start',
-		},
-		scales: {
-			xAxes: [{
-				stacked: false // this should be set to make the bars stacked
-			}],
-			yAxes: [{
-				stacked: false // this also..
-			}]
+			responsive: true,
+			legend: {
+				display: true,
+				position: 'bottom', // place legend on the right side of chart
+				align: 'start',
+			},
+			scales: {
+				xAxes: [{
+					stacked: false // this should be set to make the bars stacked
+				}],
+				yAxes: [{
+					stacked: false // this also..
+				}]
+			}
 		}
-	}
-});
+	});
+}
+
+setup_chart2();
 </script>
 
 <script>

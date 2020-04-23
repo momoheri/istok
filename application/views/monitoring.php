@@ -166,7 +166,7 @@ async function getData() {
 	const globalTemps = await getData();
 	
 	var chartData = {
-			labels: globalTemps.data_label.split(','),
+			labels: globalTemps.data_label.split('|'),
 			datasets : globalTemps.departments
 	};
 console.log(chartData);

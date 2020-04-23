@@ -2,10 +2,53 @@
 
 class Model_supply extends CI_Model {
 	function __construct()
-    {
-        parent::__construct();
+	{
+		parent::__construct();
 		$this->load->database();
-    }
+	}
+	
+	
+	/*------------------------------------------------------------------------------*/
+	
+	function get_transporter_performance($start, $end) {
+		$SQL = "SELECT mst_movement_reason.movement_reason_id, mst_movement_reason.movement_reason_name, performance.*
+						FROM mst_movement_reason
+						LEFT JOIN (	
+							SELECT mst_transporter.transporter_id, mst_transporter.transporter_name, trans_po.posting_date, count(trans_po.trans_id) as total, trans_po_received.movement_reason
+							FROM `trans_po`
+							INNER JOIN trans_po_received on trans_po.trans_id=trans_po_received.trans_id
+							INNER JOIN mst_transporter on trans_po.transporter_id=mst_transporter.transporter_id
+							WHERE DATE_FORMAT(trans_po.posting_date, '%Y-%m-%d') BETWEEN '$start' AND '$end'
+							GROUP BY transporter_name, movement_reason
+						) AS performance ON mst_movement_reason.movement_reason_id=performance.movement_reason
+
+						ORDER BY mst_movement_reason.movement_reason_id, transporter_id ASC";
+		$query = $this->db->query($SQL);
+
+		return $query->result_array();
+	}
+	/*------------------------------------------------------------------------------*/
+	
+	function get_vendor_performance($start, $end) {
+		$SQL = "SELECT mst_movement_reason.movement_reason_id, mst_movement_reason.movement_reason_name, performance.*
+						FROM mst_movement_reason
+						LEFT JOIN (	
+							SELECT mst_vendor.vendor_id, mst_vendor.vendor_name, trans_po.posting_date, count(trans_po.trans_id) as total, trans_po_received.movement_reason
+							FROM `trans_po`
+							INNER JOIN trans_po_received on trans_po.trans_id=trans_po_received.trans_id
+							INNER JOIN mst_vendor on trans_po.vendor_id=mst_vendor.vendor_id
+							WHERE DATE_FORMAT(trans_po.posting_date, '%Y-%m-%d') BETWEEN '$start' AND '$end'
+							GROUP BY vendor_name, movement_reason
+						) AS performance ON mst_movement_reason.movement_reason_id=performance.movement_reason
+
+						ORDER BY mst_movement_reason.movement_reason_id, vendor_id ASC";
+		$query = $this->db->query($SQL);
+
+		return $query->result_array();
+	}
+	
+	/*------------------------------------------------------------------------------*/
+	
 	
 	function get_trans_atg_($id) {
 		$this->db->select('trans_atg.*, mst_storage.*');

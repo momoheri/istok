@@ -7,6 +7,7 @@ class Model_monitoring extends CI_Model {
 		$this->load->database();
     }
 	
+	/*------------------------------------------------------------------------------*/
 	function fuel_receiving_with_transporter($start, $end) {
 		$SQL = "SELECT mst_transporter.transporter_id as id_transporter, mst_transporter.transporter_name, qw.*
 						FROM mst_transporter
@@ -24,7 +25,7 @@ class Model_monitoring extends CI_Model {
 		return $query->result_array();
 	}
 	
-	
+	/*------------------------------------------------------------------------------*/
 	function get_trans_atg_($id) {
 		$this->db->select('trans_atg.*, mst_storage.*');
 		$this->db->from('trans_atg');
@@ -82,6 +83,8 @@ class Model_monitoring extends CI_Model {
 		return $query->row()->max_id;
 	}
 	
+	/*------------------------------------------------------------------------------*/
+	
 	function get_vendor(){
 		$this->db->select('vendor_id, vendor_name');
 		$this->db->from('mst_vendor');
@@ -89,6 +92,24 @@ class Model_monitoring extends CI_Model {
 		$query = $this->db->get();
 		return $query->result_array();
 	}
+	
+	function get_transporter(){
+		$this->db->select('mst_transporter.transporter_id, mst_transporter.transporter_name');
+		$this->db->from('mst_transporter');
+		$this->db->order_by('transporter_id', 'ASC');
+		$query = $this->db->get();
+		return $query->result_array();
+	}
+	
+	function get_performance(){
+		$this->db->select('movement_reason_id, movement_reason_name');
+		$this->db->from('mst_movement_reason');
+		$this->db->order_by('movement_reason_id', 'ASC');
+		$query = $this->db->get();
+		return $query->result_array();
+	}
+	
+	/*------------------------------------------------------------------------------*/
 	
 	function insert_atg($data){
 		return $this->db->insert('trans_atg', $data);
