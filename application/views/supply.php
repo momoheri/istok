@@ -345,144 +345,165 @@ setup_chart2();
 </script>
 
 <script>
-var ctx = document.getElementById('myChart3').getContext('2d');
-var chart = new Chart(ctx, {
-    // The type of chart we want to create
-    type: 'line',
-    // The data for our dataset
-    data: {
-        labels: ['jan', 'feb', 'mar', 'apr', 'mei', 'jun', 'jul', 'agt', 'sep', 'oct', 'nov', 'dec'],
-        datasets: [{
-            label: 'SUM of Average Inventory',
-            backgroundColor: 'green',
-            borderColor: 'green',
-            data: [5000000, 5200000, 5300000, 5100000, 4800000, 5000000, 5000000, 4500000, 5000000, 5200000, 5000000, 5100000],
-			fill: false,
-		}, {
-            label: 'SUM of Max Baseline',
-            backgroundColor: 'blue',
-            borderColor: 'blue',
-            data: [4000000, 4500000, 3300000, 3100000, 2800000, 5000000, 3000000, 4500000, 3000000, 3800000, 3000000, 4100000],
-			fill: false,
-		}, {
-            label: 'SUM of Min Baseline',
-            backgroundColor: 'red',
-            borderColor: 'red',
-            data: [3000000, 3200000, 3300000, 3100000, 2800000, 3000000, 3000000, 2500000, 3000000, 3200000, 3000000, 3100000],
-			fill: false,
-		}]
-    },
+const api_url_invenory_1 = "<?php echo base_url().'chart/inventory_performance/1?'.$_SERVER['QUERY_STRING']; ?>";
+
+var departments_inventory_1 = [];
+
+async function getData_inventory_1() {
+	const response = await fetch(api_url_invenory_1);
+	const data = await response.json();
+	const data_label = data.labels;
 	
-	options: {
-			title: {
-				display: true,
-				text: 'Inventory Performance Lati Storage'
-			},
-		responsive: true,
-		scales: {
-			xAxes: [{
-				stacked: false // this should be set to make the bars stacked
-			}],
-			yAxes: [{
-				stacked: false // this also..
-			}]
-		}
+	for (var department in data.chart) {
+		var departmentObject = prepare_inventory_data(data.chart[department].label, data.chart[department].datas, data.chart[department].color);
+		departments_inventory_1.push(departmentObject);
 	}
-});
+	return {data_label, departments_inventory_1};	
+}
+
+
+ async function setup_lati() {
+	const ctx = document.getElementById('myChart3').getContext('2d');
+	const globalTemps = await getData_inventory_1();
+	
+	var chartData = {
+			labels: globalTemps.data_label.split(','),
+			datasets : globalTemps.departments_inventory_1
+	};
+	const myChart = new Chart(ctx, {
+		type: 'line',
+		data: chartData,
+		options: {
+				title: {
+					display: true,
+					text: 'Inventory Performance Lati Storage'
+				},
+			responsive: true,
+			scales: {
+				xAxes: [{
+					stacked: false // this should be set to make the bars stacked
+				}],
+				yAxes: [{
+					stacked: false // this also..
+				}]
+			}
+		}
+	});
+}
+
+function prepare_inventory_data(label, datas, color){
+	return {
+			label : label,
+			data : datas.split(','),
+			backgroundColor: color,
+			fill: false,
+			borderColor: color
+	}
+}
+setup_lati();
 </script>
 
 <script>
-var ctx = document.getElementById('myChart4').getContext('2d');
-var chart = new Chart(ctx, {
-    // The type of chart we want to create
-    type: 'line',
-    // The data for our dataset
-    data: {
-        labels: ['jan', 'feb', 'mar', 'apr', 'mei', 'jun', 'jul', 'agt', 'sep', 'oct', 'nov', 'dec'],
-        datasets: [{
-            label: 'SUM of Average Inventory',
-            backgroundColor: 'green',
-            borderColor: 'green',
-            data: [5000000, 5200000, 5300000, 5100000, 4800000, 5000000, 5000000, 4500000, 5000000, 5200000, 5000000, 5100000],
-			fill: false,
-		}, {
-            label: 'SUM of Max Baseline',
-            backgroundColor: 'blue',
-            borderColor: 'blue',
-            data: [4000000, 4500000, 3300000, 3100000, 2800000, 5000000, 3000000, 4500000, 3000000, 3800000, 3000000, 4100000],
-			fill: false,
-		}, {
-            label: 'SUM of Min Baseline',
-            backgroundColor: 'red',
-            borderColor: 'red',
-            data: [3000000, 3200000, 3300000, 3100000, 2800000, 3000000, 3000000, 2500000, 3000000, 3200000, 3000000, 3100000],
-			fill: false,
-		}]
-    },
+const api_url_invenory_2 = "<?php echo base_url().'chart/inventory_performance/2?'.$_SERVER['QUERY_STRING']; ?>";
+
+var departments_inventory_2 = [];
+
+async function getData_inventory_2() {
+	const response = await fetch(api_url_invenory_2);
+	const data = await response.json();
+	const data_label = data.labels;
 	
-	options: {
-			title: {
-				display: true,
-				text: 'Inventory Performance Suaran Storage'
-			},
-		responsive: true,
-		scales: {
-			xAxes: [{
-				stacked: false // this should be set to make the bars stacked
-			}],
-			yAxes: [{
-				stacked: false // this also..
-			}]
-		}
+	for (var department in data.chart) {
+		var departmentObject = prepare_inventory_data(data.chart[department].label, data.chart[department].datas, data.chart[department].color);
+		departments_inventory_2.push(departmentObject);
 	}
-});
+	return {data_label, departments_inventory_2};	
+}
+
+
+ async function setup_suaran() {
+	const ctx = document.getElementById('myChart4').getContext('2d');
+	const globalTemps = await getData_inventory_2();
+	
+	var chartData = {
+			labels: globalTemps.data_label.split(','),
+			datasets : globalTemps.departments_inventory_2
+	};
+console.log(globalTemps);
+	const myChart = new Chart(ctx, {
+		type: 'line',
+		data: chartData,
+		options: {
+				title: {
+					display: true,
+					text: 'Inventory Performance Suaran Storage'
+				},
+			responsive: true,
+			scales: {
+				xAxes: [{
+					stacked: false // this should be set to make the bars stacked
+				}],
+				yAxes: [{
+					stacked: false // this also..
+				}]
+			}
+		}
+	});
+}
+
+setup_suaran();
 </script>
 
 <script>
-var ctx = document.getElementById('myChart5').getContext('2d');
-var chart = new Chart(ctx, {
-    // The type of chart we want to create
-    type: 'line',
-    // The data for our dataset
-    data: {
-        labels: ['jan', 'feb', 'mar', 'apr', 'mei', 'jun', 'jul', 'agt', 'sep', 'oct', 'nov', 'dec'],
-        datasets: [{
-            label: 'SUM of Average Inventory',
-            backgroundColor: 'green',
-            borderColor: 'green',
-            data: [5000000, 5200000, 5300000, 5100000, 4800000, 5000000, 5000000, 4500000, 5000000, 5200000, 5000000, 5100000],
-			fill: false,
-		}, {
-            label: 'SUM of Max Baseline',
-            backgroundColor: 'blue',
-            borderColor: 'blue',
-            data: [4000000, 4500000, 3300000, 3100000, 2800000, 5000000, 3000000, 4500000, 3000000, 3800000, 3000000, 4100000],
-			fill: false,
-		}, {
-            label: 'SUM of Min Baseline',
-            backgroundColor: 'red',
-            borderColor: 'red',
-            data: [3000000, 3200000, 3300000, 3100000, 2800000, 3000000, 3000000, 2500000, 3000000, 3200000, 3000000, 3100000],
-			fill: false,
-		}]
-    },
+
+const api_url_invenory_3 = "<?php echo base_url().'chart/inventory_performance/3?'.$_SERVER['QUERY_STRING']; ?>";
+
+var departments_inventory_3 = [];
+
+async function getData_inventory_3() {
+	const response = await fetch(api_url_invenory_3);
+	const data = await response.json();
+	const data_label = data.labels;
 	
-	options: {
-			title: {
-				display: true,
-				text: 'Inventory Performance Sambarata Storage'
-			},
-		responsive: true,
-		scales: {
-			xAxes: [{
-				stacked: false // this should be set to make the bars stacked
-			}],
-			yAxes: [{
-				stacked: false // this also..
-			}]
-		}
+	for (var department in data.chart) {
+		var departmentObject = prepare_inventory_data(data.chart[department].label, data.chart[department].datas, data.chart[department].color);
+		departments_inventory_3.push(departmentObject);
 	}
-});
+	return {data_label, departments_inventory_3};	
+}
+
+
+ async function setup_sambarata() {
+	const ctx = document.getElementById('myChart5').getContext('2d');
+	const globalTemps = await getData_inventory_3();
+	
+	var chartData = {
+			labels: globalTemps.data_label.split(','),
+			datasets : globalTemps.departments_inventory_3
+	};
+console.log(globalTemps);
+	const myChart = new Chart(ctx, {
+		type: 'line',
+		data: chartData,
+		options: {
+				title: {
+					display: true,
+					text: 'Inventory Performance Sambarata Storage'
+				},
+			responsive: true,
+			scales: {
+				xAxes: [{
+					stacked: false // this should be set to make the bars stacked
+				}],
+				yAxes: [{
+					stacked: false // this also..
+				}]
+			}
+		}
+	});
+}
+
+setup_sambarata();
 </script>
 
 <script>

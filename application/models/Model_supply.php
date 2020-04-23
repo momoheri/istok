@@ -49,6 +49,19 @@ class Model_supply extends CI_Model {
 	
 	/*------------------------------------------------------------------------------*/
 	
+	function get_inventory_performance($storage_id, $start, $end) {
+		$SQL = "SELECT ROUND(AVG(volume)) as average, MAX(volume) as maximal, MIN(volume) as minimum, DATE_FORMAT(trans_date, '%M') as month_date
+						FROM `trans_atg`
+						WHERE DATE_FORMAT(trans_date, '%Y-%m-%d') BETWEEN '$start' AND '$end'
+						AND storage_id = '$storage_id'
+						GROUP BY DATE_FORMAT(trans_date, '%M')";
+		$query = $this->db->query($SQL);
+
+		return $query->result_array();
+	}
+	
+	/*------------------------------------------------------------------------------*/
+	
 	
 	function get_trans_atg_($id) {
 		$this->db->select('trans_atg.*, mst_storage.*');

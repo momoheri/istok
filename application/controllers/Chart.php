@@ -329,6 +329,118 @@ class Chart extends CI_Controller {
 	
 	/*------------------------------------------------------------------------------*/
 	
+	public function inventory_performance($storage_id)	{
+		$p_period = $this->input->get('p_period');
+		
+		if ($p_period == 'daily' || empty($p_period)) {
+			$tgl = $this->input->get('p_period_sub_date');
+			$tanggal_dari = (empty($tgl))? date('Y-m-d') : $tgl;
+			$tanggal_sampai = $tanggal_dari;
+		}
+		if ($p_period == 'monthly') {
+			$tahun = $this->input->get('p_year');
+			$bulan = substr(('0' .$this->input->get('p_period_sub_month')),-2);
+			
+			$tanggal_dari = ($tahun .'-'. $bulan .'-01');
+			$tanggal_sampai = date('Y-m-t', strtotime($tanggal_dari));
+		}
+		if ($p_period == 'quarterly') {
+			$tahun = $this->input->get('p_year');
+			if ($this->input->get('p_period_sub_quarter')=='q1') {
+				$bulan1 = '01';				
+				$tanggal_dari = ($tahun .'-'. $bulan1 .'-01');
+				
+				$bulan2 = '03';				
+				$tanggal2 = ($tahun .'-'. $bulan2 .'-01');
+				$tanggal_sampai = date('Y-m-t', strtotime($tanggal2));
+			}
+			
+			if ($this->input->get('p_period_sub_quarter')=='q2') {
+				$bulan1 = '04';				
+				$tanggal_dari = ($tahun .'-'. $bulan1 .'-01');
+				
+				$bulan2 = '06';				
+				$tanggal2 = ($tahun .'-'. $bulan2 .'-01');
+				$tanggal_sampai = date('Y-m-t', strtotime($tanggal2));
+			}
+			
+			if ($this->input->get('p_period_sub_quarter')=='q3') {
+				$bulan1 = '07';				
+				$tanggal_dari = ($tahun .'-'. $bulan1 .'-01');
+				
+				$bulan2 = '09';				
+				$tanggal2 = ($tahun .'-'. $bulan2 .'-01');
+				$tanggal_sampai = date('Y-m-t', strtotime($tanggal2));
+			}
+			
+			if ($this->input->get('p_period_sub_quarter')=='q4') {
+				$bulan1 = '10';				
+				$tanggal_dari = ($tahun .'-'. $bulan1 .'-01');
+				
+				$bulan2 = '12';				
+				$tanggal2 = ($tahun .'-'. $bulan2 .'-01');
+				$tanggal_sampai = date('Y-m-t', strtotime($tanggal2));
+			}
+		}
+		if ($p_period == 'yearly') {
+			$tahun = $this->input->get('p_year');
+			
+			$tanggal_dari = ($tahun .'-01-01');
+			$tanggal_sampai = ($tahun .'-12-31');
+		}
+		$start = $tanggal_dari;
+		$end = $tanggal_sampai;
+		
+		$inventory_performance = $this->Model_supply->get_inventory_performance($storage_id,$start, $end);
+		$x = 0;
+		while($x++ < 12) {
+			$MonthNumbers[] = $x;
+		}
+
+		foreach ($MonthNumbers as $MonthNumber) {
+			$mon = $MonthNumber-1;
+			$months[] = date("F", strtotime("+".$mon."month",strtotime('2020-01-01')));
+		}
+		
+		foreach ($inventory_performance as $inventory) {
+			$data[$inventory['month_date']]['average'] = $inventory['average']; 
+			$data[$inventory['month_date']]['maximal'] = $inventory['maximal']; 
+			$data[$inventory['month_date']]['minimum'] = $inventory['minimum']; 
+		}
+		
+		$label = array();
+		$average = array();
+		$maximal = array();
+		$minimum = array();
+		foreach($months as $item){
+			if(isset($data[$item])){
+				$label[] = $item;
+				$average[] = $data[$item]['average'];
+				$maximal[] = $data[$item]['maximal'];
+				$minimum[] = $data[$item]['minimum'];
+			}else{
+				$label[] = $item;
+				$average[] = 0;
+				$maximal[] = 0;
+				$minimum[] = 0;
+			}			
+		}
+		$res['chart'] = array();
+		$res['labels'] = implode(',', $label);
+		$res['chart'][0]['label'] = 'SUM of Average Inventory';
+		$res['chart'][0]['datas'] = implode(',', $average);
+		$res['chart'][0]['color'] = 'green';
+		$res['chart'][1]['label'] = 'SUM of Max Baseline';
+		$res['chart'][1]['datas'] = implode(',', $maximal);
+		$res['chart'][1]['color'] = 'blue';
+		$res['chart'][2]['label'] = 'SUM of Min Baseline';
+		$res['chart'][2]['datas'] = implode(',', $minimum);
+		$res['chart'][2]['color'] = 'red';
+		echo json_encode($res);
+	}
+	
+	/*------------------------------------------------------------------------------*/
+	
 	public function getColor($num) {
 		$hash = md5('color' . $num); // modify 'color' to get a different palette
 		return array(
