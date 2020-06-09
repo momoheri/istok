@@ -114,15 +114,9 @@
 		</table>
 	</div>
 	<div class="leftmenufilter card shadow" style="font-size: small;">
-		<div>Resume</div>
-		<div>Yearly - 2019</div>
-		<div>- The biggest purchase from : PT PAN</div>
-		<div>- The most frequent fuel transporter : PT WRA</div>
-		<div>- The cheapest av. fuel price : PT. PTM</div>
-		<div>- The biggest supply to : PT BUMA</div>
-		<div>- The most usage activity : Overburden</div>
-		<div>- The most Positive Difference : LMO</div>
-		<div>- The most Negative Difference : SUR</div>
+	</br>
+	</br>
+	</br>
  	</div>
 </div>
  </div>
@@ -154,7 +148,7 @@ async function getData() {
 	const data = await response.json();
 	const data_label = data.vendor;
 	for (var department in data.chart) {
-		var departmentObject = prepareDepartmentDetails(data.chart[department].transporter_name, data.chart[department].quantity);
+		var departmentObject = prepareDepartmentDetails(data.chart[department].transporter_name, data.chart[department].quantity, data.chart[department].color);
 		departments.push(departmentObject);
 	}
 	return {data_label, departments};	
@@ -206,14 +200,13 @@ console.log(chartData);
 	});
 }
 	
-function prepareDepartmentDetails(transporter_name, quantity){
-    var dataColor = getRandomColor();
+function prepareDepartmentDetails(transporter_name, quantity, color){
     return {
         label : transporter_name,
         data : quantity.split(','),
-        backgroundColor: dataColor,
-        borderColor: dataColor,
-        pointBackgroundColor : dataColor,
+        backgroundColor: color,
+        borderColor: color,
+        pointBackgroundColor : color,
         fill: false,
         lineTension: 0,
         pointRadius: 5

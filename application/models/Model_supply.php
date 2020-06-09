@@ -51,19 +51,31 @@ class Model_supply extends CI_Model {
 	
 	function get_inventory_performance($storage_id, $start, $end, $label_type) {
 		if($label_type == 'day'){
-			$SQL = "SELECT ROUND(AVG(volume)) as average, MAX(volume) as maximal, MIN(volume) as minimum, DATE_FORMAT(trans_date, '%Y-%m-%d') as month_date
+			$SQL = "SELECT ROUND(AVG(volume)) as average, stock_max as maximal, stock_min as minimum, safety_stock as safety, DATE_FORMAT(trans_date, '%Y-%m-%d') as month_date
 							FROM `trans_atg`
+							INNER JOIN mst_parameter ON mst_parameter.storage_id=trans_atg.storage_id
 							WHERE DATE_FORMAT(trans_date, '%Y-%m-%d') BETWEEN '$start' AND '$end'
-							AND storage_id = '$storage_id'
+							AND trans_atg.storage_id = '$storage_id'
 							GROUP BY DATE_FORMAT(trans_date, '%Y-%m-%d')";
 	
 		}else{
-			$SQL = "SELECT ROUND(AVG(volume)) as average, MAX(volume) as maximal, MIN(volume) as minimum, DATE_FORMAT(trans_date, '%M') as month_date
+			$SQL = "SELECT ROUND(AVG(volume)) as average, stock_max as maximal, stock_min as minimum, safety_stock as safety, DATE_FORMAT(trans_date, '%M') as month_date
 							FROM `trans_atg`
+							INNER JOIN mst_parameter ON mst_parameter.storage_id=trans_atg.storage_id
 							WHERE DATE_FORMAT(trans_date, '%Y-%m-%d') BETWEEN '$start' AND '$end'
-							AND storage_id = '$storage_id'
+							AND trans_atg.storage_id = '$storage_id'
 							GROUP BY DATE_FORMAT(trans_date, '%M')";
 		}
+		$query = $this->db->query($SQL);
+
+		return $query->result_array();
+	}
+	
+	/*------------------------------------------------------------------------------*/
+	
+	function get_parameters() {
+		$SQL = "SELECT stock_max as maximal, stock_min as minimum, safety_stock as safety
+							FROM mst_parameter";
 		$query = $this->db->query($SQL);
 
 		return $query->result_array();

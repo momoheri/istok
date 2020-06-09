@@ -86,7 +86,7 @@ class Model_monitoring extends CI_Model {
 	/*------------------------------------------------------------------------------*/
 	
 	function get_vendor(){
-		$this->db->select('vendor_id, vendor_name');
+		$this->db->select('vendor_id, alias AS vendor_name');
 		$this->db->from('mst_vendor');
 		$this->db->order_by('vendor_id', 'ASC');
 		$query = $this->db->get();
@@ -94,7 +94,7 @@ class Model_monitoring extends CI_Model {
 	}
 	
 	function get_transporter(){
-		$this->db->select('mst_transporter.transporter_id, mst_transporter.transporter_name');
+		$this->db->select('mst_transporter.transporter_id, mst_transporter.alias AS transporter_name');
 		$this->db->from('mst_transporter');
 		$this->db->order_by('transporter_id', 'ASC');
 		$query = $this->db->get();

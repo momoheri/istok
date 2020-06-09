@@ -92,6 +92,7 @@ class Chart extends CI_Controller {
 		
 		$vendor = $this->Model_monitoring->get_vendor();
 		$fuel = $this->Model_monitoring->fuel_receiving_with_transporter($start, $end);
+		$array_color = array('blue', 'orange', 'grey', 'yellow', 'green', 'red',"Cyan","DarkBlue","DarkCyan","DarkGoldenRod","DarkGray","DarkGrey","DarkGreen","DarkKhaki","DarkMagenta","DarkOliveGreen","DarkOrange","DarkOrchid","DarkRed","DarkSalmon","DarkSeaGreen","DarkSlateBlue","DarkSlateGray","DarkSlateGrey","DarkTurquoise","DarkViolet","DeepPink","DeepSkyBlue","DimGray","DimGrey","DodgerBlue","FireBrick","FloralWhite","ForestGreen");
 		
 		$temp_item = $this->_group_by($fuel, 'id_transporter');
 		$feul_item = array();
@@ -126,6 +127,7 @@ class Chart extends CI_Controller {
 				}
 			}
 			$res['chart'][$i] = $items[0];
+			$res['chart'][$i]['color'] = $array_color[$i];
 			$res['chart'][$i]['quantity'] = implode(',', $quantity);
 			$i++;
 		}
@@ -203,7 +205,7 @@ class Chart extends CI_Controller {
 		$temp_item = $this->_group_by($vendor_performance, 'movement_reason_id');
 		
 		$data_vendor = array();
-		$array_color = array('blue', 'orage', 'grey', 'yellow', 'green', 'red',"Cyan","DarkBlue","DarkCyan","DarkGoldenRod","DarkGray","DarkGrey","DarkGreen","DarkKhaki","DarkMagenta","DarkOliveGreen","DarkOrange","DarkOrchid","DarkRed","DarkSalmon","DarkSeaGreen","DarkSlateBlue","DarkSlateGray","DarkSlateGrey","DarkTurquoise","DarkViolet","DeepPink","DeepSkyBlue","DimGray","DimGrey","DodgerBlue","FireBrick","FloralWhite","ForestGreen");
+		$array_color = array('blue', 'orange', 'grey', 'yellow', 'green', 'red',"Cyan","DarkBlue","DarkCyan","DarkGoldenRod","DarkGray","DarkGrey","DarkGreen","DarkKhaki","DarkMagenta","DarkOliveGreen","DarkOrange","DarkOrchid","DarkRed","DarkSalmon","DarkSeaGreen","DarkSlateBlue","DarkSlateGray","DarkSlateGrey","DarkTurquoise","DarkViolet","DeepPink","DeepSkyBlue","DimGray","DimGrey","DodgerBlue","FireBrick","FloralWhite","ForestGreen");
 		foreach($vendor as $data){
 			$vendor_id[$data['vendor_id']] = 0;
 			$data_vendor[] = "'".$data['vendor_name']."'";
@@ -300,7 +302,7 @@ class Chart extends CI_Controller {
 		$temp_item = $this->_group_by($vendor_performance, 'movement_reason_id');
 		
 		$data_vendor = array();
-		$array_color = array('blue', 'orage', 'grey', 'yellow', 'green', 'red',"Cyan","DarkBlue","DarkCyan","DarkGoldenRod","DarkGray","DarkGrey","DarkGreen","DarkKhaki","DarkMagenta","DarkOliveGreen","DarkOrange","DarkOrchid","DarkRed","DarkSalmon","DarkSeaGreen","DarkSlateBlue","DarkSlateGray","DarkSlateGrey","DarkTurquoise","DarkViolet","DeepPink","DeepSkyBlue","DimGray","DimGrey","DodgerBlue","FireBrick","FloralWhite","ForestGreen");
+		$array_color = array('blue', 'orange', 'grey', 'yellow', 'green', 'red',"Cyan","DarkBlue","DarkCyan","DarkGoldenRod","DarkGray","DarkGrey","DarkGreen","DarkKhaki","DarkMagenta","DarkOliveGreen","DarkOrange","DarkOrchid","DarkRed","DarkSalmon","DarkSeaGreen","DarkSlateBlue","DarkSlateGray","DarkSlateGrey","DarkTurquoise","DarkViolet","DeepPink","DeepSkyBlue","DimGray","DimGrey","DodgerBlue","FireBrick","FloralWhite","ForestGreen");
 		foreach($transporter as $data){
 			$transporter_id[$data['transporter_id']] = 0;
 			$data_transporter[] = "'".$data['transporter_name']."'";
@@ -399,6 +401,7 @@ class Chart extends CI_Controller {
 		$end = $tanggal_sampai;
 		
 		$inventory_performance = $this->Model_supply->get_inventory_performance($storage_id,$start, $end, $label_type);
+		
 		if($label_type == 'month'){
 			$x = 0;
 			while($x++ < 12) {
@@ -430,39 +433,55 @@ class Chart extends CI_Controller {
 		}
 		
 		foreach ($inventory_performance as $inventory) {
-			$data[$inventory['month_date']]['average'] = $inventory['average']; 
-			$data[$inventory['month_date']]['maximal'] = $inventory['maximal']; 
-			$data[$inventory['month_date']]['minimum'] = $inventory['minimum']; 
+			$data[$inventory['month_date']]['average'] = $inventory['average'];  
+			$data[1]['maximal'] = $inventory['maximal']; 
+			$data[1]['minimum'] = $inventory['minimum']; 
+			$data[1]['safety'] = $inventory['safety']; 
 		}
 		
+		if(empty($inventory_performance)){
+			$parameters = $this->Model_supply->get_parameters();
+			foreach ($parameters as $inventory) {  
+				$data[1]['maximal'] = $inventory['maximal']; 
+				$data[1]['minimum'] = $inventory['minimum']; 
+				$data[1]['safety'] = $inventory['safety']; 
+			}
+		}
 		$label = array();
 		$average = array();
 		$maximal = array();
 		$minimum = array();
+		$safety = array();
 		foreach($months as $item){
 			if(isset($data[$item])){
 				$label[] = $item;
 				$average[] = $data[$item]['average'];
-				$maximal[] = $data[$item]['maximal'];
-				$minimum[] = $data[$item]['minimum'];
 			}else{
 				$label[] = $item;
 				$average[] = 0;
-				$maximal[] = 0;
-				$minimum[] = 0;
-			}			
+			}	
+			$maximal[] = $data[1]['maximal'];
+			$minimum[] = $data[1]['minimum'];
+			$safety[] = $data[1]['safety'];
 		}
 		$res['chart'] = array();
+		$res['chart_fill'] = array();
 		$res['labels'] = implode(',', $label);
 		$res['chart'][0]['label'] = 'SUM of Average Inventory';
 		$res['chart'][0]['datas'] = implode(',', $average);
-		$res['chart'][0]['color'] = 'green';
-		$res['chart'][1]['label'] = 'SUM of Max Baseline';
-		$res['chart'][1]['datas'] = implode(',', $maximal);
-		$res['chart'][1]['color'] = 'blue';
-		$res['chart'][2]['label'] = 'SUM of Min Baseline';
-		$res['chart'][2]['datas'] = implode(',', $minimum);
-		$res['chart'][2]['color'] = 'red';
+		$res['chart'][0]['color'] = 'orange';
+		$res['chart_fill'][1]['label'] = 'Stock Max';
+		$res['chart_fill'][1]['datas'] = implode(',', $maximal);
+		$res['chart_fill'][1]['color'] = '#90EE90';
+		$res['chart_fill'][1]['fill'] = '2';
+		$res['chart_fill'][2]['label'] = 'Stock Min';
+		$res['chart_fill'][2]['datas'] = implode(',', $minimum);
+		$res['chart_fill'][2]['color'] = '#FFFACD';
+		$res['chart_fill'][2]['fill'] = '3';
+		$res['chart_fill'][3]['label'] = 'Safety Stock';
+		$res['chart_fill'][3]['datas'] = implode(',', $safety);
+		$res['chart_fill'][3]['color'] = '#FFC0CB';
+		$res['chart_fill'][3]['fill'] = 'start';
 		echo json_encode($res);
 	}
 	
