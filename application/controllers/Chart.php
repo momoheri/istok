@@ -140,14 +140,17 @@ class Chart extends CI_Controller {
 	public function vendor_performance()	{
 		$p_period = $this->input->get('p_period');
 		
-		if ($p_period == 'daily' || empty($p_period)) {
+		if ($p_period == 'daily') {
 			$tgl = $this->input->get('p_period_sub_date');
 			$tanggal_dari = (empty($tgl))? date('Y-m-d') : $tgl;
 			$tanggal_sampai = $tanggal_dari;
 		}
-		if ($p_period == 'monthly') {
+		if ($p_period == 'monthly'|| empty($p_period)) {
 			$tahun = $this->input->get('p_year');
-			$bulan = substr(('0' .$this->input->get('p_period_sub_month')),-2);
+			$tahun = (empty($tahun))? date('Y') : $tahun;
+			$bulan = $this->input->get('p_period_sub_month');
+			$bulan = (empty($bulan))? 1 : $bulan;
+			$bulan = substr(('0' .$bulan),-2);
 			
 			$tanggal_dari = ($tahun .'-'. $bulan .'-01');
 			$tanggal_sampai = date('Y-m-t', strtotime($tanggal_dari));
@@ -237,14 +240,17 @@ class Chart extends CI_Controller {
 	public function transporter_performance()	{
 		$p_period = $this->input->get('p_period');
 		
-		if ($p_period == 'daily' || empty($p_period)) {
+		if ($p_period == 'daily') {
 			$tgl = $this->input->get('p_period_sub_date');
 			$tanggal_dari = (empty($tgl))? date('Y-m-d') : $tgl;
 			$tanggal_sampai = $tanggal_dari;
 		}
-		if ($p_period == 'monthly') {
+		if ($p_period == 'monthly' || empty($p_period)) {
 			$tahun = $this->input->get('p_year');
-			$bulan = substr(('0' .$this->input->get('p_period_sub_month')),-2);
+			$tahun = (empty($tahun))? date('Y') : $tahun;
+			$bulan = $this->input->get('p_period_sub_month');
+			$bulan = (empty($bulan))? 1 : $bulan;
+			$bulan = substr(('0' .$bulan),-2);
 			
 			$tanggal_dari = ($tahun .'-'. $bulan .'-01');
 			$tanggal_sampai = date('Y-m-t', strtotime($tanggal_dari));
@@ -340,10 +346,13 @@ class Chart extends CI_Controller {
 			$tanggal_dari = (empty($tgl))? date('Y-m-d') : $tgl;
 			$tanggal_sampai = $tanggal_dari;
 		}
-		if ($p_period == 'monthly') {
+		if ($p_period == 'monthly' || empty($p_period)) {
 			$label_type = 'day';
 			$tahun = $this->input->get('p_year');
-			$bulan = substr(('0' .$this->input->get('p_period_sub_month')),-2);
+			$tahun = (empty($tahun))? date('Y') : $tahun;
+			$bulan = $this->input->get('p_period_sub_month');
+			$bulan = (empty($bulan))? 1 : $bulan;
+			$bulan = substr(('0' .$bulan),-2);
 			
 			$tanggal_dari = ($tahun .'-'. $bulan .'-01');
 			$tanggal_sampai = date('Y-m-t', strtotime($tanggal_dari));
@@ -400,7 +409,7 @@ class Chart extends CI_Controller {
 		$start = $tanggal_dari;
 		$end = $tanggal_sampai;
 		
-		$inventory_performance = $this->Model_supply->get_inventory_performance($storage_id,$start, $end, $label_type);
+		$inventory_performance = $this->Model_supply->get_inventory_performance_new($storage_id,$start, $end, $label_type);
 		
 		if($label_type == 'month'){
 			$x = 0;
@@ -433,19 +442,14 @@ class Chart extends CI_Controller {
 		}
 		
 		foreach ($inventory_performance as $inventory) {
-			$data[$inventory['month_date']]['average'] = $inventory['average'];  
+			$data[$inventory['month_date']]['average'] = $inventory['vol'] + $inventory['qty_observe']; 
+		}
+		
+		$parameters = $this->Model_supply->get_parameters();
+		foreach ($parameters as $inventory) {  
 			$data[1]['maximal'] = $inventory['maximal']; 
 			$data[1]['minimum'] = $inventory['minimum']; 
 			$data[1]['safety'] = $inventory['safety']; 
-		}
-		
-		if(empty($inventory_performance)){
-			$parameters = $this->Model_supply->get_parameters();
-			foreach ($parameters as $inventory) {  
-				$data[1]['maximal'] = $inventory['maximal']; 
-				$data[1]['minimum'] = $inventory['minimum']; 
-				$data[1]['safety'] = $inventory['safety']; 
-			}
 		}
 		$label = array();
 		$average = array();

@@ -25,7 +25,6 @@
 			<td id="p_period_text">Period</td>
 			<td>
 				<select name="p_period" id="p_period" class="form-control">
-				  <option value="daily">Daily</option>
 				  <option value="monthly">Monthly</option>
 				  <option value="quarterly">Quarterly</option>
 				  <option value="yearly">Yearly</option>
@@ -105,13 +104,13 @@
 
 <script>
 $(document).ready(function(){
-	$("#p_period_sub_date_text").show();
-	$("#p_period_sub_date").show();
-	$("#p_year_text").hide();
-	$("#p_year").hide();
+	$("#p_period_sub_date_text").hide();
+	$("#p_period_sub_date").hide();
+	$("#p_year_text").show();
+	$("#p_year").show();
 	$("#p_period_text").show();
 	$("#p_period_sub_text").show();	
-	$("#p_period_sub_month").hide();
+	$("#p_period_sub_month").show();
 	$("#p_period_sub_quarter").hide();
 		var queryString = window.location.search;
 		var urlParams = new URLSearchParams(queryString);
