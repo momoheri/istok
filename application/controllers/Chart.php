@@ -471,7 +471,7 @@ class Chart extends CI_Controller {
 		$res['chart'] = array();
 		$res['chart_fill'] = array();
 		$res['labels'] = implode(',', $label);
-		$res['chart'][0]['label'] = 'SUM of Average Inventory';
+		$res['chart'][0]['label'] = 'Status Stock';
 		$res['chart'][0]['datas'] = implode(',', $average);
 		$res['chart'][0]['color'] = 'orange';
 		$res['chart_fill'][1]['label'] = 'Stock Max';
