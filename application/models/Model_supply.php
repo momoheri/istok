@@ -71,6 +71,23 @@ class Model_supply extends CI_Model {
 		return $query->result_array();
 	}
 	
+	function get_forecast($storage_id, $start, $end, $label_type) {
+		if($label_type == 'day'){
+			$SQL = "SELECT inventory, DATE_FORMAT(trans_date, '%Y-%m-%d') as trans_date FROM `trans_forecast`
+							WHERE DATE_FORMAT(trans_date, '%Y-%m-%d') BETWEEN '$start' AND '$end'
+							AND storage_id = '$storage_id'";
+	
+		}else{
+			$SQL = "SELECT ROUND(AVG(inventory)) as inventory, DATE_FORMAT(trans_date, '%M') as trans_date FROM `trans_forecast`
+							WHERE DATE_FORMAT(trans_date, '%Y-%m-%d') BETWEEN '$start' AND '$end'
+							AND storage_id = '$storage_id'
+							GROUP BY DATE_FORMAT(trans_date, '%M')";
+		}
+		$query = $this->db->query($SQL);
+
+		return $query->result_array();
+	}
+	
 	function get_inventory_performance_new($storage_id, $start, $end, $label_type) {
 		if($label_type == 'day'){
 			$SQL = "SELECT ROUND(SUM(volume)) as vol, trans_date, qty_observe, DATE_FORMAT(trans_date, '%Y-%m-%d') as month_date from (

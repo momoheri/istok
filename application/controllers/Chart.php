@@ -409,7 +409,8 @@ class Chart extends CI_Controller {
 		$start = $tanggal_dari;
 		$end = $tanggal_sampai;
 		
-		$inventory_performance = $this->Model_supply->get_inventory_performance_new($storage_id,$start, $end, $label_type);
+		$inventory_performance 	= $this->Model_supply->get_inventory_performance_new($storage_id,$start, $end, $label_type);
+		$forecast 							= $this->Model_supply->get_forecast($storage_id,$start, $end, $label_type);
 		
 		if($label_type == 'month'){
 			$x = 0;
@@ -445,6 +446,9 @@ class Chart extends CI_Controller {
 			$data[$inventory['month_date']]['average'] = $inventory['vol'] + $inventory['qty_observe']; 
 		}
 		
+		foreach ($forecast as $item_forecast) {
+			$data[$item_forecast['trans_date']]['forecast'] = $item_forecast['inventory']; 
+		}
 		$parameters = $this->Model_supply->get_parameters();
 		foreach ($parameters as $inventory) {  
 			$data[1]['maximal'] = $inventory['maximal']; 
@@ -453,16 +457,19 @@ class Chart extends CI_Controller {
 		}
 		$label = array();
 		$average = array();
+		$data_forecast = array();
 		$maximal = array();
 		$minimum = array();
 		$safety = array();
 		foreach($months as $item){
 			if(isset($data[$item])){
 				$label[] = $item;
-				$average[] = $data[$item]['average'];
+				$average[] = (isset($data[$item]['average']))? $data[$item]['average'] : 0;
+				$data_forecast[] = (isset($data[$item]['forecast']))? $data[$item]['forecast'] : 0;
 			}else{
 				$label[] = $item;
 				$average[] = 0;
+				$data_forecast[] = 0;
 			}	
 			$maximal[] = $data[1]['maximal'];
 			$minimum[] = $data[1]['minimum'];
@@ -474,14 +481,17 @@ class Chart extends CI_Controller {
 		$res['chart'][0]['label'] = 'Status Stock';
 		$res['chart'][0]['datas'] = implode(',', $average);
 		$res['chart'][0]['color'] = 'orange';
+		$res['chart'][1]['label'] = 'Forecast';
+		$res['chart'][1]['datas'] = implode(',', $data_forecast);
+		$res['chart'][1]['color'] = '#0080ff';
 		$res['chart_fill'][1]['label'] = 'Stock Max';
 		$res['chart_fill'][1]['datas'] = implode(',', $maximal);
 		$res['chart_fill'][1]['color'] = '#90EE90';
-		$res['chart_fill'][1]['fill'] = '2';
+		$res['chart_fill'][1]['fill'] = '3';
 		$res['chart_fill'][2]['label'] = 'Stock Min';
 		$res['chart_fill'][2]['datas'] = implode(',', $minimum);
 		$res['chart_fill'][2]['color'] = '#FFFACD';
-		$res['chart_fill'][2]['fill'] = '3';
+		$res['chart_fill'][2]['fill'] = '4';
 		$res['chart_fill'][3]['label'] = 'Safety Stock';
 		$res['chart_fill'][3]['datas'] = implode(',', $safety);
 		$res['chart_fill'][3]['color'] = '#FFC0CB';
