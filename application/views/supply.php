@@ -25,7 +25,6 @@
 			<td id="p_period_text">Period</td>
 			<td>
 				<select name="p_period" id="p_period" class="form-control">
-				  <option value="daily">Daily</option>
 				  <option value="monthly">Monthly</option>
 				  <option value="quarterly">Quarterly</option>
 				  <option value="yearly">Yearly</option>
@@ -105,13 +104,13 @@
 
 <script>
 $(document).ready(function(){
-	$("#p_period_sub_date_text").show();
-	$("#p_period_sub_date").show();
-	$("#p_year_text").hide();
-	$("#p_year").hide();
+	$("#p_period_sub_date_text").hide();
+	$("#p_period_sub_date").hide();
+	$("#p_year_text").show();
+	$("#p_year").show();
 	$("#p_period_text").show();
 	$("#p_period_sub_text").show();	
-	$("#p_period_sub_month").hide();
+	$("#p_period_sub_month").show();
 	$("#p_period_sub_quarter").hide();
 		var queryString = window.location.search;
 		var urlParams = new URLSearchParams(queryString);
@@ -358,6 +357,12 @@ async function getData_inventory_1() {
 		var departmentObject = prepare_inventory_data(data.chart[department].label, data.chart[department].datas, data.chart[department].color);
 		departments_inventory_1.push(departmentObject);
 	}
+	
+	for (var department_fill in data.chart_fill) {
+		var departmentObject_fill = prepare_inventory_data_fill(data.chart_fill[department_fill].label, data.chart_fill[department_fill].datas, data.chart_fill[department_fill].color, data.chart_fill[department_fill].fill);
+		departments_inventory_1.push(departmentObject_fill);
+	}
+	
 	return {data_label, departments_inventory_1};	
 }
 
@@ -400,6 +405,17 @@ function prepare_inventory_data(label, datas, color){
 			borderColor: color
 	}
 }
+
+function prepare_inventory_data_fill(label, datas, color, fill){
+	return {
+			label : label,
+			data : datas.split(','),
+			backgroundColor: color,
+			fill: fill,
+			borderColor: color,
+			pointRadius: 0
+	}
+}
 setup_lati();
 </script>
 
@@ -417,6 +433,12 @@ async function getData_inventory_2() {
 		var departmentObject = prepare_inventory_data(data.chart[department].label, data.chart[department].datas, data.chart[department].color);
 		departments_inventory_2.push(departmentObject);
 	}
+	
+	for (var department_fill in data.chart_fill) {
+		var departmentObject_fill = prepare_inventory_data_fill(data.chart_fill[department_fill].label, data.chart_fill[department_fill].datas, data.chart_fill[department_fill].color, data.chart_fill[department_fill].fill);
+		departments_inventory_2.push(departmentObject_fill);
+	}
+	
 	return {data_label, departments_inventory_2};	
 }
 
@@ -469,6 +491,12 @@ async function getData_inventory_3() {
 		var departmentObject = prepare_inventory_data(data.chart[department].label, data.chart[department].datas, data.chart[department].color);
 		departments_inventory_3.push(departmentObject);
 	}
+	
+	for (var department_fill in data.chart_fill) {
+		var departmentObject_fill = prepare_inventory_data_fill(data.chart_fill[department_fill].label, data.chart_fill[department_fill].datas, data.chart_fill[department_fill].color, data.chart_fill[department_fill].fill);
+		departments_inventory_3.push(departmentObject_fill);
+	}
+	
 	return {data_label, departments_inventory_3};	
 }
 

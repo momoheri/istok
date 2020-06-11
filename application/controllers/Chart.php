@@ -92,6 +92,7 @@ class Chart extends CI_Controller {
 		
 		$vendor = $this->Model_monitoring->get_vendor();
 		$fuel = $this->Model_monitoring->fuel_receiving_with_transporter($start, $end);
+		$array_color = array('blue', 'orange', 'grey', 'yellow', 'green', 'red',"Cyan","DarkBlue","DarkCyan","DarkGoldenRod","DarkGray","DarkGrey","DarkGreen","DarkKhaki","DarkMagenta","DarkOliveGreen","DarkOrange","DarkOrchid","DarkRed","DarkSalmon","DarkSeaGreen","DarkSlateBlue","DarkSlateGray","DarkSlateGrey","DarkTurquoise","DarkViolet","DeepPink","DeepSkyBlue","DimGray","DimGrey","DodgerBlue","FireBrick","FloralWhite","ForestGreen");
 		
 		$temp_item = $this->_group_by($fuel, 'id_transporter');
 		$feul_item = array();
@@ -126,6 +127,7 @@ class Chart extends CI_Controller {
 				}
 			}
 			$res['chart'][$i] = $items[0];
+			$res['chart'][$i]['color'] = $array_color[$i];
 			$res['chart'][$i]['quantity'] = implode(',', $quantity);
 			$i++;
 		}
@@ -138,14 +140,17 @@ class Chart extends CI_Controller {
 	public function vendor_performance()	{
 		$p_period = $this->input->get('p_period');
 		
-		if ($p_period == 'daily' || empty($p_period)) {
+		if ($p_period == 'daily') {
 			$tgl = $this->input->get('p_period_sub_date');
 			$tanggal_dari = (empty($tgl))? date('Y-m-d') : $tgl;
 			$tanggal_sampai = $tanggal_dari;
 		}
-		if ($p_period == 'monthly') {
+		if ($p_period == 'monthly'|| empty($p_period)) {
 			$tahun = $this->input->get('p_year');
-			$bulan = substr(('0' .$this->input->get('p_period_sub_month')),-2);
+			$tahun = (empty($tahun))? date('Y') : $tahun;
+			$bulan = $this->input->get('p_period_sub_month');
+			$bulan = (empty($bulan))? 1 : $bulan;
+			$bulan = substr(('0' .$bulan),-2);
 			
 			$tanggal_dari = ($tahun .'-'. $bulan .'-01');
 			$tanggal_sampai = date('Y-m-t', strtotime($tanggal_dari));
@@ -203,7 +208,7 @@ class Chart extends CI_Controller {
 		$temp_item = $this->_group_by($vendor_performance, 'movement_reason_id');
 		
 		$data_vendor = array();
-		$array_color = array('blue', 'orage', 'grey', 'yellow', 'green', 'red',"Cyan","DarkBlue","DarkCyan","DarkGoldenRod","DarkGray","DarkGrey","DarkGreen","DarkKhaki","DarkMagenta","DarkOliveGreen","DarkOrange","DarkOrchid","DarkRed","DarkSalmon","DarkSeaGreen","DarkSlateBlue","DarkSlateGray","DarkSlateGrey","DarkTurquoise","DarkViolet","DeepPink","DeepSkyBlue","DimGray","DimGrey","DodgerBlue","FireBrick","FloralWhite","ForestGreen");
+		$array_color = array('blue', 'orange', 'grey', 'yellow', 'green', 'red',"Cyan","DarkBlue","DarkCyan","DarkGoldenRod","DarkGray","DarkGrey","DarkGreen","DarkKhaki","DarkMagenta","DarkOliveGreen","DarkOrange","DarkOrchid","DarkRed","DarkSalmon","DarkSeaGreen","DarkSlateBlue","DarkSlateGray","DarkSlateGrey","DarkTurquoise","DarkViolet","DeepPink","DeepSkyBlue","DimGray","DimGrey","DodgerBlue","FireBrick","FloralWhite","ForestGreen");
 		foreach($vendor as $data){
 			$vendor_id[$data['vendor_id']] = 0;
 			$data_vendor[] = "'".$data['vendor_name']."'";
@@ -235,14 +240,17 @@ class Chart extends CI_Controller {
 	public function transporter_performance()	{
 		$p_period = $this->input->get('p_period');
 		
-		if ($p_period == 'daily' || empty($p_period)) {
+		if ($p_period == 'daily') {
 			$tgl = $this->input->get('p_period_sub_date');
 			$tanggal_dari = (empty($tgl))? date('Y-m-d') : $tgl;
 			$tanggal_sampai = $tanggal_dari;
 		}
-		if ($p_period == 'monthly') {
+		if ($p_period == 'monthly' || empty($p_period)) {
 			$tahun = $this->input->get('p_year');
-			$bulan = substr(('0' .$this->input->get('p_period_sub_month')),-2);
+			$tahun = (empty($tahun))? date('Y') : $tahun;
+			$bulan = $this->input->get('p_period_sub_month');
+			$bulan = (empty($bulan))? 1 : $bulan;
+			$bulan = substr(('0' .$bulan),-2);
 			
 			$tanggal_dari = ($tahun .'-'. $bulan .'-01');
 			$tanggal_sampai = date('Y-m-t', strtotime($tanggal_dari));
@@ -300,7 +308,7 @@ class Chart extends CI_Controller {
 		$temp_item = $this->_group_by($vendor_performance, 'movement_reason_id');
 		
 		$data_vendor = array();
-		$array_color = array('blue', 'orage', 'grey', 'yellow', 'green', 'red',"Cyan","DarkBlue","DarkCyan","DarkGoldenRod","DarkGray","DarkGrey","DarkGreen","DarkKhaki","DarkMagenta","DarkOliveGreen","DarkOrange","DarkOrchid","DarkRed","DarkSalmon","DarkSeaGreen","DarkSlateBlue","DarkSlateGray","DarkSlateGrey","DarkTurquoise","DarkViolet","DeepPink","DeepSkyBlue","DimGray","DimGrey","DodgerBlue","FireBrick","FloralWhite","ForestGreen");
+		$array_color = array('blue', 'orange', 'grey', 'yellow', 'green', 'red',"Cyan","DarkBlue","DarkCyan","DarkGoldenRod","DarkGray","DarkGrey","DarkGreen","DarkKhaki","DarkMagenta","DarkOliveGreen","DarkOrange","DarkOrchid","DarkRed","DarkSalmon","DarkSeaGreen","DarkSlateBlue","DarkSlateGray","DarkSlateGrey","DarkTurquoise","DarkViolet","DeepPink","DeepSkyBlue","DimGray","DimGrey","DodgerBlue","FireBrick","FloralWhite","ForestGreen");
 		foreach($transporter as $data){
 			$transporter_id[$data['transporter_id']] = 0;
 			$data_transporter[] = "'".$data['transporter_name']."'";
@@ -331,15 +339,20 @@ class Chart extends CI_Controller {
 	
 	public function inventory_performance($storage_id)	{
 		$p_period = $this->input->get('p_period');
-		
+		$label_type = 'month';
 		if ($p_period == 'daily' || empty($p_period)) {
+			$label_type = 'day';
 			$tgl = $this->input->get('p_period_sub_date');
 			$tanggal_dari = (empty($tgl))? date('Y-m-d') : $tgl;
 			$tanggal_sampai = $tanggal_dari;
 		}
-		if ($p_period == 'monthly') {
+		if ($p_period == 'monthly' || empty($p_period)) {
+			$label_type = 'day';
 			$tahun = $this->input->get('p_year');
-			$bulan = substr(('0' .$this->input->get('p_period_sub_month')),-2);
+			$tahun = (empty($tahun))? date('Y') : $tahun;
+			$bulan = $this->input->get('p_period_sub_month');
+			$bulan = (empty($bulan))? 1 : $bulan;
+			$bulan = substr(('0' .$bulan),-2);
 			
 			$tanggal_dari = ($tahun .'-'. $bulan .'-01');
 			$tanggal_sampai = date('Y-m-t', strtotime($tanggal_dari));
@@ -347,6 +360,7 @@ class Chart extends CI_Controller {
 		if ($p_period == 'quarterly') {
 			$tahun = $this->input->get('p_year');
 			if ($this->input->get('p_period_sub_quarter')=='q1') {
+				$label_type = 'quarterly';
 				$bulan1 = '01';				
 				$tanggal_dari = ($tahun .'-'. $bulan1 .'-01');
 				
@@ -355,7 +369,8 @@ class Chart extends CI_Controller {
 				$tanggal_sampai = date('Y-m-t', strtotime($tanggal2));
 			}
 			
-			if ($this->input->get('p_period_sub_quarter')=='q2') {
+			if ($this->input->get('p_period_sub_quarter')=='q2') {				
+				$label_type = 'quarterly';
 				$bulan1 = '04';				
 				$tanggal_dari = ($tahun .'-'. $bulan1 .'-01');
 				
@@ -365,6 +380,7 @@ class Chart extends CI_Controller {
 			}
 			
 			if ($this->input->get('p_period_sub_quarter')=='q3') {
+				$label_type = 'quarterly';
 				$bulan1 = '07';				
 				$tanggal_dari = ($tahun .'-'. $bulan1 .'-01');
 				
@@ -374,6 +390,7 @@ class Chart extends CI_Controller {
 			}
 			
 			if ($this->input->get('p_period_sub_quarter')=='q4') {
+				$label_type = 'quarterly';
 				$bulan1 = '10';				
 				$tanggal_dari = ($tahun .'-'. $bulan1 .'-01');
 				
@@ -383,6 +400,7 @@ class Chart extends CI_Controller {
 			}
 		}
 		if ($p_period == 'yearly') {
+				$label_type = 'month';
 			$tahun = $this->input->get('p_year');
 			
 			$tanggal_dari = ($tahun .'-01-01');
@@ -391,51 +409,93 @@ class Chart extends CI_Controller {
 		$start = $tanggal_dari;
 		$end = $tanggal_sampai;
 		
-		$inventory_performance = $this->Model_supply->get_inventory_performance($storage_id,$start, $end);
-		$x = 0;
-		while($x++ < 12) {
-			$MonthNumbers[] = $x;
-		}
+		$inventory_performance 	= $this->Model_supply->get_inventory_performance_new($storage_id,$start, $end, $label_type);
+		$forecast 							= $this->Model_supply->get_forecast($storage_id,$start, $end, $label_type);
+		
+		if($label_type == 'month'){
+			$x = 0;
+			while($x++ < 12) {
+				$MonthNumbers[] = $x;
+			}
 
-		foreach ($MonthNumbers as $MonthNumber) {
-			$mon = $MonthNumber-1;
-			$months[] = date("F", strtotime("+".$mon."month",strtotime('2020-01-01')));
+			foreach ($MonthNumbers as $MonthNumber) {
+				$mon = $MonthNumber-1;
+				$months[] = date("F", strtotime("+".$mon."month",strtotime('2020-01-01')));
+			}
+		}elseif($label_type == 'quarterly'){
+			$start = date("n", strtotime($tanggal_dari));
+			$end = date("n", strtotime($tanggal_sampai));
+			$x = $start-1;
+			while($x++ < $end) {
+				$MonthNumbers[] = $x;
+			}
+			foreach ($MonthNumbers as $MonthNumber) {
+				$mon = $MonthNumber-1;
+				$months[] = date("F", strtotime("+".$mon."month",strtotime('2020-01-01')));
+			}
+		}elseif($label_type == 'day'){
+			$start = $tanggal_dari;
+			$end = $tanggal_sampai;
+			while(strtotime($start) <= strtotime($end)) {
+				$months[] = $start;
+				$start = date ("Y-m-d", strtotime("+1 day", strtotime($start)));
+			}
 		}
 		
 		foreach ($inventory_performance as $inventory) {
-			$data[$inventory['month_date']]['average'] = $inventory['average']; 
-			$data[$inventory['month_date']]['maximal'] = $inventory['maximal']; 
-			$data[$inventory['month_date']]['minimum'] = $inventory['minimum']; 
+			$data[$inventory['month_date']]['average'] = $inventory['vol'] + $inventory['qty_observe']; 
 		}
 		
+		foreach ($forecast as $item_forecast) {
+			$data[$item_forecast['trans_date']]['forecast'] = $item_forecast['inventory']; 
+		}
+		$parameters = $this->Model_supply->get_parameters();
+		foreach ($parameters as $inventory) {  
+			$data[1]['maximal'] = $inventory['maximal']; 
+			$data[1]['minimum'] = $inventory['minimum']; 
+			$data[1]['safety'] = $inventory['safety']; 
+		}
 		$label = array();
 		$average = array();
+		$data_forecast = array();
 		$maximal = array();
 		$minimum = array();
+		$safety = array();
 		foreach($months as $item){
 			if(isset($data[$item])){
 				$label[] = $item;
-				$average[] = $data[$item]['average'];
-				$maximal[] = $data[$item]['maximal'];
-				$minimum[] = $data[$item]['minimum'];
+				$average[] = (isset($data[$item]['average']))? $data[$item]['average'] : 0;
+				$data_forecast[] = (isset($data[$item]['forecast']))? $data[$item]['forecast'] : 0;
 			}else{
 				$label[] = $item;
 				$average[] = 0;
-				$maximal[] = 0;
-				$minimum[] = 0;
-			}			
+				$data_forecast[] = 0;
+			}	
+			$maximal[] = $data[1]['maximal'];
+			$minimum[] = $data[1]['minimum'];
+			$safety[] = $data[1]['safety'];
 		}
 		$res['chart'] = array();
+		$res['chart_fill'] = array();
 		$res['labels'] = implode(',', $label);
-		$res['chart'][0]['label'] = 'SUM of Average Inventory';
+		$res['chart'][0]['label'] = 'Status Stock';
 		$res['chart'][0]['datas'] = implode(',', $average);
-		$res['chart'][0]['color'] = 'green';
-		$res['chart'][1]['label'] = 'SUM of Max Baseline';
-		$res['chart'][1]['datas'] = implode(',', $maximal);
-		$res['chart'][1]['color'] = 'blue';
-		$res['chart'][2]['label'] = 'SUM of Min Baseline';
-		$res['chart'][2]['datas'] = implode(',', $minimum);
-		$res['chart'][2]['color'] = 'red';
+		$res['chart'][0]['color'] = 'orange';
+		$res['chart'][1]['label'] = 'Forecast';
+		$res['chart'][1]['datas'] = implode(',', $data_forecast);
+		$res['chart'][1]['color'] = '#0080ff';
+		$res['chart_fill'][1]['label'] = 'Stock Max';
+		$res['chart_fill'][1]['datas'] = implode(',', $maximal);
+		$res['chart_fill'][1]['color'] = '#90EE90';
+		$res['chart_fill'][1]['fill'] = '3';
+		$res['chart_fill'][2]['label'] = 'Stock Min';
+		$res['chart_fill'][2]['datas'] = implode(',', $minimum);
+		$res['chart_fill'][2]['color'] = '#FFFACD';
+		$res['chart_fill'][2]['fill'] = '4';
+		$res['chart_fill'][3]['label'] = 'Safety Stock';
+		$res['chart_fill'][3]['datas'] = implode(',', $safety);
+		$res['chart_fill'][3]['color'] = '#FFC0CB';
+		$res['chart_fill'][3]['fill'] = 'start';
 		echo json_encode($res);
 	}
 	

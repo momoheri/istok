@@ -49,12 +49,88 @@ class Model_supply extends CI_Model {
 	
 	/*------------------------------------------------------------------------------*/
 	
-	function get_inventory_performance($storage_id, $start, $end) {
-		$SQL = "SELECT ROUND(AVG(volume)) as average, MAX(volume) as maximal, MIN(volume) as minimum, DATE_FORMAT(trans_date, '%M') as month_date
-						FROM `trans_atg`
-						WHERE DATE_FORMAT(trans_date, '%Y-%m-%d') BETWEEN '$start' AND '$end'
-						AND storage_id = '$storage_id'
-						GROUP BY DATE_FORMAT(trans_date, '%M')";
+	function get_inventory_performance($storage_id, $start, $end, $label_type) {
+		if($label_type == 'day'){
+			$SQL = "SELECT ROUND(AVG(volume)) as average, stock_max as maximal, stock_min as minimum, safety_stock as safety, DATE_FORMAT(trans_date, '%Y-%m-%d') as month_date
+							FROM `trans_atg`
+							INNER JOIN mst_parameter ON mst_parameter.storage_id=trans_atg.storage_id
+							WHERE DATE_FORMAT(trans_date, '%Y-%m-%d') BETWEEN '$start' AND '$end'
+							AND trans_atg.storage_id = '$storage_id'
+							GROUP BY DATE_FORMAT(trans_date, '%Y-%m-%d')";
+	
+		}else{
+			$SQL = "SELECT ROUND(AVG(volume)) as average, stock_max as maximal, stock_min as minimum, safety_stock as safety, DATE_FORMAT(trans_date, '%M') as month_date
+							FROM `trans_atg`
+							INNER JOIN mst_parameter ON mst_parameter.storage_id=trans_atg.storage_id
+							WHERE DATE_FORMAT(trans_date, '%Y-%m-%d') BETWEEN '$start' AND '$end'
+							AND trans_atg.storage_id = '$storage_id'
+							GROUP BY DATE_FORMAT(trans_date, '%M')";
+		}
+		$query = $this->db->query($SQL);
+
+		return $query->result_array();
+	}
+	
+	function get_forecast($storage_id, $start, $end, $label_type) {
+		if($label_type == 'day'){
+			$SQL = "SELECT inventory, DATE_FORMAT(trans_date, '%Y-%m-%d') as trans_date FROM `trans_forecast`
+							WHERE DATE_FORMAT(trans_date, '%Y-%m-%d') BETWEEN '$start' AND '$end'
+							AND storage_id = '$storage_id'";
+	
+		}else{
+			$SQL = "SELECT ROUND(AVG(inventory)) as inventory, DATE_FORMAT(trans_date, '%M') as trans_date FROM `trans_forecast`
+							WHERE DATE_FORMAT(trans_date, '%Y-%m-%d') BETWEEN '$start' AND '$end'
+							AND storage_id = '$storage_id'
+							GROUP BY DATE_FORMAT(trans_date, '%M')";
+		}
+		$query = $this->db->query($SQL);
+
+		return $query->result_array();
+	}
+	
+	function get_inventory_performance_new($storage_id, $start, $end, $label_type) {
+		if($label_type == 'day'){
+			$SQL = "SELECT ROUND(SUM(volume)) as vol, trans_date, qty_observe, DATE_FORMAT(trans_date, '%Y-%m-%d') as month_date from (
+								SELECT trans_atg.trans_id, trans_atg.atg_id, trans_atg.trans_date,
+												trans_atg.trans_time, trans_atg.tankno, trans_atg.volume, trans_atg.ullage,
+												(select trans_sounding_manual.qty_observe from trans_sounding_manual
+												where trans_sounding_manual.trans_status = '0' and trans_sounding_manual.manual_type = '1'
+												and trans_sounding_manual.atg_id = trans_atg.atg_id) as qty_observe
+										FROM trans_atg
+												JOIN mst_storage ON trans_atg.storage_id = mst_storage.storage_id
+												WHERE mst_storage.storage_id = '$storage_id' AND (DATE_FORMAT(trans_date, '%Y-%m-%d') BETWEEN '$start' AND '$end')
+												GROUP BY trans_atg.atg_id, DATE_FORMAT(trans_date, '%Y-%m-%d')
+												ORDER BY trans_atg.trans_date DESC,
+												trans_atg.trans_time DESC) as res
+							GROUP BY DATE_FORMAT(trans_date, '%Y-%m-%d')";
+	
+		}else{
+			$SQL = "SELECT ROUND(AVG(vol)) as vol, trans_date, qty_observe, DATE_FORMAT(trans_date, '%M') as month_date from (
+								SELECT SUM(volume) as vol, trans_date, qty_observe, DATE_FORMAT(trans_date, '%M') as month_date from (
+									SELECT trans_atg.trans_id, trans_atg.atg_id, trans_atg.trans_date,
+													trans_atg.trans_time, trans_atg.tankno, trans_atg.volume, trans_atg.ullage,
+													(select trans_sounding_manual.qty_observe from trans_sounding_manual
+													where trans_sounding_manual.trans_status = '0' and trans_sounding_manual.manual_type = '1'
+													and trans_sounding_manual.atg_id = trans_atg.atg_id) as qty_observe
+											FROM trans_atg
+													JOIN mst_storage ON trans_atg.storage_id = mst_storage.storage_id
+													WHERE mst_storage.storage_id = '$storage_id' AND (DATE_FORMAT(trans_date, '%Y-%m-%d') BETWEEN '$start' AND '$end')
+													GROUP BY trans_atg.atg_id, DATE_FORMAT(trans_date, '%Y-%m-%d')
+													ORDER BY trans_atg.trans_date DESC,
+													trans_atg.trans_time DESC) as res
+								GROUP BY DATE_FORMAT(trans_date, '%Y-%m-%d')) as rest
+							GROUP BY DATE_FORMAT(trans_date, '%M')";
+		}
+		$query = $this->db->query($SQL);
+
+		return $query->result_array();
+	}
+	
+	/*------------------------------------------------------------------------------*/
+	
+	function get_parameters() {
+		$SQL = "SELECT stock_max as maximal, stock_min as minimum, safety_stock as safety
+							FROM mst_parameter";
 		$query = $this->db->query($SQL);
 
 		return $query->result_array();
