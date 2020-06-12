@@ -61,14 +61,14 @@
 		  </tr>
 		  <tr>
 			<td></td>
-			<td>
-				<button class="btn btn-primary btn-icon-split" type="submit">
+			<td>			
+				<button class="btn btn-primary btn-icon-split" type="button" id="cari">
 					<span class="icon text-white-50"><i class="fas fa-check"></i></span>
 					<span class="text">Search</span></button>
 			</td>
 		  </tr>
 		</table>
-		<?php echo form_close(); ?>
+			<?php echo form_close(); ?>
 		<?php echo $filter_result; ?>
 	</div>
 	<div class="leftmenufilter"><canvas id="myChart" height="300"></canvas></div>	
@@ -103,6 +103,7 @@
 </div>
 
 <script>
+
 $(document).ready(function(){
 	$("#p_period_sub_date_text").hide();
 	$("#p_period_sub_date").hide();
@@ -222,6 +223,12 @@ $(document).ready(function(){
 			};
 
 		});
+		
+		
+	$("#cari").click(function(){	
+		var url = location.protocol + '//' + location.host + location.pathname + '?'+$("form").serialize();
+		$(location).attr('href',url);
+	});
 });
 </script>
 
