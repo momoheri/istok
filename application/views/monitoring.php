@@ -63,7 +63,7 @@
 		  <tr>
 			<td></td>
 			<td>
-				<button class="btn btn-primary btn-icon-split" type="submit">
+				<button class="btn btn-primary btn-icon-split" type="button" id="cari">
 					<span class="icon text-white-50"><i class="fas fa-check"></i></span>
 					<span class="text">Search</span></button>
 			</td>
@@ -344,6 +344,11 @@ $(document).ready(function(){
 				$("#p_period_sub_quarter").hide();
 			};
 
+		});
+		
+		$("#cari").click(function(){	
+			var url = location.protocol + '//' + location.host + location.pathname + '?'+$("form").serialize();
+			$(location).attr('href',url);
 		});
 });
 </script>
