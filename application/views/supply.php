@@ -12,14 +12,14 @@
 	
 <div class="leftmenufilter card shadow">
 	<div class="leftmenufilter"><center>
-		<?php echo form_open("supply", array('method'=>'get')); ?>
+		<?php echo form_open("supply", array('method'=>'post')); ?>
 		<table cellpadding="2">
 		  <tr>
 			<td colspan="3" align="center"><h3>Snapshot</h3></td>
 		  </tr>
 		  <tr>
 			<td id="p_year_text">Year</td>
-			<td><input type="number" name="p_year" id="p_year" class="form-control" placeholder="Year" value="<?php echo $tahun; ?>" required></td>
+			<td><input type="number" name="p_year" id="p_year" class="form-control" placeholder="Year" value="<?php echo $tahun; ?>"></td>
 		  </tr>
 		  <tr>
 			<td id="p_period_text">Period</td>
@@ -62,7 +62,7 @@
 		  <tr>
 			<td></td>
 			<td>			
-				<button class="btn btn-primary btn-icon-split" type="button" id="cari">
+				<button class="btn btn-primary btn-icon-split" type="submit" id="cari">
 					<span class="icon text-white-50"><i class="fas fa-check"></i></span>
 					<span class="text">Search</span></button>
 			</td>
@@ -113,9 +113,9 @@ $(document).ready(function(){
 	$("#p_period_sub_text").show();	
 	$("#p_period_sub_month").show();
 	$("#p_period_sub_quarter").hide();
-		var queryString = window.location.search;
-		var urlParams = new URLSearchParams(queryString);
-		var status = urlParams.get('p_period');
+		var queryString = new URL('<?php echo current_url().'?'.$qeury_url; ?>');
+		var urlParams = new URLSearchParams(queryString.search);
+		var status = '<?php echo $periode; ?>';
 		var year = urlParams.get('p_year');
 		var date = urlParams.get('p_period_sub_date');
 		var month = urlParams.get('p_period_sub_month');
@@ -224,16 +224,11 @@ $(document).ready(function(){
 
 		});
 		
-		
-	$("#cari").click(function(){	
-		var url = location.protocol + '//' + location.host + location.pathname + '?'+$("form").serialize();
-		$(location).attr('href',url);
-	});
 });
 </script>
 
 <script>
-const api_url_vendor_performance = "<?php echo base_url().'chart/vendor_performance?'.$_SERVER['QUERY_STRING']; ?>";
+const api_url_vendor_performance = "<?php echo base_url().'chart/vendor_performance?'.$qeury_url; ?>";
 
 var departments_vendor_performance = [];
 
@@ -296,7 +291,7 @@ function prepareDepartmentDetails_vendor_performance(movement_reason_name, total
 </script>
 
 <script>
-const api_url_transporter_performance = "<?php echo base_url().'chart/transporter_performance?'.$_SERVER['QUERY_STRING']; ?>";
+const api_url_transporter_performance = "<?php echo base_url().'chart/transporter_performance?'.$qeury_url; ?>";
 
 var departments_transporter_performance = [];
 
@@ -351,7 +346,7 @@ setup_chart2();
 </script>
 
 <script>
-const api_url_invenory_1 = "<?php echo base_url().'chart/inventory_performance/1?'.$_SERVER['QUERY_STRING']; ?>";
+const api_url_invenory_1 = "<?php echo base_url().'chart/inventory_performance/1?'.$qeury_url; ?>";
 
 var departments_inventory_1 = [];
 
@@ -427,7 +422,7 @@ setup_lati();
 </script>
 
 <script>
-const api_url_invenory_2 = "<?php echo base_url().'chart/inventory_performance/2?'.$_SERVER['QUERY_STRING']; ?>";
+const api_url_invenory_2 = "<?php echo base_url().'chart/inventory_performance/2?'.$qeury_url; ?>";
 
 var departments_inventory_2 = [];
 
@@ -485,7 +480,7 @@ setup_suaran();
 
 <script>
 
-const api_url_invenory_3 = "<?php echo base_url().'chart/inventory_performance/3?'.$_SERVER['QUERY_STRING']; ?>";
+const api_url_invenory_3 = "<?php echo base_url().'chart/inventory_performance/3?'.$qeury_url; ?>";
 
 var departments_inventory_3 = [];
 

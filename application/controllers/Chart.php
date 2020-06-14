@@ -340,7 +340,7 @@ class Chart extends CI_Controller {
 	public function inventory_performance($storage_id)	{
 		$p_period = $this->input->get('p_period');
 		$label_type = 'month';
-		if ($p_period == 'daily' || empty($p_period)) {
+		if ($p_period == 'daily') {
 			$label_type = 'day';
 			$tgl = $this->input->get('p_period_sub_date');
 			$tanggal_dari = (empty($tgl))? date('Y-m-d') : $tgl;
