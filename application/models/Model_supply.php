@@ -128,9 +128,10 @@ class Model_supply extends CI_Model {
 	
 	/*------------------------------------------------------------------------------*/
 	
-	function get_parameters() {
+	function get_parameters($id) {
 		$SQL = "SELECT stock_max as maximal, stock_min as minimum, safety_stock as safety
-							FROM mst_parameter";
+							FROM mst_parameter
+							WHERE storage_id = '$id'";
 		$query = $this->db->query($SQL);
 
 		return $query->result_array();
