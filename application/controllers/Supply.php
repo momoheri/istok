@@ -38,6 +38,7 @@ class Supply extends CI_Controller {
 	}
 	
 	public function index()	{
+		
 		$datasesion = array(
 			'user_id' => $this->session->userdata('user_id'),
 			'user_level' => $this->session->userdata('user_level'),
@@ -62,28 +63,31 @@ class Supply extends CI_Controller {
 		$tanggal_sampai = '';
 		$filter_result = '';
 
-		$p_period = $this->input->get('p_period');
-		$filter_result = 'period = ' .$p_period. '<br>';
+		$p_period = $this->input->post('p_period');
 		
-		if ($p_period == 'daily' || empty($p_period)) {
-			$tgl = $this->input->get('p_period_sub_date');
+		$filter_result = 'period = ' .$p_period. '<br>';
+		if ($p_period == 'daily') {
+			$tgl = $this->input->post('p_period_sub_date');
 			$tanggal_dari = (empty($tgl))? date('Y-m-d') : $tgl;
 			$tanggal_sampai = $tanggal_dari;
 		}
-		if ($p_period == 'monthly') {
-			$filter_result = $filter_result.'sub period = ' .$this->input->get('p_period_sub_month'). '<br>';
-
-			$tahun = $this->input->get('p_year');
-			$bulan = substr(('0' .$this->input->get('p_period_sub_month')),-2);
+		if ($p_period == 'monthly' || empty($p_period)) {
+			$filter_result = $filter_result.'sub period = ' .$this->input->post('p_period_sub_month'). '<br>';
+			$tahun = $this->input->post('p_year');
+			$tahun = (empty($tahun))? date('Y') : $tahun;
+			$bulan = $this->input->post('p_period_sub_month');
+			$bulan = (empty($bulan))? 1 : $bulan;
+			$bulan = substr(('0' .$bulan),-2);
 			
 			$tanggal_dari = ($tahun .'-'. $bulan .'-01');
 			$tanggal_sampai = date('Y-m-t', strtotime($tanggal_dari));
 		}
+		
 		if ($p_period == 'quarterly') {
-			$tahun = $this->input->get('p_year');
-			$filter_result = $filter_result.'sub period = ' .$this->input->get('p_period_sub_quarter'). '<br>';
+			$tahun = $this->input->post('p_year');
+			$filter_result = $filter_result.'sub period = ' .$this->input->post('p_period_sub_quarter'). '<br>';
 			
-			if ($this->input->get('p_period_sub_quarter')=='q1') {
+			if ($this->input->post('p_period_sub_quarter')=='q1') {
 				$bulan1 = '01';				
 				$tanggal_dari = ($tahun .'-'. $bulan1 .'-01');
 				
@@ -92,7 +96,7 @@ class Supply extends CI_Controller {
 				$tanggal_sampai = date('Y-m-t', strtotime($tanggal2));
 			}
 			
-			if ($this->input->get('p_period_sub_quarter')=='q2') {
+			if ($this->input->post('p_period_sub_quarter')=='q2') {
 				$bulan1 = '04';				
 				$tanggal_dari = ($tahun .'-'. $bulan1 .'-01');
 				
@@ -101,7 +105,7 @@ class Supply extends CI_Controller {
 				$tanggal_sampai = date('Y-m-t', strtotime($tanggal2));
 			}
 			
-			if ($this->input->get('p_period_sub_quarter')=='q3') {
+			if ($this->input->post('p_period_sub_quarter')=='q3') {
 				$bulan1 = '07';				
 				$tanggal_dari = ($tahun .'-'. $bulan1 .'-01');
 				
@@ -110,7 +114,7 @@ class Supply extends CI_Controller {
 				$tanggal_sampai = date('Y-m-t', strtotime($tanggal2));
 			}
 			
-			if ($this->input->get('p_period_sub_quarter')=='q4') {
+			if ($this->input->post('p_period_sub_quarter')=='q4') {
 				$bulan1 = '10';				
 				$tanggal_dari = ($tahun .'-'. $bulan1 .'-01');
 				
@@ -120,7 +124,7 @@ class Supply extends CI_Controller {
 			}
 		}
 		if ($p_period == 'yearly') {
-			$tahun = $this->input->get('p_year');
+			$tahun = $this->input->post('p_year');
 			
 			$tanggal_dari = ($tahun .'-01-01');
 			$tanggal_sampai = ($tahun .'-12-31');
@@ -143,6 +147,8 @@ class Supply extends CI_Controller {
 		
 		$data_trans_atg = $this->Model_supply->get_trans_atg($tanggal);
 		$data['data_trans_atg'] = $data_trans_atg;
+		$data['qeury_url'] = (!empty($_POST))? http_build_query($_POST) : '';
+		$data['periode'] = $p_period;
 		
 		// //tampung
 		// foreach ($data_trans_atg as $row) {
@@ -166,7 +172,6 @@ class Supply extends CI_Controller {
 				// $this->Model_supply->insert_atg($data_insert);				
 			// }
 		// }
-		
 		$this->load->view('header', $datasesion);
 		$this->load->view('supply',$data);
 		$this->load->view('footer');
