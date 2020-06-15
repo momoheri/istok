@@ -449,7 +449,7 @@ class Chart extends CI_Controller {
 		foreach ($forecast as $item_forecast) {
 			$data[$item_forecast['trans_date']]['forecast'] = $item_forecast['inventory']; 
 		}
-		$parameters = $this->Model_supply->get_parameters();
+		$parameters = $this->Model_supply->get_parameters($storage_id);
 		foreach ($parameters as $inventory) {  
 			$data[1]['maximal'] = $inventory['maximal']; 
 			$data[1]['minimum'] = $inventory['minimum']; 
