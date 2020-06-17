@@ -72,13 +72,21 @@ class Model_supply extends CI_Model {
 	}
 	
 	function get_forecast($storage_id, $start, $end, $label_type) {
+		if($storage_id == 1){
+			$table = 'log_forecast_lati';
+		}elseif($storage_id == 2){
+			$table = 'log_forecast_sur';			
+		}elseif($storage_id == 3){			
+			$table = 'log_forecast_sam';
+		}
+		
 		if($label_type == 'day'){
-			$SQL = "SELECT inventory, DATE_FORMAT(trans_date, '%Y-%m-%d') as trans_date FROM `trans_forecast`
+			$SQL = "SELECT inventory, DATE_FORMAT(trans_date, '%Y-%m-%d') as trans_date FROM $table
 							WHERE DATE_FORMAT(trans_date, '%Y-%m-%d') BETWEEN '$start' AND '$end'
 							AND storage_id = '$storage_id'";
 	
 		}else{
-			$SQL = "SELECT ROUND(AVG(inventory)) as inventory, DATE_FORMAT(trans_date, '%M') as trans_date FROM `trans_forecast`
+			$SQL = "SELECT ROUND(AVG(inventory)) as inventory, DATE_FORMAT(trans_date, '%M') as trans_date FROM $table
 							WHERE DATE_FORMAT(trans_date, '%Y-%m-%d') BETWEEN '$start' AND '$end'
 							AND storage_id = '$storage_id'
 							GROUP BY DATE_FORMAT(trans_date, '%M')";
