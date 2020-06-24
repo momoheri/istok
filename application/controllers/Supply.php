@@ -53,7 +53,6 @@ class Supply extends CI_Controller {
 			'user_name_full' => $this->session->userdata('user_name_full')
 		);
 		
-		date_default_timezone_set('Asia/Jakarta');
 		$tanggal = date('Y-m-d');
 		$data['tanggal'] = $tanggal;
 		$data['bulan'] = substr($tanggal,-2);
@@ -138,40 +137,9 @@ class Supply extends CI_Controller {
 		$filter_result = $msg_depan.$filter_result.'from <b>'.$tanggal_dari. '</b> to <b>'.$tanggal_sampai.'</b>'.$msg_belakang;
 		$data['filter_result'] = $filter_result;
 		
-		$data_mst_storage = $this->Model_supply->get_data_mst_storage('1');
-		$data['data_mst_storage'] = $data_mst_storage;
-		foreach ($data_mst_storage as $row) {
-			$data['s1_storage_name'] = $row->storage_name;
-			$data['s1_storage_height'] = $row->storage_height;
-		}
-		
-		$data_trans_atg = $this->Model_supply->get_trans_atg($tanggal);
-		$data['data_trans_atg'] = $data_trans_atg;
 		$data['qeury_url'] = (!empty($_POST))? http_build_query($_POST) : '';
 		$data['periode'] = $p_period;
 		
-		// //tampung
-		// foreach ($data_trans_atg as $row) {
-			// $max_id = $this->Model_supply->get_atg_max();
-			
-			// if ($row->trans_id > $max_id) {
-				// $data_insert = array(
-					// 'trans_id' => $row->trans_id,
-					// 'trans_date' => $row->trans_date,
-					// 'trans_time' => $row->trans_time,
-					// 'tankno' => $row->tankno,
-					// 'volume' => $row->volume,
-					// 'tc_vol' => $row->tc_vol,
-					// 'ullage' => $row->ullage,
-					// 'product_height' => $row->product_height,
-					// 'water' => $row->water,
-					// 'temp_c' => $row->temp_c,
-					// 'water_vol' => $row->water_vol,
-					// 'atg_id' => $row->atg_id
-				// );
-				// $this->Model_supply->insert_atg($data_insert);				
-			// }
-		// }
 		$this->load->view('header', $datasesion);
 		$this->load->view('supply',$data);
 		$this->load->view('footer');
