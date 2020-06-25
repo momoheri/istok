@@ -464,7 +464,13 @@ class Chart extends CI_Controller {
 		foreach($months as $item){
 			if(isset($data[$item])){
 				$label[] = $item;
-				$average[] = (isset($data[$item]['average']))? $data[$item]['average'] : 0;
+				if(isset($data[$item]['average'])){
+					$average[] = $data[$item]['average'];
+				}elseif(isset($data[$item]['forecast'])){
+					$average[] = $data[$item]['forecast'];
+				}else{
+					$average[] = 0;
+				}
 				$data_forecast[] = (isset($data[$item]['forecast']))? $data[$item]['forecast'] : 0;
 			}else{
 				$label[] = $item;
