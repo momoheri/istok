@@ -420,7 +420,9 @@ class Chart extends CI_Controller {
 
 			foreach ($MonthNumbers as $MonthNumber) {
 				$mon = $MonthNumber-1;
+				$monmin = $MonthNumber-2;
 				$months[] = date("F", strtotime("+".$mon."month",strtotime('2020-01-01')));
+				$months_before[] = date("F", strtotime("+".$monmin."month",strtotime('2020-01-01')));
 			}
 		}elseif($label_type == 'quarterly'){
 			$start = date("n", strtotime($tanggal_dari));
@@ -431,7 +433,9 @@ class Chart extends CI_Controller {
 			}
 			foreach ($MonthNumbers as $MonthNumber) {
 				$mon = $MonthNumber-1;
+				$monmin = $MonthNumber-2;
 				$months[] = date("F", strtotime("+".$mon."month",strtotime('2020-01-01')));
+				$months_before[] = date("F", strtotime("+".$monmin."month",strtotime('2020-01-01')));
 			}
 		}elseif($label_type == 'day'){
 			$start = $tanggal_dari;
@@ -439,6 +443,7 @@ class Chart extends CI_Controller {
 			while(strtotime($start) <= strtotime($end)) {
 				$months[] = $start;
 				$start = date ("Y-m-d", strtotime("+1 day", strtotime($start)));
+				$months_before[] = date ("Y-m-d", strtotime("-2 day", strtotime($start)));
 			}
 		}
 		
@@ -461,26 +466,41 @@ class Chart extends CI_Controller {
 		$maximal = array();
 		$minimum = array();
 		$safety = array();
+		$i=0;
 		foreach($months as $item){
 			if(isset($data[$item])){
-				$label[] = $item;
+				$label[$i] = $item;
 				if(isset($data[$item]['average'])){
-					$average[] = $data[$item]['average'];
+					$average[$i] = $data[$item]['average'];
 				}elseif(isset($data[$item]['forecast'])){
-					$average[] = $data[$item]['forecast'];
+					if(!isset($data[$months_before[$i]]['average']) && isset($data[$months_before[$i]]['average'])){
+						$data[$months_before[$i]]['average'] = $data[$months_before[$i]]['average'];						
+					}elseif(isset($data[$months_before[$i]]['average'])){
+						$data[$months_before[$i]]['average'] = $data[$months_before[$i]]['average'];
+					}else{
+						$data[$months_before[$i]]['average'] = $data[$item]['forecast'];	
+					}
+					if(isset($data[$months_before[$i]]['forecast'])){
+						$average[$i] = ($data[$months_before[$i]]['average']-$data[$months_before[$i]]['forecast'])+$data[$item]['forecast'];
+					}else{
+						$average[$i] = $data[$item]['forecast'];
+					}
+					
 				}else{
-					$average[] = 0;
+					$average[$i] = 0;
 				}
-				$data_forecast[] = (isset($data[$item]['forecast']))? $data[$item]['forecast'] : 0;
+				$data_forecast[$i] = (isset($data[$item]['forecast']))? $data[$item]['forecast'] : 0;
 			}else{
-				$label[] = $item;
-				$average[] = 0;
-				$data_forecast[] = 0;
+				$label[$i] = $item;
+				$average[$i] = 0;
+				$data_forecast[$i] = 0;
 			}	
-			$maximal[] = $data[1]['maximal'];
-			$minimum[] = $data[1]['minimum'];
-			$safety[] = $data[1]['safety'];
+			$maximal[$i] = $data[1]['maximal'];
+			$minimum[$i] = $data[1]['minimum'];
+			$safety[$i] = $data[1]['safety'];
+			$i++;
 		}
+		
 		$res['chart'] = array();
 		$res['chart_fill'] = array();
 		$res['labels'] = implode(',', $label);

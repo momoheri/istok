@@ -80,6 +80,7 @@ class Model_supply extends CI_Model {
 			$table = 'log_forecast_sam';
 		}
 		
+		$start = date ("Y-m-d", strtotime("-1 day", strtotime($start)));
 		if($label_type == 'day'){
 			$SQL = "SELECT inventory, DATE_FORMAT(trans_date, '%Y-%m-%d') as trans_date FROM $table
 							WHERE DATE_FORMAT(trans_date, '%Y-%m-%d') BETWEEN '$start' AND '$end'
