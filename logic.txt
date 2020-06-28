@@ -1,29 +1,32 @@
 - purchase order to vendor
 		trans_sap_log -> trans_po_received -> trans_po -> mst_vendor -> mst_storage
 		master trans_po
-		status error_type -> null
+		status = 0 and error_type -> null
+		Total Transport Amount qty_observe * 200
 		filter date trans_po
 
 - fuel distribution to mining contractor
-	skip
+	trans_sap_log->trans_smartfill->mst_smartfill->mst_storage
+	status = 0 and error_type -> null
 
 - fuel distribution based on activity
-	skip
+	trans_sap_log->trans_smartfill->mst_smartfill->mst_storage
+	status = 0 and error_type -> null
 	
 - fuel price by purchace order history
 	trans_sap_log -> trans_po_received -> trans_po -> mst_vendor
 	master trans_po
-	status error_type -> null
+	status = 0 and error_type -> null
 	date trans_po
 	
 - fuel positive difference
-	trans_po_received -> trans_po -> mst_storage
+	trans_po_received -> trans_po -> mst_storage->mst_vendor
 	trans_po_received (qty_observe-qty_volcomp)
 	filter date trans_po
 
 - fuel negative difference
-	skip
-	
+	trans_po_received -> trans_po -> mst_storage->trans_atg
+	trans_atg.volume - trans_po_received.qty_observe
 	
 - vendor csi performance
 	trans_po_received -> mst_movement_reason -> trans_po -> mst_vendor

@@ -466,7 +466,7 @@ class Chart extends CI_Controller {
 		$maximal = array();
 		$minimum = array();
 		$safety = array();
-		$temp_average = '';
+		$temp_average = 0;
 		$i=0;
 		foreach($months as $item){
 			if(isset($data[$item])){
@@ -475,10 +475,14 @@ class Chart extends CI_Controller {
 					$average[$i] = $data[$item]['average'];
 					$temp_average = $data[$item]['average'];
 				}elseif(isset($data[$item]['forecast'])){
-					if(isset($data[$months_before[$i]]['forecast']) && !empty($data[$months_before[$i]]['forecast'])){
+					if(isset($data[$months_before[$i]]['forecast']) && !empty($data[$months_before[$i]]['forecast']) && $temp_average > 0){
 						$average[$i] = ($temp_average-$data[$months_before[$i]]['forecast'])+$data[$item]['forecast'];
 						$temp_average = $average[$i];
+					}elseif(isset($data[$months_before[$i]]['forecast'])){
+						$temp_average = $data[$months_before[$i]]['forecast'];
+						$average[$i] = $data[$months_before[$i]]['forecast'];
 					}else{
+						$temp_average = $data[$item]['forecast'];
 						$average[$i] = $data[$item]['forecast'];
 					}
 					
