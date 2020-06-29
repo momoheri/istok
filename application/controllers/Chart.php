@@ -478,9 +478,6 @@ class Chart extends CI_Controller {
 					if(isset($data[$months_before[$i]]['forecast']) && !empty($data[$months_before[$i]]['forecast']) && $temp_average > 0){
 						$average[$i] = ($temp_average-$data[$months_before[$i]]['forecast'])+$data[$item]['forecast'];
 						$temp_average = $average[$i];
-					}elseif(isset($data[$months_before[$i]]['forecast'])){
-						$temp_average = $data[$months_before[$i]]['forecast'];
-						$average[$i] = $data[$months_before[$i]]['forecast'];
 					}else{
 						$temp_average = $data[$item]['forecast'];
 						$average[$i] = $data[$item]['forecast'];
