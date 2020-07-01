@@ -105,14 +105,6 @@
 <script>
 
 $(document).ready(function(){
-	$("#p_period_sub_date_text").hide();
-	$("#p_period_sub_date").hide();
-	$("#p_year_text").show();
-	$("#p_year").show();
-	$("#p_period_text").show();
-	$("#p_period_sub_text").show();	
-	$("#p_period_sub_month").show();
-	$("#p_period_sub_quarter").hide();
 		var queryString = new URL('<?php echo current_url().'?'.$qeury_url; ?>');
 		var urlParams = new URLSearchParams(queryString.search);
 		var status = '<?php echo $periode; ?>';
@@ -121,59 +113,18 @@ $(document).ready(function(){
 		var month = urlParams.get('p_period_sub_month');
 		var quarter = urlParams.get('p_period_sub_quarter');
 		
-		if (status=="daily") {
-			$("#p_period").val(status);
-			$("#p_period_sub_date_text").show();
-			$("#p_period_sub_date").show();
-			$("#p_period_sub_date").val(date);
-			$("#p_year_text").hide();
-			$("#p_year").hide();
-			$("#p_period_text").show();
-			$("#p_period_sub_text").show();	
-			$("#p_period_sub_month").hide();
-			$("#p_period_sub_quarter").hide();
-		};
-		
-		if (status=="monthly") {
-			$("#p_period").val(status);
-			$("#p_period_sub_date_text").hide();
-			$("#p_period_sub_date").hide();
-			$("#p_year_text").show();
-			$("#p_year").show();
-			$("#p_year").val(year);
-			$("#p_period_text").show();
-			$("#p_period_sub_text").show();	
-			$("#p_period_sub_month").show();
-			$("#p_period_sub_month").val(month);
-			$("#p_period_sub_quarter").hide();
-		};
-		
-		if (status=="quarterly") {
-			$("#p_period").val(status);
-			$("#p_period_sub_date_text").hide();
-			$("#p_period_sub_date").hide();
-			$("#p_year_text").show();
-			$("#p_year").show();
-			$("#p_year").val(year);
-			$("#p_period_text").show();
-			$("#p_period_sub_text").show();	
-			$("#p_period_sub_month").hide();
-			$("#p_period_sub_quarter").show();
-			$("#p_period_sub_quarter").val(quarter);
-		};
-
-		if (status=="yearly") {
-			$("#p_period").val(status);
-			$("#p_period_sub_date_text").hide();
-			$("#p_period_sub_date").hide();
-			$("#p_year_text").show();
-			$("#p_year").show();
-			$("#p_year").val(year);
-			$("#p_period_text").show();
-			$("#p_period_sub_text").hide();	
-			$("#p_period_sub_month").hide();
-			$("#p_period_sub_quarter").hide();
-		};
+		$("#p_period").val(status);
+		$("#p_period_sub_date_text").hide();
+		$("#p_period_sub_date").hide();
+		$("#p_year_text").show();
+		$("#p_year").show();
+		$("#p_year").val(year);
+		$("#p_period_text").show();
+		$("#p_period_sub_text").show();	
+		$("#p_period_sub_month").show();
+		$("#p_period_sub_month").val(month);
+		$("#p_period_sub_quarter").hide();
+			
 
     $("#p_period").change(function(){		
 			var status = this.value;
