@@ -149,7 +149,7 @@ class Chart extends CI_Controller {
 			$tahun = $this->input->get('p_year');
 			$tahun = (empty($tahun))? date('Y') : $tahun;
 			$bulan = $this->input->get('p_period_sub_month');
-			$bulan = (empty($bulan))? 1 : $bulan;
+			$bulan = (empty($bulan))? date('n') : $bulan;
 			$bulan = substr(('0' .$bulan),-2);
 			
 			$tanggal_dari = ($tahun .'-'. $bulan .'-01');
@@ -249,7 +249,7 @@ class Chart extends CI_Controller {
 			$tahun = $this->input->get('p_year');
 			$tahun = (empty($tahun))? date('Y') : $tahun;
 			$bulan = $this->input->get('p_period_sub_month');
-			$bulan = (empty($bulan))? 1 : $bulan;
+			$bulan = (empty($bulan))? date('n') : $bulan;
 			$bulan = substr(('0' .$bulan),-2);
 			
 			$tanggal_dari = ($tahun .'-'. $bulan .'-01');
@@ -351,7 +351,7 @@ class Chart extends CI_Controller {
 			$tahun = $this->input->get('p_year');
 			$tahun = (empty($tahun))? date('Y') : $tahun;
 			$bulan = $this->input->get('p_period_sub_month');
-			$bulan = (empty($bulan))? 1 : $bulan;
+			$bulan = (empty($bulan))? date('n') : $bulan;
 			$bulan = substr(('0' .$bulan),-2);
 			
 			$tanggal_dari = ($tahun .'-'. $bulan .'-01');

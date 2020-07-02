@@ -63,6 +63,7 @@ class Supply extends CI_Controller {
 		$filter_result = '';
 
 		$p_period = $this->input->post('p_period');
+		$p_period = (empty($p_period))? 'monthly' : $p_period;
 		
 		$filter_result = 'period = ' .$p_period. '<br>';
 		if ($p_period == 'daily') {
@@ -71,15 +72,15 @@ class Supply extends CI_Controller {
 			$tanggal_sampai = $tanggal_dari;
 		}
 		if ($p_period == 'monthly' || empty($p_period)) {
-			$filter_result = $filter_result.'sub period = ' .$this->input->post('p_period_sub_month'). '<br>';
 			$tahun = $this->input->post('p_year');
 			$tahun = (empty($tahun))? date('Y') : $tahun;
 			$bulan = $this->input->post('p_period_sub_month');
-			$bulan = (empty($bulan))? 1 : $bulan;
+			$bulan = (empty($bulan))? date('n') : $bulan;
 			$bulan = substr(('0' .$bulan),-2);
-			
 			$tanggal_dari = ($tahun .'-'. $bulan .'-01');
 			$tanggal_sampai = date('Y-m-t', strtotime($tanggal_dari));
+			
+			$filter_result = $filter_result.'sub period = ' .$bulan. '<br>';
 		}
 		
 		if ($p_period == 'quarterly') {
@@ -137,7 +138,7 @@ class Supply extends CI_Controller {
 		$filter_result = $msg_depan.$filter_result.'from <b>'.$tanggal_dari. '</b> to <b>'.$tanggal_sampai.'</b>'.$msg_belakang;
 		$data['filter_result'] = $filter_result;
 		
-		$data['qeury_url'] = (!empty($_POST))? http_build_query($_POST) : '';
+		$data['qeury_url'] = (!empty($_POST))? http_build_query($_POST) : 'p_year='.date('Y').'&p_period=monthly&p_period_sub_date='.date('Y-m-d').'&p_period_sub_month='.date('n').'&p_period_sub_quarter=q1';
 		$data['periode'] = $p_period;
 		
 		$this->load->view('header', $datasesion);
