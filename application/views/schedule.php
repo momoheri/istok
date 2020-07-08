@@ -12,7 +12,7 @@
 	
 <div class="leftmenufilter card shadow">
 	<div class="leftmenufilter"><center>
-		<?php echo form_open("schedule/cari"); ?>
+		<?php echo form_open("schedule", array('method'=>'post')); ?>
 		<table cellpadding="2">
 		  <tr>
 			<td colspan="3" align="center"><h3>Snapshot</h3></td>
@@ -157,7 +157,7 @@
 						<td align="right"><?php echo number_format($rec->distribution, 0, ',', '.'); ?> L</td>
 						<td align="right"><font color="<?php echo $warna; ?>"><?php echo $quantity; ?></font></td>
 						<td align="right"><font color="<?php echo $warna; ?>"><?php echo $rec->barge_name; ?></font></td>
-						<td align="right"><font color="<?php echo $warna; ?>"><?php echo $rec->po_res_number; ?></font></td>
+						<td align="right"><font color="<?php echo $warna; ?>"><?php echo substr($rec->po_res_number,11); ?></font></td>
 					  </tr>
 						<?php 
 							} 				
@@ -238,7 +238,7 @@
 							<td align="right"><?php echo number_format($rec->distribution, 0, ',', '.'); ?> L</td>
 							<td align="right"><font color="<?php echo $warna; ?>"><?php echo $quantity; ?></font></td>
 							<td align="right"><font color="<?php echo $warna; ?>"><?php echo $rec->barge_name; ?></font></td>
-							<td align="right"><font color="<?php echo $warna; ?>"><?php echo $rec->po_res_number; ?></font></td>
+							<td align="right"><font color="<?php echo $warna; ?>"><?php echo substr($rec->po_res_number,11); ?></font></td>
 						  </tr>
 							<?php 
 								} 				
@@ -319,7 +319,7 @@
 							<td align="right"><?php echo number_format($rec->distribution, 0, ',', '.'); ?> L</td>
 							<td align="right"><font color="<?php echo $warna; ?>"><?php echo $quantity; ?></font></td>
 							<td align="right"><font color="<?php echo $warna; ?>"><?php echo $rec->barge_name; ?></font></td>
-							<td align="right"><font color="<?php echo $warna; ?>"><?php echo $rec->po_res_number; ?></font></td>
+							<td align="right"><font color="<?php echo $warna; ?>"><?php echo substr($rec->po_res_number,11); ?></font></td>
 						  </tr>
 							<?php 
 								} 				
@@ -494,6 +494,17 @@ var chart = new Chart(ctx, {
 </script>
 
 <script>
+
+setInterval(function(){
+	/*$.ajax({
+		url: '<?php echo base_url() ?>index.php/schedule/getStatus/',
+		type: 'post',
+		dataType: 'json',
+		success: function(result){
+			
+		}
+	});*/
+}, 1000);
 // var ctx = document.getElementById('myChart').getContext('2d');
 // var chart = new Chart(ctx, {
     // // The type of chart we want to create

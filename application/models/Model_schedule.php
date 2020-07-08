@@ -167,7 +167,8 @@ class Model_schedule extends CI_Model {
 	}
 
 	function get_trans_atg($id) {
-		$this->db->select('trans_atg.volume, trans_atg.ullage, trans_atg.atg_id');
+		$this->db->query("SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''))");
+		$this->db->select('tran_atg.volume, trans_atg.ullage, trans_atg.atg_id');
 		$this->db->from('trans_atg');
 		$this->db->join('mst_atg', 'trans_atg.atg_id = mst_atg.atg_id');
 		$this->db->join('mst_storage', 'mst_atg.storage_id = mst_storage.storage_id');
@@ -224,13 +225,13 @@ class Model_schedule extends CI_Model {
 	}
         
         function max_forecast_byId($id){
-                $this->db->select('MAX(trans_id) as max_id');
-		$this->db->from('trans_forecast');
-                $this->db->where('storage_id', $id);
-		$query = $this->db->get();
+            $this->db->select('MAX(trans_id) as max_id');
+			$this->db->from('trans_forecast');
+            $this->db->where('storage_id', $id);
+			$query = $this->db->get();
 		
-		$result = $query->row()->max_id;
-		return $result;
+			$result = $query->row()->max_id;
+			return $result;
         }
         
         function get_idtrans_before($id){
@@ -240,7 +241,11 @@ class Model_schedule extends CI_Model {
         
         function get_last_forecast($id){
             return $this->db->query("SELECT * FROM trans_forecast WHERE trans_id=$id")->result();
-        }
+		}
+		
+		function last_forecast_byDate($date){
+			return $this->db->query("SELECT * FROM trans_forecast WHERE trans_date='$date'")->result();
+		}
         
         function update_curr_forecast($id,$data){
             $this->db->where('trans_id', $id);
@@ -251,6 +256,38 @@ class Model_schedule extends CI_Model {
             return $this->db->query("SELECT count(*) as total FROM trans_forecast WHERE storage_id=$storage_id AND trans_id BETWEEN $value1 AND $value2")->row()->total;
         }
         
+        //16-06-2020
+        function update_log_forecast($id,$data){
+            $this->db->where('storage_id',$id);
+            return $this->db->insert('log_trans_forecast', $data);
+        }
         
-        //function get_forecast_before()
+        function get_log_last_forecast($id_storage){
+            return $this->db->query("select min(trans_id) as id from trans_forecast where storage_id=$id_storage")->row()->id;
+        }
+        
+        function get_data_log_forecast($storage_id){
+            $trans_id = $this->db->query("select min(trans_id) as id from trans_forecast where storage_id=$storage_id")->row()->id;
+            return $this->db->query("select * from trans_forecast where trans_id=$trans_id")->result();
+        }
+		
+		function get_po_status(){
+			$this->db->select('*');
+			$this->db->from('trans_po');
+			$this->db->where('status = 5');
+
+			$query = $this->db->get()->row();
+			$result = 0;
+			if(empty($query)){
+				$result=null;
+			}else{
+				$result = $query;
+			}
+			return $result;
+		}
+		
+		function update_status(){
+			
+			return $this->db->query("update trans_po set status=0 where status=5");
+		}
 }?>

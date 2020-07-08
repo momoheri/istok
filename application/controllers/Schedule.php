@@ -10,6 +10,7 @@ class Schedule extends CI_Controller {
 		$this->load->library('session');
 		$this->load->database();
 		$this->load->model('Model_schedule');
+                $this->load->model('Model_home');
 
         if ($this->session->userdata('login') == TRUE) {
 			if ($this->session->userdata('login_app') <> 'istok') {
@@ -150,15 +151,34 @@ class Schedule extends CI_Controller {
                 
 		date_default_timezone_set('Asia/Jakarta');
 		$tanggal = date('Y-m-d');
-                
-                $id_today = $this->Model_schedule->get_forecast_ById($tanggal,'1');
+        $status = $this->Model_schedule->get_po_status();
+        if(!empty($status)){
+            $this->Model_schedule->update_status();
+
+            $this->Model_schedule->delete_trans_forecast();
+            $max_id = $this->Model_schedule->max_trans_forecast();
+            $this->forecast_recalculate('1', $max_id);
+            $max_id = $this->Model_schedule->max_trans_forecast();
+            $this->forecast_recalculate('2', $max_id);
+            $max_id = $this->Model_schedule->max_trans_forecast();
+            $this->forecast_recalculate('3', $max_id);
+        } else {
+            $this->Model_schedule->delete_trans_forecast();
+            $max_id = $this->Model_schedule->max_trans_forecast();
+            $this->forecast_recalculate('1', $max_id);
+            $max_id = $this->Model_schedule->max_trans_forecast();
+            $this->forecast_recalculate('2', $max_id);
+            $max_id = $this->Model_schedule->max_trans_forecast();
+            $this->forecast_recalculate('3', $max_id);
+        }        
+                /*$id_today = $this->Model_schedule->get_forecast_ById($tanggal,'1');
                 $this->daily_calculate($id_today, '1');
                 
                 $id_today = $this->Model_schedule->get_forecast_ById($tanggal,'2');
                 $this->daily_calculate($id_today, '2');
                 
                 $id_today = $this->Model_schedule->get_forecast_ById($tanggal,'3');
-                $this->daily_calculate($id_today, '3');
+                $this->daily_calculate($id_today, '3');*/
                 
                 $sum_vendor_akr_lati= $this->Model_schedule->get_sum_order_po_ByVendor('1','1');
                 $data['sum_akr_lati'] = $sum_vendor_akr_lati;
@@ -222,41 +242,36 @@ class Schedule extends CI_Controller {
                 
                 $sum_trans_brk_sam = $this->Model_schedule->get_sum_order_po_ByTransporter('4','3');
                 $data['sum_brk_sam'] = $sum_trans_brk_sam;
-                //$data['today'] = $this->daily_calculate($id_today);
                 
-                //$today_forecast = $this->Model_schedule->get_today_forecast();
-                /*if($tanggal == $today_forecast){
-                    
-                } else {*/
+        $p_period = $this->input->post('p_period');
+        if($p_period != null){
+            if($p_period == 'daily'){
+                $tgl = $this->input->post('p_period_sub_date');
+                $tanggal_dari = (empty($tgl))? date('Y-m-d') : $tgl;
+                $tanggal_sampai = $tanggal_dari;
+            }
+            if($p_period == 'monthly' || empty($p_period)){
                 
-                    /*$this->Model_schedule->delete_trans_forecast();
-
-                    // proses forecast 1
-                    $max_id = $this->Model_schedule->max_trans_forecast();
-                    $this->forecast_recalculate('1', $max_id);
-
-                    // proses forecast 2
-                    $max_id = $this->Model_schedule->max_trans_forecast();
-                    $this->forecast_recalculate('2', $max_id);
-
-                    // proses forecast 3
-                    $max_id = $this->Model_schedule->max_trans_forecast();
-                    $this->forecast_recalculate('3', $max_id);*/
-                //}
-                
-		// forecast 1
-		$data_forecast = $this->Model_schedule->get_trans_forecast('1');
+            }
+        } else {
+            // forecast 1
+            $data_forecast = $this->Model_schedule->get_trans_forecast('1');
 		
-                $data['s1_forecast'] = $data_forecast;
+            $data['s1_forecast'] = $data_forecast;
 		
-		// forecast 2
-		$data_forecast = $this->Model_schedule->get_trans_forecast('2');
-		$data['s2_forecast'] = $data_forecast;
+		    // forecast 2
+            $data_forecast = $this->Model_schedule->get_trans_forecast('2');
+            $data['s2_forecast'] = $data_forecast;
+            
+            // forecast 3
+            $data_forecast = $this->Model_schedule->get_trans_forecast('3');
+            $data['s3_forecast'] = $data_forecast;
+        }       
 		
-		// forecast 3
-		$data_forecast = $this->Model_schedule->get_trans_forecast('3');
-		$data['s3_forecast'] = $data_forecast;
+		
                 $data['akr_lmo'] = 3500000;
+        
+            
                 
 		
 		$this->load->view('header', $datasesion);
@@ -268,11 +283,29 @@ class Schedule extends CI_Controller {
             date_default_timezone_set('Asia/Jakarta');
             $tanggal = date('Y-m-d');
             
-            $data_trans_atg = $this->Model_schedule->get_trans_atg($storage_id);
-            $atg_volume=0;
-            foreach ($data_trans_atg as $row) {
-            	$atg_volume = $atg_volume + $row->volume;
+            $data_trans_atg = $this->Model_home->get_trans_atg($storage_id);
+            $atg_volume=0;$sum_ullage=0;$qty_manual=0;$total=0;
+            if($data_trans_atg == null){
+                $data_trans_atg = $this->Model_home->get_trans_atg_null($storage_id,'1');
+                if($data_trans_atg == null){
+                    $data_trans_atg = $this->Model_home->get_trans_atg_null($storage_id,'2');
+                    if($data_trans_atg == null){
+                        $data_trans_atg = $this->Model_home->get_trans_atg_null($storage_id,'3');
+                        if($data_trans_atg == null){
+                            $data_trans_atg = $this->Model_home->get_trans_atg2($storage_id);
+                        }
+                    }
+                }
             }
+            foreach ($data_trans_atg as $row) {
+            	$total += $row->volume;
+                if($row->qty_observe != null){
+                    $total = $total-$row->volume;
+                    $qty_manual += $row->qty_observe;
+                }
+                
+            }
+            $atg_volume = $total+$qty_manual;
 		
             // update parameter
             $realtime_parameter = $this->Model_schedule->get_mst_parameter($storage_id);
@@ -288,6 +321,10 @@ class Schedule extends CI_Controller {
             
             if($get_total < 90 && $storage_id == '1'){
                
+                //$this->insert_log('1');
+                //$this->insert_log('2');
+                //$this->insert_log('3');
+                
                     $this->Model_schedule->delete_trans_forecast();
 
                     // proses forecast 1
@@ -310,7 +347,7 @@ class Schedule extends CI_Controller {
                 $this->Model_schedule->update_mst_parameter($data, $storage_id);
                 
                 $data_mst_parameter = $this->Model_schedule->get_mst_parameter($storage_id);
-		$stock_realtime=0; $stock_min=0; $stock_distribution_parameter=0; $stock_distribution_max_parameter=0;
+		    $stock_realtime=0; $stock_min=0; $stock_distribution_parameter=0; $stock_distribution_max_parameter=0;
                 $reorder_point=0;
 		foreach ($data_mst_parameter as $row) {
 			$stock_realtime = $row->stock_realtime;
@@ -322,7 +359,6 @@ class Schedule extends CI_Controller {
             
            
             for($i=$id_today;$i<=$max_forecast;$i++){
-                //$stock_distribution = rand($stock_distribution_parameter,$stock_distribution_max_parameter);
                 
                 if($i == $id_today){
                     $today_forecast = $this->Model_schedule->get_last_forecast($id_today);
@@ -387,67 +423,95 @@ class Schedule extends CI_Controller {
                     }
                     $next_realtime = $b_inventory-$b_distribution+$l_eta;
                     
-                    /*if($next_realtime < $reorder_point){
-                        $data_last = $this->Model_schedule->get_trans_forecast_last($storage_id);
-                        $prioritas = 0;
-
-                        foreach ($data_last as $row) {
-                            $prioritas = $row->prioritas;
-                        }
-                        
-                        $prioritas_max = $this->Model_schedule->max_mst_barge_prioritas($storage_id);
-                        if ($prioritas==$prioritas_max) {
-                            $prioritas = 0;
-                        }
-                        
-                        $data_barge = $this->Model_schedule->get_mst_barge($storage_id, $prioritas);
-			
-                        foreach ($data_barge as $row) {
-				$l_barge = $row->barge_id;
-				$l_eta = $row->volume;
-			}
-                        $real_time = $next_realtime+$p_eta;
-                        $data = array(
-                            'inventory' => $real_time,
-                            'distribution' => $l_distribution
-                            /*'eta_schedule' => $l_eta,
-                            'barge_id' => $l_barge,
-                            'po_res_number' => $p_po
-                        );
-                        
-                        $this->Model_schedule->update_curr_forecast($i,$data);
-                    } else {*/
+                    
                         
                         $data = array(
                             'inventory' => $next_realtime,
                             'distribution' => $l_distribution,
                             'eta_schedule' => $l_eta,
-                            /*'barge_id' => $l_barge,
-                            'po_res_number' => $l_po_num*/
+                            
                         );
                         $this->Model_schedule->update_curr_forecast($i,$data);
-                    //}
+                    
                    
                 }
             }
         }
-            //return $result;
+            
         }
-	
+        
+        function insert_log($storage_id){
+            $data_log = $this->Model_schedule->get_data_log_forecast($storage_id);
+            $trans_date = date('Y-m-d');$inventory=0;$distribution=0;$eta_schedule=0;$barge_id=null;$po='';$storage=0;
+            foreach ($data_log as $row){
+                $trans_date = $row->trans_date;
+                $inventory = $row->inventory;
+                $distribution = $row->distribution;
+                $eta_schedule = $row->eta_schedule;
+                $barge_id = $row->barge_id;
+                $po = $row->po_res_number;
+                $storage = $row->storage_id;
+            }
+            
+            $data = array(
+                'trans_date' =>$trans_date,
+                'inventory' => $inventory,
+                'distribution' => $distribution,
+                'eta_schedule' => $eta_schedule,
+                'barge_id' => $barge_id,
+                'po_res_number' => $po,
+                'storage_id' => $storage
+            );
+            
+            $this->Model_schedule->update_log_forecast($storage,$data);
+        }
+                
 	function forecast_recalculate($id, $max_id) {
 		// cek volume atg terkini
-		$data_trans_atg = $this->Model_schedule->get_trans_atg($id);
+		/*$data_trans_atg = $this->Model_schedule->get_trans_atg($id);
 		$atg_volume=0;
 		foreach ($data_trans_atg as $row) {
 			$atg_volume = $atg_volume + $row->volume;
 		}
-		
+		*/
+            date_default_timezone_set('Asia/Jakarta');
+            $tanggal = date('Y-m-d');
+            
+                $data_trans_atg = $this->Model_home->get_trans_atg($id);
+                $atg_volume=0;$qty_manual=0;$total=0;
+                if($data_trans_atg == null){
+                    $data_trans_atg = $this->Model_home->get_trans_atg_null($id,'1');
+                    if($data_trans_atg == null){
+                        $data_trans_atg = $this->Model_home->get_trans_atg_null($id,'2');
+                        if($data_trans_atg == null){
+                            $data_trans_atg = $this->Model_home->get_trans_atg_null($id,'3');
+                            if($data_trans_atg == null){
+                                $data_trans_atg = $this->Model_home->get_trans_atg2($id);
+                            }
+                        }
+                    }
+                }
+                foreach ($data_trans_atg as $row) {
+                    $total += $row->volume;
+                    if($row->qty_observe != null){
+                        $total = $total-$row->volume;
+                        $qty_manual += $row->qty_observe;
+                    }
+
+                }
+                $atg_volume = $total+$qty_manual;
 		// update parameter
 		$data = array(
 			'stock_realtime' => $atg_volume
 		);		
 		$this->Model_schedule->update_mst_parameter($data, $id);
-		
+                
+//                $inv = array(
+//                    'trans_date' => $tanggal,
+//                    'inventory' => $atg_volume,
+//                    'storage_id' => $id
+//                );
+//		$this->Model_schedule->update_log_forecast($id,$inv);
 		// cek parameter
 		$data_mst_parameter = $this->Model_schedule->get_mst_parameter($id);
 		$stock_realtime=0; $stock_min=0; $stock_distribution_parameter=0; $stock_distribution_max_parameter=0;
@@ -457,7 +521,7 @@ class Schedule extends CI_Controller {
 			$stock_min = $row->stock_min;
 			$stock_distribution_parameter = $row->average_distribution;
 			$stock_distribution_max_parameter = $row->average_distribution_max;
-                        $reorder_point = $row->reorder_point;
+            $reorder_point = $row->reorder_point;
 		}
 		
 		if ($max_id != null) {
@@ -469,9 +533,9 @@ class Schedule extends CI_Controller {
 		date_default_timezone_set('Asia/Jakarta');
 		$tanggal = date('Y-m-d');
 		$tanggal_sekarang = date('Y-m-d');
-		
+		$last_date = date('Y-m-d');
 		// create forecast
-		for ($i=1; $i<=90; $i++) {
+		for ($i=1; $i<=60; $i++) {
 			// cek stok bulan sebelumnya di tanggal yg sama
 			$time = strtotime($tanggal);
 			$tanggal_bef = date("Y-m-d", strtotime("-1 month", $time));
@@ -488,7 +552,13 @@ class Schedule extends CI_Controller {
 				}
 			} else {
 				$stock_distribution = rand($stock_distribution_parameter,$stock_distribution_max_parameter);
-				
+                $last_forecast = $this->Model_schedule->last_forecast_byDate($last_date);
+                $l_stoc=0;$l_distribution=0;
+                foreach($last_forecast as $val){
+                    $l_stoc = $val->inventory;
+                    $l_distribution = $val->distribution;
+                }
+                
 				$data_po = $this->Model_schedule->get_trans_po($id,$tanggal);
 				$eta_schedule = 0; $po_res_number=''; $barge_id=0;
 				foreach ($data_po as $row) {
@@ -497,7 +567,7 @@ class Schedule extends CI_Controller {
 					$barge_id = $row->barge_id;
 				}
 				
-				$stock_realtime=$stock_realtime+$eta_schedule-$stock_distribution;
+				$stock_realtime=$l_stoc-$l_distribution+$eta_schedule;
 				
 				// jika inv. kurang dari min. stok cek kapal
 				if ($stock_realtime < $reorder_point) {
@@ -519,7 +589,7 @@ class Schedule extends CI_Controller {
 						$eta_schedule = $row->volume;
 					}
 					
-					$stock_realtime=$stock_realtime+$eta_schedule-$stock_distribution;
+					$stock_realtime=$l_stoc+$eta_schedule-$l_distribution;
 
 					// tampilkan query
 					// $this->output->enable_profiler(TRUE);
@@ -538,17 +608,42 @@ class Schedule extends CI_Controller {
 			);
 			$this->Model_schedule->insert_trans_forecast($data);
 			
-			// $stock_realtime=$stock_realtime-$stock_distribution;
-			
+			//$stock_realtime=$stock_realtime-$stock_distribution+$eta_schedule;
+			$last_date = $tanggal;
 			$date=date_create($tanggal);
 			date_add($date,date_interval_create_from_date_string("1 days"));
-			$tanggal = date_format($date,"Y-m-d");
+            $tanggal = date_format($date,"Y-m-d");
+            
                         }		
                 
         }
+    
+    
 	
 	function logout(){
 			$this->session->sess_destroy();
 			redirect(base_url('login'));
-	}
+    }
+    
+    function getStatus(){
+        $result = '';
+        $status = $this->Model_schedule->get_po_status();
+        $id=0;
+        foreach($status as $val){
+            $id = $val->trans_id; 
+        }
+        if(empty($id)){
+            
+        } else {
+           $this->Model_schedule->delete_trans_forecast();
+                $max_id = $this->Model_schedule->max_trans_forecast();
+                $this->forecast_recalculate('1', $max_id);
+                $max_id = $this->Model_schedule->max_trans_forecast();
+                $this->forecast_recalculate('2', $max_id);
+                $max_id = $this->Model_schedule->max_trans_forecast();
+                $this->forecast_recalculate('3', $max_id);
+        }
+
+        
+    }
 }
