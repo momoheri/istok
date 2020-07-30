@@ -112,7 +112,117 @@ class Chart extends CI_Controller {
 		$data_vendor = array();
 		foreach($vendor as $data){
 			$vendor_id[$data['vendor_id']] = 0;
-			$data_vendor[] = "'".$data['vendor_name']."'";
+			$data_vendor[] = $data['vendor_name'];
+		}
+		$res['vendor'] = implode('|', $data_vendor);
+		
+		$res['chart'] = array();
+		$data_quantity = array();
+		$i = 0;
+		foreach($feul_item as $items){
+			$quantity = $vendor_id;
+			foreach($items as $item){
+				if(!empty($item['vendor_id']) && $item['vendor_id'] !=''){
+					$quantity[$item['vendor_id']] = $item['quantity'];
+				}
+			}
+			$res['chart'][$i] = $items[0];
+			$res['chart'][$i]['color'] = $array_color[$i];
+			$res['chart'][$i]['quantity'] = implode(',', $quantity);
+			$i++;
+		}
+		
+		echo json_encode($res);
+	}
+	
+	/*------------------------------------------------------------------------------*/
+	
+	public function purchase_order_to_vendor()	{
+		$p_period = $this->input->get('p_period');
+		
+		if ($p_period == 'daily' || empty($p_period)) {
+			$tgl = $this->input->get('p_period_sub_date');
+			$tanggal_dari = (empty($tgl))? date('Y-m-d') : $tgl;
+			$tanggal_sampai = $tanggal_dari;
+		}
+		if ($p_period == 'monthly') {
+			$tahun = $this->input->get('p_year');
+			$bulan = substr(('0' .$this->input->get('p_period_sub_month')),-2);
+			
+			$tanggal_dari = ($tahun .'-'. $bulan .'-01');
+			$tanggal_sampai = date('Y-m-t', strtotime($tanggal_dari));
+		}
+		if ($p_period == 'quarterly') {
+			$tahun = $this->input->get('p_year');
+			
+			if ($this->input->get('p_period_sub_quarter')=='q1') {
+				$bulan1 = '01';				
+				$tanggal_dari = ($tahun .'-'. $bulan1 .'-01');
+				
+				$bulan2 = '03';				
+				$tanggal2 = ($tahun .'-'. $bulan2 .'-01');
+				$tanggal_sampai = date('Y-m-t', strtotime($tanggal2));
+			}
+			
+			if ($this->input->get('p_period_sub_quarter')=='q2') {
+				$bulan1 = '04';				
+				$tanggal_dari = ($tahun .'-'. $bulan1 .'-01');
+				
+				$bulan2 = '06';				
+				$tanggal2 = ($tahun .'-'. $bulan2 .'-01');
+				$tanggal_sampai = date('Y-m-t', strtotime($tanggal2));
+			}
+			
+			if ($this->input->get('p_period_sub_quarter')=='q3') {
+				$bulan1 = '07';				
+				$tanggal_dari = ($tahun .'-'. $bulan1 .'-01');
+				
+				$bulan2 = '09';				
+				$tanggal2 = ($tahun .'-'. $bulan2 .'-01');
+				$tanggal_sampai = date('Y-m-t', strtotime($tanggal2));
+			}
+			
+			if ($this->input->get('p_period_sub_quarter')=='q4') {
+				$bulan1 = '10';				
+				$tanggal_dari = ($tahun .'-'. $bulan1 .'-01');
+				
+				$bulan2 = '12';				
+				$tanggal2 = ($tahun .'-'. $bulan2 .'-01');
+				$tanggal_sampai = date('Y-m-t', strtotime($tanggal2));
+			}
+		}
+		if ($p_period == 'yearly') {
+			$tahun = $this->input->get('p_year');
+			
+			$tanggal_dari = ($tahun .'-01-01');
+			$tanggal_sampai = ($tahun .'-12-31');
+		}
+		$start = $tanggal_dari;
+		$end = $tanggal_sampai;
+		
+		$vendor = $this->Model_monitoring->get_vendor();
+		$fuel = $this->Model_monitoring->get_purchase_order_to_vendor($start, $end);
+		$array_color = array('blue', 'orange', 'grey', 'yellow', 'green', 'red',"Cyan","DarkBlue","DarkCyan","DarkGoldenRod","DarkGray","DarkGrey","DarkGreen","DarkKhaki","DarkMagenta","DarkOliveGreen","DarkOrange","DarkOrchid","DarkRed","DarkSalmon","DarkSeaGreen","DarkSlateBlue","DarkSlateGray","DarkSlateGrey","DarkTurquoise","DarkViolet","DeepPink","DeepSkyBlue","DimGray","DimGrey","DodgerBlue","FireBrick","FloralWhite","ForestGreen");
+		
+		$temp_item = $this->_group_by($fuel, 'id_transporter');
+		$feul_item = array();
+		foreach($temp_item as $items) {
+			$quantity = array();
+			foreach($items as $item) {
+				$index = $this->find_by('vendor_id', $quantity, $item['vendor_id']);
+				if ($index < 0) {
+						$quantity[] = $item;
+				}
+				else {
+						$quantity[$index]['quantity'] +=  $item['quantity'];
+				}
+			}			
+			$feul_item[$items[0]['id_transporter']] = $quantity;
+		}
+		$data_vendor = array();
+		foreach($vendor as $data){
+			$vendor_id[$data['vendor_id']] = 0;
+			$data_vendor[] = $data['vendor_name'];
 		}
 		$res['vendor'] = implode('|', $data_vendor);
 		

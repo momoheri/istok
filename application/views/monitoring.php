@@ -73,7 +73,7 @@
 		<?php echo $filter_result; ?>
 	</div>
 	<div class="leftmenufilter"><canvas id="myChart"></canvas></div>	
-	<div class="leftmenufilter"><center>
+	<!--div class="leftmenufilter"><center>
 		<table cellpadding="2" border="1" width="100%" style="font-size: small;">
 		  <tr>
 			<th></th>
@@ -112,7 +112,7 @@
 			<th>Rp. 99.600.000.000</th>
 		  </tr>
 		</table>
-	</div>
+	</div-->
 	<div class="leftmenufilter card shadow" style="font-size: small;">
 	</br>
 	</br>
@@ -174,6 +174,7 @@ console.log(chartData);
 			},
 			responsive: true,
 			tooltips: {
+				mode: 'nearest',
 			  callbacks: {
 					label: function(tooltipItem, data) {
 						var value = tooltipItem.xLabel;
@@ -227,17 +228,9 @@ setup();
 
 <script>
 $(document).ready(function(){
-	$("#p_period_sub_date_text").show();
-	$("#p_period_sub_date").show();
-	$("#p_year_text").hide();
-	$("#p_year").hide();
-	$("#p_period_text").show();
-	$("#p_period_sub_text").show();	
-	$("#p_period_sub_month").hide();
-	$("#p_period_sub_quarter").hide();
-		var queryString = window.location.search;
-		var urlParams = new URLSearchParams(queryString);
-		var status = urlParams.get('p_period');
+		var queryString = new URL('<?php echo current_url().'?'.$qeury_url; ?>');
+		var urlParams = new URLSearchParams(queryString.search);
+		var status = '<?php echo $periode; ?>';
 		var year = urlParams.get('p_year');
 		var date = urlParams.get('p_period_sub_date');
 		var month = urlParams.get('p_period_sub_month');
