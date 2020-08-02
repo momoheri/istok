@@ -204,7 +204,7 @@ class Chart extends CI_Controller {
 		$fuel = $this->Model_monitoring->get_purchase_order_to_vendor($start, $end);
 		$array_color = array('blue', 'orange', 'grey', 'yellow', 'green', 'red',"Cyan","DarkBlue","DarkCyan","DarkGoldenRod","DarkGray","DarkGrey","DarkGreen","DarkKhaki","DarkMagenta","DarkOliveGreen","DarkOrange","DarkOrchid","DarkRed","DarkSalmon","DarkSeaGreen","DarkSlateBlue","DarkSlateGray","DarkSlateGrey","DarkTurquoise","DarkViolet","DeepPink","DeepSkyBlue","DimGray","DimGrey","DodgerBlue","FireBrick","FloralWhite","ForestGreen");
 		
-		$temp_item = $this->_group_by($fuel, 'id_transporter');
+		$temp_item = $this->_group_by($fuel, 'storage_id');
 		$feul_item = array();
 		foreach($temp_item as $items) {
 			$quantity = array();
@@ -217,8 +217,9 @@ class Chart extends CI_Controller {
 						$quantity[$index]['quantity'] +=  $item['quantity'];
 				}
 			}			
-			$feul_item[$items[0]['id_transporter']] = $quantity;
+			$feul_item[$items[0]['storage_id']] = $quantity;
 		}
+		
 		$data_vendor = array();
 		foreach($vendor as $data){
 			$vendor_id[$data['vendor_id']] = 0;
@@ -447,6 +448,179 @@ class Chart extends CI_Controller {
 	
 	/*------------------------------------------------------------------------------*/
 	
+	public function fuel_price_by_history ()	{
+		$p_period = $this->input->get('p_period');
+		$label_type = 'month';
+		if ($p_period == 'daily') {
+			$label_type = 'day';
+			$tgl = $this->input->get('p_period_sub_date');
+			$tanggal_dari = (empty($tgl))? date('Y-m-d') : $tgl;
+			$tanggal_sampai = $tanggal_dari;
+		}
+		if ($p_period == 'monthly' || empty($p_period)) {
+			$label_type = 'day';
+			$tahun = $this->input->get('p_year');
+			$tahun = (empty($tahun))? date('Y') : $tahun;
+			$bulan = $this->input->get('p_period_sub_month');
+			$bulan = (empty($bulan))? date('n') : $bulan;
+			$bulan = substr(('0' .$bulan),-2);
+			
+			$tanggal_dari = ($tahun .'-'. $bulan .'-01');
+			$tanggal_sampai = date('Y-m-t', strtotime($tanggal_dari));
+		}
+		if ($p_period == 'quarterly') {
+			$tahun = $this->input->get('p_year');
+			if ($this->input->get('p_period_sub_quarter')=='q1') {
+				$label_type = 'quarterly';
+				$bulan1 = '01';				
+				$tanggal_dari = ($tahun .'-'. $bulan1 .'-01');
+				
+				$bulan2 = '03';				
+				$tanggal2 = ($tahun .'-'. $bulan2 .'-01');
+				$tanggal_sampai = date('Y-m-t', strtotime($tanggal2));
+			}
+			
+			if ($this->input->get('p_period_sub_quarter')=='q2') {				
+				$label_type = 'quarterly';
+				$bulan1 = '04';				
+				$tanggal_dari = ($tahun .'-'. $bulan1 .'-01');
+				
+				$bulan2 = '06';				
+				$tanggal2 = ($tahun .'-'. $bulan2 .'-01');
+				$tanggal_sampai = date('Y-m-t', strtotime($tanggal2));
+			}
+			
+			if ($this->input->get('p_period_sub_quarter')=='q3') {
+				$label_type = 'quarterly';
+				$bulan1 = '07';				
+				$tanggal_dari = ($tahun .'-'. $bulan1 .'-01');
+				
+				$bulan2 = '09';				
+				$tanggal2 = ($tahun .'-'. $bulan2 .'-01');
+				$tanggal_sampai = date('Y-m-t', strtotime($tanggal2));
+			}
+			
+			if ($this->input->get('p_period_sub_quarter')=='q4') {
+				$label_type = 'quarterly';
+				$bulan1 = '10';				
+				$tanggal_dari = ($tahun .'-'. $bulan1 .'-01');
+				
+				$bulan2 = '12';				
+				$tanggal2 = ($tahun .'-'. $bulan2 .'-01');
+				$tanggal_sampai = date('Y-m-t', strtotime($tanggal2));
+			}
+		}
+		if ($p_period == 'yearly') {
+				$label_type = 'month';
+			$tahun = $this->input->get('p_year');
+			
+			$tanggal_dari = ($tahun .'-01-01');
+			$tanggal_sampai = ($tahun .'-12-31');
+		}
+		$start = $tanggal_dari;
+		$end = $tanggal_sampai;
+				
+		$vendor = $this->Model_monitoring->get_vendor();
+		$fuel_price 	= $this->Model_monitoring->get_fuel_price($start, $end, $label_type);
+		$array_color = array('blue', 'orange', 'grey', 'yellow', 'green', 'red',"Cyan","DarkBlue","DarkCyan","DarkGoldenRod","DarkGray","DarkGrey","DarkGreen","DarkKhaki","DarkMagenta","DarkOliveGreen","DarkOrange","DarkOrchid","DarkRed","DarkSalmon","DarkSeaGreen","DarkSlateBlue","DarkSlateGray","DarkSlateGrey","DarkTurquoise","DarkViolet","DeepPink","DeepSkyBlue","DimGray","DimGrey","DodgerBlue","FireBrick","FloralWhite","ForestGreen");
+		
+		
+		if($label_type == 'month'){
+			$x = 0;
+			while($x++ < 12) {
+				$MonthNumbers[] = $x;
+			}
+
+			foreach ($MonthNumbers as $MonthNumber) {
+				$mon = $MonthNumber-1;
+				$monmin = $MonthNumber-2;
+				$months[] = date("F", strtotime("+".$mon."month",strtotime('2020-01-01')));
+				$months_before[] = date("F", strtotime("+".$monmin."month",strtotime('2020-01-01')));
+			}
+		}elseif($label_type == 'quarterly'){
+			$start = date("n", strtotime($tanggal_dari));
+			$end = date("n", strtotime($tanggal_sampai));
+			$x = $start-1;
+			while($x++ < $end) {
+				$MonthNumbers[] = $x;
+			}
+			foreach ($MonthNumbers as $MonthNumber) {
+				$mon = $MonthNumber-1;
+				$months[] = date("F", strtotime("+".$mon."month",strtotime('2020-01-01')));
+			}
+		}elseif($label_type == 'day'){
+			$start = $tanggal_dari;
+			$end = $tanggal_sampai;
+			while(strtotime($start) <= strtotime($end)) {
+				$months[] = $start;
+				$start = date ("Y-m-d", strtotime("+1 day", strtotime($start)));
+			}
+		}
+		$temp_item = $this->_group_by($fuel_price, 'vendor_id');
+		
+		$data_vendor = array();
+		$i=0;
+		foreach($vendor as $data){
+			if(isset($temp_item[$data['vendor_id']])){				
+				$data_vendor[$i]['name'] = $data['vendor_name'];
+				$data_vendor[$i]['data'] = $temp_item[$data['vendor_id']];
+			}else{
+				$data_vendor[$i]['name'] = $data['vendor_name'];
+				$data_vendor[$i]['data'] = array();
+			}
+			$i++;
+		}
+		
+		$label = array();
+		$average = array();		
+		$total = array();
+		$i=0;
+		foreach($months as $item){
+			$label[$i] = $item;			
+			$i++;				
+		}
+		$n=0;
+		foreach($data_vendor as $item_vendor){
+			$temp_data[$n]['vendor_name'] = $item_vendor['name'];
+			$i=0;
+			foreach($months as $item){
+				$index = $this->find_by('posting_date', $item_vendor['data'], $item);
+				$temp_data[$n]['posting_date'][$i] = $item;
+				if($index >= 0){
+					$temp_data[$n]['price'][$i] = $item_vendor['data'][$index]['price'];
+				}else{
+					$temp_data[$n]['price'][$i] = 0;
+				}	
+				if(!isset($total[$item])){
+					$total[$item] = 0;
+				}
+				$total[$item] = $total[$item] + $temp_data[$n]['price'][$i];
+				$i++;				
+			}
+			$n++;			
+		}
+		$total_vendor = count($data_vendor);
+		foreach($total as $item){
+			$average[] = ($item/$total_vendor);
+		}
+		
+		$res['chart'] = array();
+		$res['chart_fill'] = array();
+		$res['labels'] = implode(',', $label);
+		$i=0;
+		foreach($temp_data as $chart){
+			$res['chart'][$i]['label'] = $chart['vendor_name'];
+			$res['chart'][$i]['datas'] = implode(',', $chart['price']);
+			$res['chart'][$i]['color'] = $array_color[$i];	
+			$i++;
+		}
+		$res['chart_fill'][1]['label'] = 'Average Price';
+		$res['chart_fill'][1]['datas'] = implode(',', $average);
+		$res['chart_fill'][1]['color'] = 'ForestGreen';
+		echo json_encode($res);
+	}
+	
+	/*------------------------------------------------------------------------------*/
 	public function inventory_performance($storage_id)	{
 		$p_period = $this->input->get('p_period');
 		$label_type = 'month';
