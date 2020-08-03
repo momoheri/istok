@@ -113,18 +113,59 @@ $(document).ready(function(){
 		var month = urlParams.get('p_period_sub_month');
 		var quarter = urlParams.get('p_period_sub_quarter');
 		
-		$("#p_period").val(status);
-		$("#p_period_sub_date_text").hide();
-		$("#p_period_sub_date").hide();
-		$("#p_year_text").show();
-		$("#p_year").show();
-		$("#p_year").val(year);
-		$("#p_period_text").show();
-		$("#p_period_sub_text").show();	
-		$("#p_period_sub_month").show();
-		$("#p_period_sub_month").val(month);
-		$("#p_period_sub_quarter").hide();
-			
+		if (status=="daily") {
+			$("#p_period").val(status);
+			$("#p_period_sub_date_text").show();
+			$("#p_period_sub_date").show();
+			$("#p_period_sub_date").val(date);
+			$("#p_year_text").hide();
+			$("#p_year").hide();
+			$("#p_period_text").show();
+			$("#p_period_sub_text").show();	
+			$("#p_period_sub_month").hide();
+			$("#p_period_sub_quarter").hide();
+		};
+		
+		if (status=="monthly") {
+			$("#p_period").val(status);
+			$("#p_period_sub_date_text").hide();
+			$("#p_period_sub_date").hide();
+			$("#p_year_text").show();
+			$("#p_year").show();
+			$("#p_year").val(year);
+			$("#p_period_text").show();
+			$("#p_period_sub_text").show();	
+			$("#p_period_sub_month").show();
+			$("#p_period_sub_month").val(month);
+			$("#p_period_sub_quarter").hide();
+		};
+		
+		if (status=="quarterly") {
+			$("#p_period").val(status);
+			$("#p_period_sub_date_text").hide();
+			$("#p_period_sub_date").hide();
+			$("#p_year_text").show();
+			$("#p_year").show();
+			$("#p_year").val(year);
+			$("#p_period_text").show();
+			$("#p_period_sub_text").show();	
+			$("#p_period_sub_month").hide();
+			$("#p_period_sub_quarter").show();
+			$("#p_period_sub_quarter").val(quarter);
+		};
+
+		if (status=="yearly") {
+			$("#p_period").val(status);
+			$("#p_period_sub_date_text").hide();
+			$("#p_period_sub_date").hide();
+			$("#p_year_text").show();
+			$("#p_year").show();
+			$("#p_year").val(year);
+			$("#p_period_text").show();
+			$("#p_period_sub_text").hide();	
+			$("#p_period_sub_month").hide();
+			$("#p_period_sub_quarter").hide();
+		};	
 
     $("#p_period").change(function(){		
 			var status = this.value;
@@ -337,12 +378,27 @@ async function getData_inventory_1() {
 					text: 'Inventory Performance Lati Storage'
 				},
 			responsive: true,
+			tooltips: {
+			  callbacks: {
+					label: function(tooltipItem, data) {
+						var value = tooltipItem.yLabel;
+						value = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+						return data.datasets[tooltipItem.datasetIndex].label+' : '+value;
+					}
+			  } // end callbacks:
+			},
 			scales: {
 				xAxes: [{
 					stacked: false // this should be set to make the bars stacked
 				}],
 				yAxes: [{
-					stacked: false // this also..
+					stacked: false, // this also..
+					ticks: {
+									// Include a dollar sign in the ticks
+									callback: function(value, index, values) {
+											return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+									}
+                }
 				}]
 			}
 		}
@@ -414,12 +470,27 @@ console.log(globalTemps);
 					text: 'Inventory Performance Suaran Storage'
 				},
 			responsive: true,
+			tooltips: {
+			  callbacks: {
+					label: function(tooltipItem, data) {
+						var value = tooltipItem.yLabel;
+						value = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+						return data.datasets[tooltipItem.datasetIndex].label+' : '+value;
+					}
+			  } // end callbacks:
+			},
 			scales: {
 				xAxes: [{
 					stacked: false // this should be set to make the bars stacked
 				}],
 				yAxes: [{
-					stacked: false // this also..
+					stacked: false, // this also..
+					ticks: {
+									// Include a dollar sign in the ticks
+									callback: function(value, index, values) {
+											return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+									}
+                }
 				}]
 			}
 		}
@@ -472,12 +543,27 @@ console.log(globalTemps);
 					text: 'Inventory Performance Sambarata Storage'
 				},
 			responsive: true,
+			tooltips: {
+			  callbacks: {
+					label: function(tooltipItem, data) {
+						var value = tooltipItem.yLabel;
+						value = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+						return data.datasets[tooltipItem.datasetIndex].label+' : '+value;
+					}
+			  } // end callbacks:
+			},
 			scales: {
 				xAxes: [{
 					stacked: false // this should be set to make the bars stacked
 				}],
 				yAxes: [{
-					stacked: false // this also..
+					stacked: false, // this also..
+					ticks: {
+									// Include a dollar sign in the ticks
+									callback: function(value, index, values) {
+											return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+									}
+                }
 				}]
 			}
 		}
