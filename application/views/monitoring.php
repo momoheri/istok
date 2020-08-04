@@ -12,20 +12,19 @@
 	
 <div class="leftmenufilter card shadow">
 	<div class="leftmenufilter"><center>
-		<?php echo form_open("monitoring", array('method'=>'get')); ?>
+		<?php echo form_open("monitoring", array('method'=>'post')); ?>
 		<table cellpadding="2">
 		  <tr>
 			<td colspan="3" align="center"><h3>Snapshot</h3></td>
 		  </tr>
 		  <tr>
 			<td id="p_year_text">Year</td>
-			<td><input type="number" name="p_year" id="p_year" class="form-control" placeholder="Year" value="<?php echo $tahun; ?>" required></td>
+			<td><input type="number" name="p_year" id="p_year" class="form-control" placeholder="Year" value="<?php echo $tahun; ?>"></td>
 		  </tr>
 		  <tr>
 			<td id="p_period_text">Period</td>
 			<td>
 				<select name="p_period" id="p_period" class="form-control">
-				  <option value="daily">Daily</option>
 				  <option value="monthly">Monthly</option>
 				  <option value="quarterly">Quarterly</option>
 				  <option value="yearly">Yearly</option>
@@ -62,8 +61,8 @@
 		  </tr>
 		  <tr>
 			<td></td>
-			<td>
-				<button class="btn btn-primary btn-icon-split" type="button" id="cari">
+			<td>			
+				<button class="btn btn-primary btn-icon-split" type="submit" id="cari">
 					<span class="icon text-white-50"><i class="fas fa-check"></i></span>
 					<span class="text">Search</span></button>
 			</td>
@@ -258,7 +257,7 @@ $(document).ready(function(){
 });
 </script>
 <script>
-const api_url_fuel_receiving = "<?php echo base_url().'chart/fuel_receiving?'.$_SERVER['QUERY_STRING']; ?>";
+const api_url_fuel_receiving = "<?php echo base_url().'chart/fuel_receiving?'.$qeury_url; ?>";
 
 var departments = [];
 
@@ -336,7 +335,7 @@ function prepareDepartmentDetails(transporter_name, quantity, color){
 setup_fuel_receiving();
 </script>
 <script>
-const api_url_purchase_order_to_vendor = "<?php echo base_url().'chart/purchase_order_to_vendor?'.$_SERVER['QUERY_STRING']; ?>";
+const api_url_purchase_order_to_vendor = "<?php echo base_url().'chart/purchase_order_to_vendor?'.$qeury_url; ?>";
 
 var departments_purchase_order_to_vendor = [];
 
@@ -414,7 +413,7 @@ function prepareDepartmentDetailsBar(storage_name, quantity, color){
 setup_purchase_order_to_vendor();
 </script>
 <script>
-const api_url_fuel_price_by_history = "<?php echo base_url().'chart/fuel_price_by_history?'.$_SERVER['QUERY_STRING']; ?>";
+const api_url_fuel_price_by_history = "<?php echo base_url().'chart/fuel_price_by_history?'.$qeury_url; ?>";
 
 var departments_fuel_price_by_history = [];
 

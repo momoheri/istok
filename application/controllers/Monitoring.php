@@ -46,19 +46,19 @@ class Monitoring extends CI_Controller {
 		$tanggal_sampai = '';
 		$filter_result = '';
 
-		$p_period = $this->input->get('p_period');
+		$p_period = $this->input->post('p_period');
 		$p_period = (empty($p_period))? 'monthly' : $p_period;
 		
 		$filter_result = 'period = ' .$p_period. '<br>';
 		if ($p_period == 'daily') {
-			$tgl = $this->input->get('p_period_sub_date');
+			$tgl = $this->input->post('p_period_sub_date');
 			$tanggal_dari = (empty($tgl))? date('Y-m-d') : $tgl;
 			$tanggal_sampai = $tanggal_dari;
 		}
 		if ($p_period == 'monthly' || empty($p_period)) {
-			$tahun = $this->input->get('p_year');
+			$tahun = $this->input->post('p_year');
 			$tahun = (empty($tahun))? date('Y') : $tahun;
-			$bulan = $this->input->get('p_period_sub_month');
+			$bulan = $this->input->post('p_period_sub_month');
 			$bulan = (empty($bulan))? date('n') : $bulan;
 			$bulan = substr(('0' .$bulan),-2);
 			$tanggal_dari = ($tahun .'-'. $bulan .'-01');
@@ -68,10 +68,10 @@ class Monitoring extends CI_Controller {
 		}
 		
 		if ($p_period == 'quarterly') {
-			$tahun = $this->input->get('p_year');
-			$filter_result = $filter_result.'sub period = ' .$this->input->get('p_period_sub_quarter'). '<br>';
+			$tahun = $this->input->post('p_year');
+			$filter_result = $filter_result.'sub period = ' .$this->input->post('p_period_sub_quarter'). '<br>';
 			
-			if ($this->input->get('p_period_sub_quarter')=='q1') {
+			if ($this->input->post('p_period_sub_quarter')=='q1') {
 				$bulan1 = '01';				
 				$tanggal_dari = ($tahun .'-'. $bulan1 .'-01');
 				
@@ -80,7 +80,7 @@ class Monitoring extends CI_Controller {
 				$tanggal_sampai = date('Y-m-t', strtotime($tanggal2));
 			}
 			
-			if ($this->input->get('p_period_sub_quarter')=='q2') {
+			if ($this->input->post('p_period_sub_quarter')=='q2') {
 				$bulan1 = '04';				
 				$tanggal_dari = ($tahun .'-'. $bulan1 .'-01');
 				
@@ -89,7 +89,7 @@ class Monitoring extends CI_Controller {
 				$tanggal_sampai = date('Y-m-t', strtotime($tanggal2));
 			}
 			
-			if ($this->input->get('p_period_sub_quarter')=='q3') {
+			if ($this->input->post('p_period_sub_quarter')=='q3') {
 				$bulan1 = '07';				
 				$tanggal_dari = ($tahun .'-'. $bulan1 .'-01');
 				
@@ -98,7 +98,7 @@ class Monitoring extends CI_Controller {
 				$tanggal_sampai = date('Y-m-t', strtotime($tanggal2));
 			}
 			
-			if ($this->input->get('p_period_sub_quarter')=='q4') {
+			if ($this->input->post('p_period_sub_quarter')=='q4') {
 				$bulan1 = '10';				
 				$tanggal_dari = ($tahun .'-'. $bulan1 .'-01');
 				
@@ -108,7 +108,7 @@ class Monitoring extends CI_Controller {
 			}
 		}
 		if ($p_period == 'yearly') {
-			$tahun = $this->input->get('p_year');
+			$tahun = $this->input->post('p_year');
 			
 			$tanggal_dari = ($tahun .'-01-01');
 			$tanggal_sampai = ($tahun .'-12-31');
@@ -122,9 +122,8 @@ class Monitoring extends CI_Controller {
 		$filter_result = $msg_depan.$filter_result.'from <b>'.$tanggal_dari. '</b> to <b>'.$tanggal_sampai.'</b>'.$msg_belakang;
 		$data['filter_result'] = $filter_result;
 		
-		$data['qeury_url'] = (!empty($_SERVER['QUERY_STRING']))? $_SERVER['QUERY_STRING'] : 'p_year='.date('Y').'&p_period=monthly&p_period_sub_date='.date('Y-m-d').'&p_period_sub_month='.date('n').'&p_period_sub_quarter=q1';
+		$data['qeury_url'] = (!empty($_POST))? http_build_query($_POST) : 'p_year='.date('Y').'&p_period=monthly&p_period_sub_date='.date('Y-m-d').'&p_period_sub_month='.date('n').'&p_period_sub_quarter=q1';
 		$data['periode'] = $p_period;		
-		
 		$this->load->view('header', $datasesion);
 		$this->load->view('monitoring',$data);
 		$this->load->view('footer');
