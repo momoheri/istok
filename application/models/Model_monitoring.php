@@ -41,6 +41,22 @@ class Model_monitoring extends CI_Model {
 	}
 	
 	/*------------------------------------------------------------------------------*/
+	function get_fuel_distribution_on_activity($start, $end) {
+		$SQL = "SELECT movement, mst_smartfill.storage_id, storage_name, Volume, DATE_FORMAT(trans_smartfill.CreatedDate, '%d-%m-%Y') as CreatedDate
+						FROM `trans_sap_log`
+						INNER JOIN trans_smartfill ON trans_sap_log.trans_id=trans_smartfill.trans_id
+						INNER JOIN mst_smartfill ON trans_smartfill.smartfill_id=mst_smartfill.smartfill_id
+						INNER JOIN mst_storage ON mst_storage.storage_id=mst_smartfill.storage_id
+						WHERE (trans_sap_log.error_type = NULL OR trans_sap_log.error_type = '')
+						AND trans_sap_log.doc_type = 'GI'
+						AND DATE_FORMAT(trans_smartfill.CreatedDate, '%Y-%m-%d') BETWEEN '$start' AND '$end'
+						ORDER BY movement ASC";
+		$query = $this->db->query($SQL);
+
+		return $query->result_array();
+	}
+	
+	/*------------------------------------------------------------------------------*/
 	
 	function get_fuel_price($start, $end, $label_type) {
 		if($label_type == 'day'){
@@ -124,6 +140,28 @@ class Model_monitoring extends CI_Model {
 	}
 	
 	/*------------------------------------------------------------------------------*/
+	
+	function get_movement(){
+		$SQL = "SELECT movement
+						FROM trans_sap_log
+						WHERE (trans_sap_log.error_type = NULL OR trans_sap_log.error_type = '')
+						AND trans_sap_log.doc_type = 'GI'
+						GROUP BY movement
+						ORDER BY movement ASC";
+		$query = $this->db->query($SQL);
+
+		return $query->result_array();
+	}
+	
+	/*------------------------------------------------------------------------------*/
+	
+	function get_storage(){
+		$this->db->select('storage_id, storage_name');
+		$this->db->from('mst_storage');
+		$this->db->order_by('storage_id', 'ASC');
+		$query = $this->db->get();
+		return $query->result_array();
+	}
 	
 	function get_vendor(){
 		$this->db->select('vendor_id, alias AS vendor_name');
