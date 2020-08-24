@@ -135,6 +135,317 @@ class Chart extends CI_Controller {
 		echo json_encode($res);
 	}
 	
+	/*----------------------------------------------------------------------*/
+	
+	public function fuel_positive()	{
+		$p_period = $this->input->get('p_period');
+		
+		if ($p_period == 'daily' || empty($p_period)) {
+			$tgl = $this->input->get('p_period_sub_date');
+			$tanggal_dari = (empty($tgl))? date('Y-m-d') : $tgl;
+			$tanggal_sampai = $tanggal_dari;
+		}
+		if ($p_period == 'monthly') {
+			$tahun = $this->input->get('p_year');
+			$bulan = substr(('0' .$this->input->get('p_period_sub_month')),-2);
+			
+			$tanggal_dari = ($tahun .'-'. $bulan .'-01');
+			$tanggal_sampai = date('Y-m-t', strtotime($tanggal_dari));
+		}
+		if ($p_period == 'quarterly') {
+			$tahun = $this->input->get('p_year');
+			
+			if ($this->input->get('p_period_sub_quarter')=='q1') {
+				$bulan1 = '01';				
+				$tanggal_dari = ($tahun .'-'. $bulan1 .'-01');
+				
+				$bulan2 = '03';				
+				$tanggal2 = ($tahun .'-'. $bulan2 .'-01');
+				$tanggal_sampai = date('Y-m-t', strtotime($tanggal2));
+			}
+			
+			if ($this->input->get('p_period_sub_quarter')=='q2') {
+				$bulan1 = '04';				
+				$tanggal_dari = ($tahun .'-'. $bulan1 .'-01');
+				
+				$bulan2 = '06';				
+				$tanggal2 = ($tahun .'-'. $bulan2 .'-01');
+				$tanggal_sampai = date('Y-m-t', strtotime($tanggal2));
+			}
+			
+			if ($this->input->get('p_period_sub_quarter')=='q3') {
+				$bulan1 = '07';				
+				$tanggal_dari = ($tahun .'-'. $bulan1 .'-01');
+				
+				$bulan2 = '09';				
+				$tanggal2 = ($tahun .'-'. $bulan2 .'-01');
+				$tanggal_sampai = date('Y-m-t', strtotime($tanggal2));
+			}
+			
+			if ($this->input->get('p_period_sub_quarter')=='q4') {
+				$bulan1 = '10';				
+				$tanggal_dari = ($tahun .'-'. $bulan1 .'-01');
+				
+				$bulan2 = '12';				
+				$tanggal2 = ($tahun .'-'. $bulan2 .'-01');
+				$tanggal_sampai = date('Y-m-t', strtotime($tanggal2));
+			}
+		}
+		if ($p_period == 'yearly') {
+			$tahun = $this->input->get('p_year');
+			
+			$tanggal_dari = ($tahun .'-01-01');
+			$tanggal_sampai = ($tahun .'-12-31');
+		}
+		$start = $tanggal_dari;
+		$end = $tanggal_sampai;
+		
+		$fuel = $this->Model_monitoring->get_fuel_positive($start, $end);
+		$array_color = array('blue', 'orange', 'grey', 'yellow', 'green', 'red',"Cyan","DarkBlue","DarkCyan","DarkGoldenRod","DarkGray","DarkGrey","DarkGreen","DarkKhaki","DarkMagenta","DarkOliveGreen","DarkOrange","DarkOrchid","DarkRed","DarkSalmon","DarkSeaGreen","DarkSlateBlue","DarkSlateGray","DarkSlateGrey","DarkTurquoise","DarkViolet","DeepPink","DeepSkyBlue","DimGray","DimGrey","DodgerBlue","FireBrick","FloralWhite","ForestGreen");
+		
+		
+		$res = array();
+		$temp = array();
+		$i = 0;
+		foreach($fuel as $item){
+			$temp['storage'][$i] = $item['storage_name'];
+			$temp['color'][$i] = $array_color[$i];
+			$temp['fuel'][$i] = round($item['volume'] - $item['tc_vol']);
+			$i++;
+		}
+		$res['storage'] = implode(',', $temp['storage']);
+		$res['color'] = implode(',', $temp['color']);
+		$res['fuel'] = implode(',', $temp['fuel']);
+		echo json_encode($res);
+	}
+	
+	/*------------------------------------------------------------------------------*/
+	
+	public function fuel_distribution_to_mining()	{
+		$p_period = $this->input->get('p_period');
+		
+		if ($p_period == 'daily' || empty($p_period)) {
+			$tgl = $this->input->get('p_period_sub_date');
+			$tanggal_dari = (empty($tgl))? date('Y-m-d') : $tgl;
+			$tanggal_sampai = $tanggal_dari;
+		}
+		if ($p_period == 'monthly') {
+			$tahun = $this->input->get('p_year');
+			$bulan = substr(('0' .$this->input->get('p_period_sub_month')),-2);
+			
+			$tanggal_dari = ($tahun .'-'. $bulan .'-01');
+			$tanggal_sampai = date('Y-m-t', strtotime($tanggal_dari));
+		}
+		if ($p_period == 'quarterly') {
+			$tahun = $this->input->get('p_year');
+			
+			if ($this->input->get('p_period_sub_quarter')=='q1') {
+				$bulan1 = '01';				
+				$tanggal_dari = ($tahun .'-'. $bulan1 .'-01');
+				
+				$bulan2 = '03';				
+				$tanggal2 = ($tahun .'-'. $bulan2 .'-01');
+				$tanggal_sampai = date('Y-m-t', strtotime($tanggal2));
+			}
+			
+			if ($this->input->get('p_period_sub_quarter')=='q2') {
+				$bulan1 = '04';				
+				$tanggal_dari = ($tahun .'-'. $bulan1 .'-01');
+				
+				$bulan2 = '06';				
+				$tanggal2 = ($tahun .'-'. $bulan2 .'-01');
+				$tanggal_sampai = date('Y-m-t', strtotime($tanggal2));
+			}
+			
+			if ($this->input->get('p_period_sub_quarter')=='q3') {
+				$bulan1 = '07';				
+				$tanggal_dari = ($tahun .'-'. $bulan1 .'-01');
+				
+				$bulan2 = '09';				
+				$tanggal2 = ($tahun .'-'. $bulan2 .'-01');
+				$tanggal_sampai = date('Y-m-t', strtotime($tanggal2));
+			}
+			
+			if ($this->input->get('p_period_sub_quarter')=='q4') {
+				$bulan1 = '10';				
+				$tanggal_dari = ($tahun .'-'. $bulan1 .'-01');
+				
+				$bulan2 = '12';				
+				$tanggal2 = ($tahun .'-'. $bulan2 .'-01');
+				$tanggal_sampai = date('Y-m-t', strtotime($tanggal2));
+			}
+		}
+		if ($p_period == 'yearly') {
+			$tahun = $this->input->get('p_year');
+			
+			$tanggal_dari = ($tahun .'-01-01');
+			$tanggal_sampai = ($tahun .'-12-31');
+		}
+		$start = $tanggal_dari;
+		$end = $tanggal_sampai;
+		
+		$storage = $this->Model_monitoring->get_storage();
+		$description = $this->Model_monitoring->get_description_sap_mining();
+		$fuel = $this->Model_monitoring->get_fuel_distribution_to_mining($start, $end);
+		$array_color = array('blue', 'orange', 'grey', 'yellow', 'green', 'red',"Cyan","DarkBlue","DarkCyan","DarkGoldenRod","DarkGray","DarkGrey","DarkGreen","DarkKhaki","DarkMagenta","DarkOliveGreen","DarkOrange","DarkOrchid","DarkRed","DarkSalmon","DarkSeaGreen","DarkSlateBlue","DarkSlateGray","DarkSlateGrey","DarkTurquoise","DarkViolet","DeepPink","DeepSkyBlue","DimGray","DimGrey","DodgerBlue","FireBrick","FloralWhite","ForestGreen");
+		
+		$temp_item = $this->_group_by($fuel, 'description');
+		$feul_item = array();
+		foreach($temp_item as $items) {
+			$quantity = array();
+			foreach($items as $item) {
+				$index = $this->find_by('storage_id', $quantity, $item['storage_id']);
+				if ($index < 0) {
+						$quantity[] = $item;
+				}
+				else {
+						$quantity[$index]['Volume'] +=  $item['Volume'];
+				}
+			}			
+			$feul_item[$items[0]['description']] = $quantity;
+		}
+		
+		$data_storage = array();
+		foreach($storage as $data){
+			$vendor_id[$data['storage_id']] = 0;
+			$data_storage[] = $data['storage_name'];
+		}
+		$res['storage'] = implode('|', $data_storage);
+		
+		$res['chart'] = array();
+		$res['chart'] = array();
+		$data_quantity = array();
+		$i = 0;
+		foreach($feul_item as $items){
+			$quantity = $vendor_id;
+			foreach($items as $item){
+				if(!empty($item['storage_id']) && $item['storage_id'] !=''){
+					$quantity[$item['storage_id']] = $item['Volume'];
+				}
+			}
+			$res['chart'][$i] = $items[0];
+			$res['chart'][$i]['color'] = $array_color[$i];
+			$res['chart'][$i]['quantity'] = implode(',', $quantity);
+			$i++;
+		}
+		
+		foreach($description as $storage_data){	
+				$index = $this->find_by('description', $res['chart'], $storage_data['description']);
+				if($index < 0){
+					$list['CreatedDate'] = '';  
+					$list['color'] =  $array_color[$i];
+					$list['quantity'] =  implode(',', $vendor_id);
+					$res['chart'][$i] = $list;
+					$i++;
+				}
+		}
+		
+		echo json_encode($res);
+	}
+	
+	/*------------------------------------------------------------------------------*/
+	
+	public function fuel_negative()	{		
+		$tahun = $this->input->get('p_year');
+		
+		$tanggal_dari = ($tahun .'-01-01');
+		$tanggal_sampai = ($tahun .'-12-31');
+		
+		$start = $tanggal_dari;
+		$end = $tanggal_sampai;
+		
+		$quarter = array(0=>'Q1',1=>'Q2',2=>'Q3',3=>'Q4');
+		$storage = $this->Model_monitoring->get_storage();
+		$fuel = $this->Model_monitoring->get_fuel_negative($start, $end);
+		$array_color = array('blue', 'orange', 'grey', 'yellow', 'green', 'red',"Cyan","DarkBlue","DarkCyan","DarkGoldenRod","DarkGray","DarkGrey","DarkGreen","DarkKhaki","DarkMagenta","DarkOliveGreen","DarkOrange","DarkOrchid","DarkRed","DarkSalmon","DarkSeaGreen","DarkSlateBlue","DarkSlateGray","DarkSlateGrey","DarkTurquoise","DarkViolet","DeepPink","DeepSkyBlue","DimGray","DimGrey","DodgerBlue","FireBrick","FloralWhite","ForestGreen");
+		
+		$temp_item = $this->_group_by($fuel, 'quarter');
+		$feul_item = array();
+		foreach($temp_item as $items) {
+			$quantity = array();
+			foreach($items as $item) {
+				$index = $this->find_by('storage_id', $quantity, $item['storage_id']);
+				if ($index < 0 ) {
+						$quantity[] = $item;
+				}
+				else{
+						$quantity[$index]['manual_surveyor'] +=  $item['manual_surveyor'];
+						$quantity[$index]['vol_atg'] +=  $item['vol_atg'];
+				}
+			}			
+			$feul_item[$items[0]['quarter']] = $quantity;
+		}
+		
+		$data_storage = array();
+		foreach($storage as $data){
+			$vendor_id[$data['storage_id']] = 0;
+			$data_storage[] = $data['storage_name'];
+		}
+		$res['storage'] = implode('|', $data_storage);
+		
+		$res['chart'] = array();
+		$res['chart'] = array();
+		$data_quantity = array();
+		$i = 0;
+		foreach($feul_item as $items){
+			$quantity = $vendor_id;
+			foreach($items as $item){
+				if(!empty($item['storage_id']) && $item['storage_id'] !=''){
+					$quantity[$item['storage_id']] = round($item['manual_surveyor'] - $item['vol_atg']);
+				}
+			}
+			$res['chart'][$i] = $items[0];
+			$res['chart'][$i]['color'] = $array_color[$i];
+			$res['chart'][$i]['quantity'] = implode(',', $quantity);
+			$i++;
+		}
+		
+		foreach($quarter as $key => $item){	
+				$index = $this->find_by('quarter', $res['chart'], $item);
+				if($index < 0){
+					$list['CreatedDate'] = ''; 
+					$list['quarter_id'] = $key; 
+					$list['quarter'] = $item; 
+					$list['color'] =  $array_color[$i];
+					$list['quantity'] =  implode(',', $vendor_id);
+					$res['chart'][$i] = $list;
+					$i++;
+				}else{
+					$res['chart'][$index]['quarter_id'] = $key; 
+				}
+		}
+		$items_sort = $res['chart'];
+		$result = array_column($items_sort, 'quarter_id');
+
+		array_multisort($result, SORT_ASC, $items_sort);
+		$res['chart'] = $items_sort;
+		echo json_encode($res);
+	}
+	
+	function array_msort($array, $cols)
+{
+    $colarr = array();
+    foreach ($cols as $col => $order) {
+        $colarr[$col] = array();
+        foreach ($array as $k => $row) { $colarr[$col]['_'.$k] = strtolower($row[$col]); }
+    }
+    $eval = 'array_multisort(';
+    foreach ($cols as $col => $order) {
+        $eval .= '$colarr[\''.$col.'\'],'.$order.',';
+    }
+    $eval = substr($eval,0,-1).');';
+    eval($eval);
+    $ret = array();
+    foreach ($colarr as $col => $arr) {
+        foreach ($arr as $k => $v) {
+            $k = substr($k,1);
+            if (!isset($ret[$k])) $ret[$k] = $array[$k];
+            $ret[$k][$col] = $array[$k][$col];
+        }
+    }
+    return $ret;
+
+}
 	/*------------------------------------------------------------------------------*/
 	
 	public function fuel_distribution_base_on_activity()	{
@@ -447,7 +758,7 @@ class Chart extends CI_Controller {
 		$array_color = array('blue', 'orange', 'grey', 'yellow', 'green', 'red',"Cyan","DarkBlue","DarkCyan","DarkGoldenRod","DarkGray","DarkGrey","DarkGreen","DarkKhaki","DarkMagenta","DarkOliveGreen","DarkOrange","DarkOrchid","DarkRed","DarkSalmon","DarkSeaGreen","DarkSlateBlue","DarkSlateGray","DarkSlateGrey","DarkTurquoise","DarkViolet","DeepPink","DeepSkyBlue","DimGray","DimGrey","DodgerBlue","FireBrick","FloralWhite","ForestGreen");
 		foreach($vendor as $data){
 			$vendor_id[$data['vendor_id']] = 0;
-			$data_vendor[] = "'".$data['vendor_name']."'";
+			$data_vendor[] = $data['vendor_name'];
 		}
 		$res['vendor'] = implode('|', $data_vendor);
 		
@@ -547,7 +858,7 @@ class Chart extends CI_Controller {
 		$array_color = array('blue', 'orange', 'grey', 'yellow', 'green', 'red',"Cyan","DarkBlue","DarkCyan","DarkGoldenRod","DarkGray","DarkGrey","DarkGreen","DarkKhaki","DarkMagenta","DarkOliveGreen","DarkOrange","DarkOrchid","DarkRed","DarkSalmon","DarkSeaGreen","DarkSlateBlue","DarkSlateGray","DarkSlateGrey","DarkTurquoise","DarkViolet","DeepPink","DeepSkyBlue","DimGray","DimGrey","DodgerBlue","FireBrick","FloralWhite","ForestGreen");
 		foreach($transporter as $data){
 			$transporter_id[$data['transporter_id']] = 0;
-			$data_transporter[] = "'".$data['transporter_name']."'";
+			$data_transporter[] = $data['transporter_name'];
 		}
 		$res['transporter'] = implode('|', $data_transporter);
 		
@@ -964,4 +1275,5 @@ class Chart extends CI_Controller {
 		}
     return $result;
 	}
+
 }

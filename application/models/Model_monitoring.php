@@ -26,6 +26,38 @@ class Model_monitoring extends CI_Model {
 	}
 	
 	/*------------------------------------------------------------------------------*/
+	function get_fuel_positive($start, $end) {
+		$SQL = "SELECT storage_name, SUM(volume) as volume, SUM(tc_vol) as tc_vol 
+						FROM `trans_atg`
+						INNER JOIN mst_storage ON trans_atg.storage_id=mst_storage.storage_id
+						WHERE DATE_FORMAT(trans_date, '%Y-%m-%d') BETWEEN '$start' AND '$end'
+						GROUP BY trans_atg.storage_id";
+		$query = $this->db->query($SQL);
+
+		return $query->result_array();
+	}
+	/*------------------------------------------------------------------------------*/
+	function get_fuel_negative($start, $end) {
+		$SQL = "SELECT 
+							CASE
+								WHEN QUARTER(opname_date) = 1
+								THEN 'Q1'
+								WHEN QUARTER(opname_date) = 2
+								THEN 'Q2'
+								WHEN QUARTER(opname_date) = 3
+								THEN 'Q3'
+								WHEN QUARTER(opname_date) = 4
+								THEN 'Q4'
+							END 'quarter',manual_surveyor, vol_atg, storage_id
+						FROM `trans_stock_opname`						
+						WHERE DATE_FORMAT(opname_date, '%Y-%m-%d') BETWEEN '$start' AND '$end'
+						ORDER BY `quarter` ASC
+						";
+		$query = $this->db->query($SQL);
+
+		return $query->result_array();
+	}
+	/*------------------------------------------------------------------------------*/
 	function get_purchase_order_to_vendor($start, $end) {
 		$SQL = "SELECT posting_date, vendor_id, qty_volcomp as quantity, trans_po.storage_id, storage_name 
 						FROM mst_storage
@@ -35,6 +67,23 @@ class Model_monitoring extends CI_Model {
 						WHERE trans_sap_log.`status` = 0 AND (trans_sap_log.error_type = NULL OR trans_sap_log.error_type = '') 
 						AND DATE_FORMAT(posting_date, '%Y-%m-%d') BETWEEN '$start' AND '$end'
 						ORDER BY vendor_id ASC";
+		$query = $this->db->query($SQL);
+
+		return $query->result_array();
+	}
+	
+	/*------------------------------------------------------------------------------*/
+	function get_fuel_distribution_to_mining($start, $end) {
+		$SQL = "SELECT trans_sap_log.description, mst_smartfill.storage_id, storage_name, Volume, DATE_FORMAT(trans_smartfill.CreatedDate, '%d-%m-%Y') as CreatedDate
+						FROM `trans_sap_log`
+						INNER JOIN trans_smartfill ON trans_sap_log.trans_id=trans_smartfill.trans_id
+						INNER JOIN mst_smartfill ON trans_smartfill.smartfill_id=mst_smartfill.smartfill_id
+						INNER JOIN mst_storage ON mst_storage.storage_id=mst_smartfill.storage_id
+						WHERE (trans_sap_log.error_type = NULL OR trans_sap_log.error_type = '')
+						AND trans_sap_log.doc_type = 'GI'
+						AND (movement = '9001' OR movement = '9003')
+						AND DATE_FORMAT(trans_smartfill.CreatedDate, '%Y-%m-%d') BETWEEN '$start' AND '$end'
+						ORDER BY movement ASC";
 		$query = $this->db->query($SQL);
 
 		return $query->result_array();
@@ -137,6 +186,21 @@ class Model_monitoring extends CI_Model {
 		//$this->db->where('salesperson_id', $id);
 		$query = $this->db->get();
 		return $query->row()->max_id;
+	}
+	
+	/*------------------------------------------------------------------------------*/
+	
+	function get_description_sap_mining(){
+		$SQL = "SELECT description
+						FROM trans_sap_log
+						WHERE (trans_sap_log.error_type = NULL OR trans_sap_log.error_type = '')
+						AND trans_sap_log.doc_type = 'GI'
+						AND (movement = '9001' OR movement = '9003')
+						GROUP BY description
+						ORDER BY description ASC";
+		$query = $this->db->query($SQL);
+
+		return $query->result_array();
 	}
 	
 	/*------------------------------------------------------------------------------*/

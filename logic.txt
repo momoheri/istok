@@ -5,48 +5,52 @@
 		Total Transport Amount qty_observe * 200
 		filter date trans_po
 
+- fuel receiving  (done)
+
 - fuel distribution to mining contractor
+	legend = description
+	x = storage
+	y = volume 
+	movement = 9001 & 9003
 	trans_sap_log->trans_smartfill->mst_smartfill->mst_storage
 	status = 0 and error_type -> null
 
 - fuel distribution based on activity
 	trans_sap_log->trans_smartfill->mst_smartfill->mst_storage
 	status = 0 and error_type -> null
-	
 - fuel price by purchace order history
 	trans_sap_log -> trans_po_received -> trans_po -> mst_vendor
 	master trans_po
 	status = 0 and error_type -> null
 	date trans_po
-	
-- fuel positive difference
-	trans_po_received -> trans_po -> mst_storage->mst_vendor
-	trans_po_received (qty_observe-qty_volcomp)
-	filter date trans_po
-
+- fuel positive difference donat
+	x = storage
+	y = volume - tc_vol
+	trans_atg
 - fuel negative difference
-	trans_po_received -> trans_po -> mst_storage->trans_atg
-	trans_atg.volume - trans_po_received.qty_observe
-	
-- vendor csi performance
+	legend = storage
+	x = date quearter
+	y = manual_surveyor - vol_atg
+	filter per tahun
+	trans_stock_opname
+- vendor csi performance (done)
 	trans_po_received -> mst_movement_reason -> trans_po -> mst_vendor
 	filter date trans_po
 
-- trasporter csi performance
+- trasporter csi performance  (done)
 	trans_po_received -> mst_movement_reason -> trans_po -> mst_transpoter
 	filter date trans_po
 
-- inventory storage performance
+- inventory storage performance  (done)
 	trans_atg
 	col volume
 	filter date trans_atg
 
 - availability performance storage
-	skip
-	trans_atg
-	col volume
-	filter date trans_atg
-	
+	legend = biru (sum(trans_atg.volume) > stock_max)
+	legend = orange (sum(trans_atg.volume) < stock_min)
+	x = trans_atg.trans_date
+	y = manual_surveyor - vol_atg
+	trans_atg -> trans_parameters/mst_parameter
 - schedule performance average
 	skip
-	
