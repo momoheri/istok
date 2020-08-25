@@ -18,8 +18,47 @@ class Model_monitoring extends CI_Model {
 											INNER JOIN mst_vendor ON mst_vendor.vendor_id =trans_po.vendor_id
 											WHERE DATE_FORMAT(created_date, '%Y-%m-%d') BETWEEN '$start' AND '$end'
 											) AS qw on qw.transporter_id=mst_transporter.transporter_id
-
 						ORDER BY mst_transporter.transporter_id ASC";
+		$query = $this->db->query($SQL);
+
+		return $query->result_array();
+	}
+	
+	/*------------------------------------------------------------------------------*/
+	function get_purchase_order_to_vendor($start, $end) {
+		$SQL = "SELECT posting_date, vendor_id, qty_volcomp as quantity, trans_po.storage_id, storage_name 
+						FROM mst_storage
+						LEFT JOIN `trans_po` ON trans_po.storage_id = mst_storage.storage_id
+						LEFT JOIN trans_po_received ON trans_po.trans_id = trans_po_received.trans_id
+						LEFT JOIN trans_sap_log on trans_sap_log.trans_id=trans_po.trans_id
+						WHERE trans_sap_log.`status` = 0 AND (trans_sap_log.error_type = NULL OR trans_sap_log.error_type = '') 
+						AND DATE_FORMAT(posting_date, '%Y-%m-%d') BETWEEN '$start' AND '$end'
+						ORDER BY vendor_id ASC";
+		$query = $this->db->query($SQL);
+
+		return $query->result_array();
+	}
+	
+	/*------------------------------------------------------------------------------*/
+	
+	function get_fuel_price($start, $end, $label_type) {
+		if($label_type == 'day'){
+			$SQL = "SELECT posting_date, ROUND(AVG(trans_sap_log.price)) as price, trans_po.vendor_id FROM `trans_po`
+							INNER JOIN trans_po_received ON trans_po.trans_id = trans_po_received.trans_id
+							INNER JOIN trans_sap_log on trans_sap_log.trans_id=trans_po.trans_id
+							WHERE trans_sap_log.`status` = 0 AND (trans_sap_log.error_type = NULL OR trans_sap_log.error_type = '') 
+							AND DATE_FORMAT(posting_date, '%Y-%m-%d') BETWEEN '$start' AND '$end'
+							GROUP BY DATE_FORMAT(posting_date, '%Y-%m-%d')";
+	
+		}else{
+			$SQL = "SELECT DATE_FORMAT(posting_date, '%M') as posting_date, ROUND(AVG(trans_sap_log.price)) as price, trans_po.vendor_id FROM `trans_po`
+							INNER JOIN trans_po_received ON trans_po.trans_id = trans_po_received.trans_id
+							INNER JOIN trans_sap_log on trans_sap_log.trans_id=trans_po.trans_id
+							WHERE trans_sap_log.`status` = 0 AND (trans_sap_log.error_type = NULL OR trans_sap_log.error_type = '') 
+							AND DATE_FORMAT(posting_date, '%Y-%m-%d') BETWEEN '$start' AND '$end'
+							GROUP BY DATE_FORMAT(posting_date, '%M')";
+		}
+		$this->db->query("SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''))");
 		$query = $this->db->query($SQL);
 
 		return $query->result_array();

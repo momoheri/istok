@@ -105,6 +105,14 @@
 <script>
 
 $(document).ready(function(){
+	$("#p_period_sub_date_text").hide();
+	$("#p_period_sub_date").hide();
+	$("#p_year_text").show();
+	$("#p_year").show();
+	$("#p_period_text").show();
+	$("#p_period_sub_text").show();	
+	$("#p_period_sub_month").show();
+	$("#p_period_sub_quarter").hide();
 		var queryString = new URL('<?php echo current_url().'?'.$qeury_url; ?>');
 		var urlParams = new URLSearchParams(queryString.search);
 		var status = '<?php echo $periode; ?>';
@@ -165,7 +173,7 @@ $(document).ready(function(){
 			$("#p_period_sub_text").hide();	
 			$("#p_period_sub_month").hide();
 			$("#p_period_sub_quarter").hide();
-		};	
+		};
 
     $("#p_period").change(function(){		
 			var status = this.value;
@@ -378,27 +386,12 @@ async function getData_inventory_1() {
 					text: 'Inventory Performance Lati Storage'
 				},
 			responsive: true,
-			tooltips: {
-			  callbacks: {
-					label: function(tooltipItem, data) {
-						var value = tooltipItem.yLabel;
-						value = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-						return data.datasets[tooltipItem.datasetIndex].label+' : '+value;
-					}
-			  } // end callbacks:
-			},
 			scales: {
 				xAxes: [{
 					stacked: false // this should be set to make the bars stacked
 				}],
 				yAxes: [{
-					stacked: false, // this also..
-					ticks: {
-									// Include a dollar sign in the ticks
-									callback: function(value, index, values) {
-											return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-									}
-                }
+					stacked: false // this also..
 				}]
 			}
 		}
@@ -470,27 +463,12 @@ console.log(globalTemps);
 					text: 'Inventory Performance Suaran Storage'
 				},
 			responsive: true,
-			tooltips: {
-			  callbacks: {
-					label: function(tooltipItem, data) {
-						var value = tooltipItem.yLabel;
-						value = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-						return data.datasets[tooltipItem.datasetIndex].label+' : '+value;
-					}
-			  } // end callbacks:
-			},
 			scales: {
 				xAxes: [{
 					stacked: false // this should be set to make the bars stacked
 				}],
 				yAxes: [{
-					stacked: false, // this also..
-					ticks: {
-									// Include a dollar sign in the ticks
-									callback: function(value, index, values) {
-											return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-									}
-                }
+					stacked: false // this also..
 				}]
 			}
 		}
@@ -543,27 +521,12 @@ console.log(globalTemps);
 					text: 'Inventory Performance Sambarata Storage'
 				},
 			responsive: true,
-			tooltips: {
-			  callbacks: {
-					label: function(tooltipItem, data) {
-						var value = tooltipItem.yLabel;
-						value = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-						return data.datasets[tooltipItem.datasetIndex].label+' : '+value;
-					}
-			  } // end callbacks:
-			},
 			scales: {
 				xAxes: [{
 					stacked: false // this should be set to make the bars stacked
 				}],
 				yAxes: [{
-					stacked: false, // this also..
-					ticks: {
-									// Include a dollar sign in the ticks
-									callback: function(value, index, values) {
-											return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-									}
-                }
+					stacked: false // this also..
 				}]
 			}
 		}

@@ -109,10 +109,10 @@
 					<td width="150">ETA Status</td>
 					<td>
 						<?php
+							
 							if ($s1_po_posting_date==null) {
 								$jum_hari=0;
 							} else {
-								
 								$now = strtotime($tanggal); // or your date as well
 								$your_date = strtotime($s1_po_posting_date);
 								$datediff = $your_date - $now;
@@ -208,7 +208,6 @@
                             <table class="table table-bordered table-striped" width="100%" style="background-color: white; font-size: small;">
                                 <thead>
                                     <tr>
-										<th class="hidden">Jumlah</th>	
                                         <th>Tank Number</th>
                                         <th>Volume</th>
                                         <th>Status</th>
@@ -217,8 +216,8 @@
                                 </thead>
                                 <tbody>
                                     <?php
-									$cek_connection = $s1_connection;
-									$t_vol=0;
+                                    $cek_connection = $s1_connection;
+									$t_vol1 =0;
                                     //echo $cek_connection;
                                     foreach ($s1_data_atg as $list_data):
                                      // echo $s1_atg;
@@ -239,32 +238,18 @@
                                         $vol_current = $vol_calc;
                                         $status = 'Undefined';
                                       } else {
-                                        if($list_data->type_alarm == 9){
-                                            $back = 'style="background-color: red;" alt="test"';
-                                            $btn1 = '<a href="#Modal" data-id="'.$list_data->atg_id.'" data-name="'.$list_data->atg_name.'">';
-                                            $btn2 = '</a>';
-                                            $time = $list_data->trans_date;
-                                            $vol_current = $list_data->qty_observe;
-                                            $status = 'No Link';
-                                        } elseif ($list_data->type_alarm == 8){
-                                            $back = 'style="background-color: red;"';
-                                            $btn1 = '<a href="#Modal" data-id="'.$list_data->atg_id.'" data-name="'.$list_data->atg_name.'">';
-                                            $btn2 = '</a>';
-                                            $time = $list_data->trans_date;
-                                            $vol_current = $list_data->qty_observe;
-                                            $status = 'Probe';
-                                        } elseif ($list_data->type_alarm == 1){
-                                            $back = 'style="background-color: red;"';
-                                            $btn1 = '<a href="#Modal" data-id="'.$list_data->atg_id.'" data-name="'.$list_data->atg_name.'">';
-                                            $btn2 = '</a>';
-                                            $time = $list_data->trans_date;
-                                            $vol_current = $list_data->qty_observe;
-                                            $status = 'Data Warning';
-                                        } else {
-                                            $status = 'Online';
-                                        }
+                                        if($vol_current == 0){
+											$back = 'style="background-color: red;" alt="test"';
+										  $btn1 = '<a href="#Modal" data-id="'.$list_data->atg_id.'" data-name="'.$list_data->atg_name.'">';
+										  $btn2 = '</a>';
+										  $time = $list_data->trans_date;
+										  $vol_current = $list_data->qty_observe;
+										  $status = 'No Link';
+										} else {
+										  $status = 'Online';
+									  	}
                                       }
-									  $t_vol += $vol_current;
+                                     $t_vol1 += $vol_current;
                                     ?>
                                     <tr>
                                         <td <?php echo $back; ?>><?php echo $btn1. $list_data->atg_name . $btn2 ?></td>
@@ -275,8 +260,7 @@
                                     <?php endforeach; ?>
                                 </tbody>
                             </table>
-							<?php echo $t_vol ?>
-                        </div>
+				                        </div>
 		</div>
 		<div class="col-md-4">
 			<br>
@@ -301,7 +285,7 @@
 					$ullage_tank2=$visual;
 				}
 
-				if ($total<($volume+$ullage)) {
+				if ($total<($volume)) {
 					$s2_pesan='tinggi storage lebih kecil dari total tinggi ATG';
 				}
 				//--------------------------------------------------------------------------------
@@ -465,6 +449,7 @@
                 <tbody>
                 <?php
                 $cek_connection = $s2_connection;
+				$t_vol2=0;
                 foreach ($s2_data_atg as $list_data):
                     // echo $s1_atg;
                     $back='';
@@ -478,37 +463,24 @@
                       $back = 'style="background-color: red;"';
                       $btn1 = '<a href="#Modal2" data-id="'.$list_data->atg_id.'" data-name="'.$list_data->atg_name.'">';
                       $btn2 = '</a>';
-                      $val_time = ($list_data->qty_observe == null) ? $list_data->trans_date:$list_data->date_manual;
+                      $val_time = ($list_data->qty_observe == null) ? $list_data->trans_date:$list_data->manual_date;
                       $time = $val_time;
                       $vol_calc = ($list_data->qty_observe == null) ? $list_data->volume:$list_data->qty_observe;
                       $vol_current = $vol_calc;
                       $status = 'Undefined';
                     } else {
-                        if($list_data->type_alarm == 9){
-                            $back = 'style="background-color: red;" alt="test"';
-                            $btn1 = '<a href="#Modal" data-id="'.$list_data->atg_id.'" data-name="'.$list_data->atg_name.'">';
-                            $btn2 = '</a>';
-                            $time = $list_data->trans_date;
-                            $vol_current = $list_data->qty_observe;
-                            $status = 'No Link';
-                        } elseif ($list_data->type_alarm == 8){
-                            $back = 'style="background-color: red;"';
-                            $btn1 = '<a href="#Modal" data-id="'.$list_data->atg_id.'" data-name="'.$list_data->atg_name.'">';
-                            $btn2 = '</a>';
-                            $time = $list_data->trans_date;
-                            $vol_current = $list_data->qty_observe;
-                            $status = 'Probe';
-                        } elseif ($list_data->type_alarm == 1){
-                            $back = 'style="background-color: red;"';
-                            $btn1 = '<a href="#Modal" data-id="'.$list_data->atg_id.'" data-name="'.$list_data->atg_name.'">';
-                            $btn2 = '</a>';
-                            $time = $list_data->trans_date;
-                            $vol_current = $list_data->qty_observe;
-                            $status = 'Data Warning';
-                        } else {
-                            $status = 'Online';
-                        }
-                  }
+                        if($vol_current == 0){
+							$back = 'style="background-color: red;" alt="test"';
+						  $btn1 = '<a href="#Modal" data-id="'.$list_data->atg_id.'" data-name="'.$list_data->atg_name.'">';
+						  $btn2 = '</a>';
+						  $time = $list_data->trans_date;
+						  $vol_current = $list_data->qty_observe;
+						  $status = 'No Link';
+						}else {
+						  $status = 'Online';
+					 	}
+                  	}
+				  $t_vol2 += $vol_current;
                     ?>
                     <tr>
                         <td <?php echo $back; ?>><?php echo $btn1. $list_data->atg_name . $btn2 ?></td>
@@ -543,7 +515,7 @@
 					$ullage_tank3=$visual;
 				}
 
-				if ($total<($volume+$ullage)) {
+				if ($total<($volume)) {
 					$s3_pesan='tinggi storage lebih kecil dari total tinggi ATG';
 				}
 				//--------------------------------------------------------------------------------
@@ -706,6 +678,7 @@
                 <tbody>
                 <?php
                 $cek_connection = $s3_connection;
+				$t_vol3=0;
                 foreach ($s3_data_atg as $list_data):
                     // echo $s1_atg;
                     $back='';
@@ -719,37 +692,24 @@
                       $back = 'style="background-color: red;"';
                       $btn1 = '<a href="#Modal2" data-id="'.$list_data->atg_id.'" data-name="'.$list_data->atg_name.'">';
                       $btn2 = '</a>';
-                      $val_time = ($list_data->qty_observe == null) ? $list_data->trans_date:$list_data->date_manual;
+                      $val_time = ($list_data->qty_observe == null) ? $list_data->trans_date:$list_data->manual_date;
                       $time = $val_time;
                       $vol_calc = ($list_data->qty_observe == null) ? $list_data->volume:$list_data->qty_observe;
                       $vol_current = $vol_calc;
                       $status = 'Undefined';
                     } else {
-                        if($list_data->type_alarm == 9){
+                        if($vol_current == 0){
                             $back = 'style="background-color: red;" alt="test"';
                             $btn1 = '<a href="#Modal" data-id="'.$list_data->atg_id.'" data-name="'.$list_data->atg_name.'">';
                             $btn2 = '</a>';
                             $time = $list_data->trans_date;
                             $vol_current = $list_data->qty_observe;
                             $status = 'No Link';
-                        } elseif ($list_data->type_alarm == 8){
-                            $back = 'style="background-color: red;"';
-                            $btn1 = '<a href="#Modal" data-id="'.$list_data->atg_id.'" data-name="'.$list_data->atg_name.'">';
-                            $btn2 = '</a>';
-                            $time = $list_data->trans_date;
-                            $vol_current = $list_data->qty_observe;
-                            $status = 'Probe';
-                        } elseif ($list_data->type_alarm == 1){
-                            $back = 'style="background-color: red;"';
-                            $btn1 = '<a href="#Modal" data-id="'.$list_data->atg_id.'" data-name="'.$list_data->atg_name.'">';
-                            $btn2 = '</a>';
-                            $time = $list_data->trans_date;
-                            $vol_current = $list_data->qty_observe;
-                            $status = 'Data Warning';
                         } else {
                             $status = 'Online';
                         }
-                  }
+                  	}
+				  $t_vol3 += $vol_current;
                     ?>
                     <tr>
                         <td <?php echo $back; ?>><?php echo $btn1. $list_data->atg_name . $btn2 ?></td>
@@ -765,44 +725,15 @@
 </div>
 
 
-
+<script src="<?php echo base_url(); ?>assets/js/bootstrap.min.js"></script>
 <script>
 
 setTimeout(function() {
     location.reload();
-    
-}, 20000);
-/**
- * Comment
- */
-function sync() {
-    $.ajax({
-        url: '<?php echo base_url() ?>index.php/home/synch_lg/',
-        type: 'post',
-        dataType: 'json',
-        success: function(result){
-            
-        }
-    });
-}
+
+}, 30000);
 </script>
-<script>
-    setInterval(function() {
-    
-}, 60000);
-</script>
-<script>
-    setInterval(function(){
-        $.ajax({
-            url: '<?php echo base_url() ?>index.php/home/synch_update_log/',
-        type: 'post',
-        dataType: 'json',
-        success: function(result){
-            
-        }
-        });
-    }, 30000);
-</script>
+
 <script>
 	<!-- tank 1 Visual -->
 	var canvas = document.getElementById("myCanvas");
@@ -830,7 +761,7 @@ function sync() {
 	ctx.textBaseline = "middle";
 	ctx.fillStyle = "black";
 	<?php if ($s1_pesan=='') { ?>
-		ctx.fillText("<?= number_format($s1_sum_volume+$s1_data_manual) .' L' ?>", 110, canvas.height / 2);
+		ctx.fillText("<?= number_format($t_vol1) .' L' ?>", 110, canvas.height / 2);
     ctx.fillStyle = "red";
     ctx.fillText("<?= $s1_error ?>", 110, canvas.height / 2.5);
 	<?php } else { ?>
@@ -921,9 +852,9 @@ function sync() {
 	ctx.textBaseline = "middle";
 	ctx.fillStyle = "black";
 	<?php if ($s2_pesan=='') { ?>
-		ctx.fillText("<?= number_format($s2_sum_volume + $s2_data_manual) .' L' ?>", 110, canvas.height / 2);
-        ctx.fillStyle = "red";
-        ctx.fillText("<?= $s2_error ?>", 110, canvas.height / 2.5);
+		ctx.fillText("<?= number_format($t_vol2) .' L' ?>", 110, canvas.height / 2);
+    ctx.fillStyle = "red";
+    ctx.fillText("<?= $s2_error ?>", 110, canvas.height / 2.5);
 	<?php } else { ?>
 		ctx.fillText("<?= $s2_pesan ?>", canvas.width / 2, canvas.height / 2);
 	<?php } ?>
@@ -1012,7 +943,7 @@ function sync() {
 	ctx.textBaseline = "middle";
 	ctx.fillStyle = "black";
 	<?php if ($s3_pesan=='') { ?>
-		ctx.fillText("<?= number_format($s3_sum_volume + $s3_data_manual) .' L' ?>", 110, canvas.height / 2);
+		ctx.fillText("<?= number_format($t_vol3) .' L' ?>", 110, canvas.height / 2);
     ctx.fillStyle = "red";
     ctx.fillText("<?= $s3_error ?>", 110, canvas.height / 2.5);
 	<?php } else { ?>

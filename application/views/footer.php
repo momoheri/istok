@@ -85,8 +85,8 @@
 <div class="footer">
   <p>Footer</p>
 </div>
--->
-<script src="<?php echo base_url(); ?>assets/js/bootstrap.min.js"></script>
+<-->
+
 <script>
   $(function(){
     $('a[href$="Modal2"]').on("click", function (){

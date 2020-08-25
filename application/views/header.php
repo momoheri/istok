@@ -4,10 +4,13 @@
 	<title>Istock - Dashboard</title>
 	
 	<!------ Include the above in your HEAD tag ---------->
-    <script src="<?php echo base_url(); ?>assets/jquery/jquery-3.4.1.min.js"></script>
-	<link href="<?php echo base_url(); ?>assets/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
 	
-
+    <script src="<?php echo base_url(); ?>assets/jquery/jquery-3.4.1.min.js"></script>
+	
+	<link href="<?php echo base_url(); ?>assets/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+	<!--
+	<script src="<?php echo base_url(); ?>assets/js/bootstrap.min.js"></script>
+	-->
 	<link href="<?php echo base_url(); ?>assets/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
 	
 	<!------ chart.js ---------->
@@ -15,7 +18,7 @@
 	<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>	
 	-->	
 	<script src="<?php echo base_url(); ?>assets/chart.js/Chart.min.js"></script>	
-
+	
 	<!------ timer 
 	<meta http-equiv="refresh" content="30"/>
 	---------->
