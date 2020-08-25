@@ -1319,9 +1319,7 @@ class Chart extends CI_Controller {
 		
 		$availability_performance 	= $this->Model_supply->get_availability_performance($storage_id,$start, $end, $label_type);
 		$parameters = $this->Model_supply->get_parameters($storage_id);
-		print_r($availability_performance);
-		print_r($parameters);
-		die();
+		
 		if($label_type == 'month'){
 			$x = 0;
 			while($x++ < 12) {
@@ -1332,7 +1330,6 @@ class Chart extends CI_Controller {
 				$mon = $MonthNumber-1;
 				$monmin = $MonthNumber-2;
 				$months[] = date("F", strtotime("+".$mon."month",strtotime('2020-01-01')));
-				$months_before[] = date("F", strtotime("+".$monmin."month",strtotime('2020-01-01')));
 			}
 		}elseif($label_type == 'quarterly'){
 			$start = date("n", strtotime($tanggal_dari));
@@ -1345,7 +1342,6 @@ class Chart extends CI_Controller {
 				$mon = $MonthNumber-1;
 				$monmin = $MonthNumber-2;
 				$months[] = date("F", strtotime("+".$mon."month",strtotime('2020-01-01')));
-				$months_before[] = date("F", strtotime("+".$monmin."month",strtotime('2020-01-01')));
 			}
 		}elseif($label_type == 'day'){
 			$start = $tanggal_dari;
@@ -1353,23 +1349,13 @@ class Chart extends CI_Controller {
 			while(strtotime($start) <= strtotime($end)) {
 				$months[] = $start;
 				$start = date ("Y-m-d", strtotime("+1 day", strtotime($start)));
-				$months_before[] = date ("Y-m-d", strtotime("-2 day", strtotime($start)));
 			}
 		}
 		
-		foreach ($inventory_performance as $inventory) {
-			$data[$inventory['month_date']]['average'] = $inventory['vol'] + $inventory['qty_observe']; 
+		foreach ($availability_performance as $availability) {
+			$data[$availability['date_atg']]['over'] = $availability['volume']; 
 		}
 		
-		foreach ($forecast as $item_forecast) {
-			$data[$item_forecast['trans_date']]['forecast'] = $item_forecast['inventory']; 
-		}
-		
-		foreach ($parameters as $inventory) {  
-			$data[1]['maximal'] = $inventory['maximal']; 
-			$data[1]['minimum'] = $inventory['minimum']; 
-			$data[1]['safety'] = $inventory['safety']; 
-		}
 		$label = array();
 		$average = array();
 		$data_forecast = array();
