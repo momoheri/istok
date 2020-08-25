@@ -359,12 +359,12 @@ class Chart extends CI_Controller {
 		$fuel = $this->Model_monitoring->get_fuel_negative($start, $end);
 		$array_color = array('blue', 'orange', 'grey', 'yellow', 'green', 'red',"Cyan","DarkBlue","DarkCyan","DarkGoldenRod","DarkGray","DarkGrey","DarkGreen","DarkKhaki","DarkMagenta","DarkOliveGreen","DarkOrange","DarkOrchid","DarkRed","DarkSalmon","DarkSeaGreen","DarkSlateBlue","DarkSlateGray","DarkSlateGrey","DarkTurquoise","DarkViolet","DeepPink","DeepSkyBlue","DimGray","DimGrey","DodgerBlue","FireBrick","FloralWhite","ForestGreen");
 		
-		$temp_item = $this->_group_by($fuel, 'quarter');
+		$temp_item = $this->_group_by($fuel, 'storage_id');
 		$feul_item = array();
 		foreach($temp_item as $items) {
 			$quantity = array();
 			foreach($items as $item) {
-				$index = $this->find_by('storage_id', $quantity, $item['storage_id']);
+				$index = $this->find_by('quarter', $quantity, $item['quarter']);
 				if ($index < 0 ) {
 						$quantity[] = $item;
 				}
@@ -373,15 +373,15 @@ class Chart extends CI_Controller {
 						$quantity[$index]['vol_atg'] +=  $item['vol_atg'];
 				}
 			}			
-			$feul_item[$items[0]['quarter']] = $quantity;
+			$feul_item[$items[0]['storage_id']] = $quantity;
 		}
 		
-		$data_storage = array();
-		foreach($storage as $data){
-			$vendor_id[$data['storage_id']] = 0;
-			$data_storage[] = $data['storage_name'];
+		$data_quarter = array();
+		foreach($quarter as $data){
+			$vendor_id[$data] = 0;
+			$data_quarter[] = $data;
 		}
-		$res['storage'] = implode('|', $data_storage);
+		$res['quarter'] = implode('|', $data_quarter);
 		
 		$res['chart'] = array();
 		$res['chart'] = array();
@@ -390,8 +390,8 @@ class Chart extends CI_Controller {
 		foreach($feul_item as $items){
 			$quantity = $vendor_id;
 			foreach($items as $item){
-				if(!empty($item['storage_id']) && $item['storage_id'] !=''){
-					$quantity[$item['storage_id']] = round($item['manual_surveyor'] - $item['vol_atg']);
+				if(!empty($item['quarter']) && $item['quarter'] !=''){
+					$quantity[$item['quarter']] = round($item['manual_surveyor'] - $item['vol_atg']);
 				}
 			}
 			$res['chart'][$i] = $items[0];
@@ -400,22 +400,23 @@ class Chart extends CI_Controller {
 			$i++;
 		}
 		
-		foreach($quarter as $key => $item){	
-				$index = $this->find_by('quarter', $res['chart'], $item);
+		foreach($storage as $key => $item){	
+				$index = $this->find_by('storage_id', $res['chart'], $item['storage_id']);
 				if($index < 0){
 					$list['CreatedDate'] = ''; 
-					$list['quarter_id'] = $key; 
-					$list['quarter'] = $item; 
+					$list['storage_id'] = $item['storage_id']; 
+					$list['storage'] = $item['storage_name']; 
 					$list['color'] =  $array_color[$i];
 					$list['quantity'] =  implode(',', $vendor_id);
 					$res['chart'][$i] = $list;
 					$i++;
 				}else{
-					$res['chart'][$index]['quarter_id'] = $key; 
+					$res['chart'][$index]['storage_id'] =$item['storage_id'];
+					$res['chart'][$index]['storage'] =$item['storage_name'];
 				}
 		}
 		$items_sort = $res['chart'];
-		$result = array_column($items_sort, 'quarter_id');
+		$result = array_column($items_sort, 'storage_id');
 
 		array_multisort($result, SORT_ASC, $items_sort);
 		$res['chart'] = $items_sort;

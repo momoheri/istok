@@ -71,7 +71,7 @@
 		<?php echo form_close(); ?>
 		<?php echo $filter_result; ?>
 	</div>
-	<div class="leftmenufilter"><canvas id="myChart"  height="300"></canvas></div>	
+	<div class="leftmenufilter"><canvas id="myChart"  height="400"></canvas></div>	
 	<!--div class="leftmenufilter"><center>
 		<table cellpadding="2" border="1" width="100%" style="font-size: small;">
 		  <tr>
@@ -113,9 +113,7 @@
 		</table>
 	</div-->
 	<div class="leftmenufilter card shadow" style="font-size: small;">
-	</br>
-	</br>
-	</br>
+	</br></br></br></br></br></br></br></br>
  	</div>
 </div>
  </div>
@@ -126,13 +124,13 @@
 
 <div class="col-md-12">
 	<div class="row">
-		<div class="col-md-4 card shadow"><canvas id="myChart2" height="300"></canvas></div>
-		<div class="col-md-4 card shadow"><canvas id="myChart3" height="300"></canvas></div>
-		<div class="col-md-4 card shadow"><canvas id="myChart4" height="300"></canvas></div>
-		<div class="col-md-8 card shadow"><canvas id="myChart5" height="400"></canvas></div>
+		<div class="col-md-4 card shadow"><canvas id="myChart2" height="400"></canvas></div>
+		<div class="col-md-4 card shadow"><canvas id="myChart3" height="400"></canvas></div>
+		<div class="col-md-4 card shadow"><canvas id="myChart4" height="400"></canvas></div>
+		<div class="col-md-8 card shadow"><canvas id="myChart5" height="600"></canvas></div>
 		<div class="col-md-4 card shadow">
-			<canvas id="myChart6" height="200"></canvas>
-			<canvas id="myChart7" height="200"></canvas>
+			<canvas id="myChart6" height="300"></canvas>
+			<canvas id="myChart7" height="300"></canvas>
 		</div>
 	</div>
 </div>
@@ -699,9 +697,9 @@ var departments_fuel_negative = [];
 async function getData_fuel_negative() {
 	const response = await fetch(api_url_fuel_negative);
 	const data = await response.json();
-	const data_label = data.storage;
+	const data_label = data.quarter;
 	for (var department in data.chart) {
-		var departmentObject = prepareDepartmentDetails_fuel_negative(data.chart[department].quarter, data.chart[department].quantity, data.chart[department].color);
+		var departmentObject = prepareDepartmentDetails_fuel_negative(data.chart[department].storage, data.chart[department].quantity, data.chart[department].color);
 		departments_fuel_negative.push(departmentObject);
 	}
 	return {data_label, departments_fuel_negative};	
@@ -731,21 +729,38 @@ console.log(chartData);
 				position: 'top', // place legend on the right side of chart
 				align: 'start',
 			},
+			tooltips: {
+				mode: 'nearest',
+			  callbacks: {
+					label: function(tooltipItem, data) {
+						var value = tooltipItem.yLabel;
+						value = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+						return data.datasets[tooltipItem.datasetIndex].label+' : '+value;
+					}
+			  } // end callbacks:
+			},
 			scales: {
+				
 				xAxes: [{
-					stacked: false // this should be set to make the bars stacked
+					stacked: false // this also..
 				}],
 				yAxes: [{
-					stacked: false // this also..
+					stacked: false, // this should be set to make the bars stacked
+					ticks: {
+									// Include a dollar sign in the ticks
+									callback: function(value, index, values) {
+											return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+									}
+                }
 				}]
 			}
 		}
 	});
 }
 	
-function prepareDepartmentDetails_fuel_negative(quarter, quantity, color){
+function prepareDepartmentDetails_fuel_negative(storage, quantity, color){
     return {
-        label : quarter,
+        label : storage,
         data : quantity.split(','),
         backgroundColor: color,
         borderColor: color
