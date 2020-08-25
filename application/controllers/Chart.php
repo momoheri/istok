@@ -137,6 +137,7 @@ class Chart extends CI_Controller {
 	}
 	
 	/*------------------------------------------------------------------------------*/
+<<<<<<< HEAD
 
 	public function order_tovendor(){
 		$p_period = $this->input->get('p_period');
@@ -238,11 +239,22 @@ class Chart extends CI_Controller {
 	public function transporter_byconfirm(){
 		$p_period = $this->input->get('p_period');
 		if ($p_period == 'daily') {
+=======
+	
+	public function fuel_distribution_base_on_activity()	{
+		$p_period = $this->input->get('p_period');
+		
+		if ($p_period == 'daily' || empty($p_period)) {
+>>>>>>> 3be60e9f841f4ad1282d4b183bcfc63801172f7f
 			$tgl = $this->input->get('p_period_sub_date');
 			$tanggal_dari = (empty($tgl))? date('Y-m-d') : $tgl;
 			$tanggal_sampai = $tanggal_dari;
 		}
+<<<<<<< HEAD
 		if ($p_period == 'monthly' || empty($p_period)) {
+=======
+		if ($p_period == 'monthly') {
+>>>>>>> 3be60e9f841f4ad1282d4b183bcfc63801172f7f
 			$tahun = $this->input->get('p_year');
 			$bulan = substr(('0' .$this->input->get('p_period_sub_month')),-2);
 			
@@ -296,6 +308,7 @@ class Chart extends CI_Controller {
 		}
 		$start = $tanggal_dari;
 		$end = $tanggal_sampai;
+<<<<<<< HEAD
 
 		$transporter = $this->Model_monitoring->get_transporter();
 		$transporter_utilization = $this->Model_schedule->get_transporterbypo($start,$end);
@@ -317,13 +330,72 @@ class Chart extends CI_Controller {
 			foreach($items as $item){
 				if(!empty($item['storage_id']) && $item['storage_id'] != ''){
 					$total[$item['storage_id']] = $item['total'];
+=======
+		
+		$storage = $this->Model_monitoring->get_storage();
+		$movement = $this->Model_monitoring->get_movement();
+		$fuel = $this->Model_monitoring->get_fuel_distribution_on_activity($start, $end);
+		$array_color = array('blue', 'orange', 'grey', 'yellow', 'green', 'red',"Cyan","DarkBlue","DarkCyan","DarkGoldenRod","DarkGray","DarkGrey","DarkGreen","DarkKhaki","DarkMagenta","DarkOliveGreen","DarkOrange","DarkOrchid","DarkRed","DarkSalmon","DarkSeaGreen","DarkSlateBlue","DarkSlateGray","DarkSlateGrey","DarkTurquoise","DarkViolet","DeepPink","DeepSkyBlue","DimGray","DimGrey","DodgerBlue","FireBrick","FloralWhite","ForestGreen");
+		
+		$temp_item = $this->_group_by($fuel, 'storage_id');
+		$feul_item = array();
+		foreach($temp_item as $items) {
+			$quantity = array();
+			foreach($items as $item) {
+				$index = $this->find_by('movement', $quantity, $item['movement']);
+				if ($index < 0) {
+						$quantity[] = $item;
+				}
+				else {
+						$quantity[$index]['Volume'] +=  $item['Volume'];
+				}
+			}			
+			$feul_item[$items[0]['storage_id']] = $quantity;
+		}
+		
+		$data_movement = array();
+		foreach($movement as $data){
+			$vendor_id[$data['movement']] = 0;
+			$data_movement[] = $data['movement'];
+		}
+		$res['movement'] = implode('|', $data_movement);
+		
+		$res['chart'] = array();
+		$res['chart'] = array();
+		$data_quantity = array();
+		$i = 0;
+		foreach($feul_item as $items){
+			$quantity = $vendor_id;
+			foreach($items as $item){
+				if(!empty($item['movement']) && $item['movement'] !=''){
+					$quantity[$item['movement']] = $item['Volume'];
+>>>>>>> 3be60e9f841f4ad1282d4b183bcfc63801172f7f
 				}
 			}
 			$res['chart'][$i] = $items[0];
 			$res['chart'][$i]['color'] = $array_color[$i];
+<<<<<<< HEAD
 			$res['chart'][$i]['total'] = implode(',', $total);
 			$i++;
 		}
+=======
+			$res['chart'][$i]['quantity'] = implode(',', $quantity);
+			$i++;
+		}
+		
+		foreach($storage as $storage_data){	
+				$index = $this->find_by('storage_id', $res['chart'], $storage_data['storage_id']);
+				if($index < 0){
+					$list['CreatedDate'] = ''; 
+					$list['storage_name'] = $storage_data['storage_name']; 
+					$list['color'] =  $array_color[$i];
+					$list['quantity'] =  implode(',', $vendor_id);
+					$res['chart'][$i] = $list;
+					$i++;
+				}
+		}
+		
+>>>>>>> 3be60e9f841f4ad1282d4b183bcfc63801172f7f
 		echo json_encode($res);
 	}
 	
@@ -1021,9 +1093,11 @@ class Chart extends CI_Controller {
     $result = -1;
 		if(!empty($search) && $search != ''){
 			for($i=0; $i<sizeof($array); $i++) {
-					if ($array[$i][$key] == $search) {
-							$result = $i;
-							break;
+					if(isset($array[$i][$key])){
+						if ($array[$i][$key] == $search) {
+								$result = $i;
+								break;
+						}
 					}
 			}
 		}

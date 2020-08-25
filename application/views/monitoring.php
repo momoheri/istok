@@ -497,7 +497,13 @@ function prepareDepartmentDetailsBar3(label, datas, color){
         data : datas.split(','),
         backgroundColor: color,
         borderColor: color,
+<<<<<<< HEAD
         pointBackgroundColor : color
+=======
+        pointBackgroundColor : color,
+        hoverBackgroundColor : color,
+				pointHoverBackgroundColor : color
+>>>>>>> 3be60e9f841f4ad1282d4b183bcfc63801172f7f
     }
 }
 
@@ -556,65 +562,75 @@ var chart = new Chart(ctx, {
 	}
 });
 </script>
-
 <script>
-var ctx = document.getElementById('myChart4').getContext('2d');
-var chart = new Chart(ctx, {
-    // The type of chart we want to create
-    type: 'bar',
-    // The data for our dataset
-    data: {
-        labels: ['A2B Operation', 'Barging', 'Coal Getting', 'Genset Operation', 'Over Borden', 'Non Operation'],
-        datasets: [{
-            label: 'BMO',
-            backgroundColor: 'Blue',
-            borderColor: 'rgb(255, 99, 132)',
-            data: [400000, 0, 500000, 400000, 2200000, 0]
-        }, {
-            label: 'HO',
-            backgroundColor: 'Orange',
-            borderColor: 'rgb(255, 99, 132)',
-            data: [0, 0, 0, 0, 0, 0]
-		}, {
-            label: 'LMO',
-            backgroundColor: 'Green',
-            borderColor: 'rgb(255, 99, 132)',
-            data: [350000, 900000, 200000, 350000, 350000, 0]
-		}, {
-            label: 'SMO',
-            backgroundColor: 'Yellow',
-            borderColor: 'rgb(255, 99, 132)',
-            data: [300000, 0, 350000, 300000, 750000, 0]
-		}, {
-            label: 'SUR',
-            backgroundColor: 'Purple',
-            borderColor: 'rgb(255, 99, 132)',
-            data: [0, 1000000, 0, 0, 0, 0]
-		}]
-    },
+const api_url_fuel_distribution_base_on_activity = "<?php echo base_url().'chart/fuel_distribution_base_on_activity?'.$qeury_url; ?>";
+
+<<<<<<< HEAD
+=======
+var departments_fuel_distribution_base_on_activity = [];
+
+async function fuel_distribution_base_on_activity() {
+	const response = await fetch(api_url_fuel_distribution_base_on_activity);
+	const data = await response.json();
+	const data_label = data.movement;
+	for (var department in data.chart) {
+		var departmentObject = prepareDepartmentDetailsBar(data.chart[department].storage_name, data.chart[department].quantity, data.chart[department].color);
+		departments_fuel_distribution_base_on_activity.push(departmentObject);
+	}
+	return {data_label, departments_fuel_distribution_base_on_activity};	
+}
+
+
+ async function setup_fuel_distribution_base_on_activity() {
+	const ctx = document.getElementById('myChart4').getContext('2d');
+	const globalTemps = await fuel_distribution_base_on_activity();
 	
-	options: {
+	var chartData = {
+			labels: globalTemps.data_label.split('|'),
+			datasets : globalTemps.departments_fuel_distribution_base_on_activity
+	};
+	const myChart = new Chart(ctx, {
+		type: 'bar',
+		data: chartData,
+		options: {
 			title: {
 				display: true,
 				text: 'Fuel Distribution base on Activity'
 			},
-		responsive: true,
-		// legend: {
-			// display: false,
-			// position: 'right' // place legend on the right side of chart
-		// },
-		scales: {
-			xAxes: [{
-				stacked: true // this should be set to make the bars stacked
-			}],
-			yAxes: [{
-				stacked: true // this also..
-			}]
+			responsive: true,
+			tooltips: {
+				mode: 'nearest',
+			  callbacks: {
+					label: function(tooltipItem, data) {
+						var value = tooltipItem.yLabel;
+						value = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+						return data.datasets[tooltipItem.datasetIndex].label+' : '+value;
+					}
+			  } // end callbacks:
+			},
+			scales: {
+				
+				xAxes: [{
+					stacked: true // this also..
+				}],
+				yAxes: [{
+					stacked: true, // this should be set to make the bars stacked
+					ticks: {
+									// Include a dollar sign in the ticks
+									callback: function(value, index, values) {
+											return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+									}
+                }
+				}]
+			}
 		}
-	}
-});
+	});
+}
+
+setup_fuel_distribution_base_on_activity();
 </script>
 
+>>>>>>> 3be60e9f841f4ad1282d4b183bcfc63801172f7f
 <script>
 var ctx = document.getElementById('myChart6').getContext('2d');
 var chart = new Chart(ctx, {
