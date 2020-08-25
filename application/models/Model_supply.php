@@ -71,6 +71,8 @@ class Model_supply extends CI_Model {
 		return $query->result_array();
 	}
 	
+	/*------------------------------------------------------------------------------*/
+	
 	function get_forecast($storage_id, $start, $end, $label_type) {
 		if($storage_id == 1){
 			$table = 'log_forecast_lati';
@@ -96,6 +98,8 @@ class Model_supply extends CI_Model {
 
 		return $query->result_array();
 	}
+	
+	/*------------------------------------------------------------------------------*/
 	
 	function get_inventory_performance_new($storage_id, $start, $end, $label_type) {
 		if($label_type == 'day'){
@@ -129,6 +133,28 @@ class Model_supply extends CI_Model {
 													trans_atg.trans_time DESC) as res
 								GROUP BY DATE_FORMAT(trans_date, '%Y-%m-%d')) as rest
 							GROUP BY DATE_FORMAT(trans_date, '%M')";
+		}
+		$query = $this->db->query($SQL);
+
+		return $query->result_array();
+	}
+	
+	/*------------------------------------------------------------------------------*/
+	
+	function get_availability_performance($storage_id, $start, $end, $label_type) {
+		if($label_type == 'day'){
+			$SQL = "SELECT ROUND(SUM(volume)) as volume, DATE_FORMAT(trans_date, '%Y-%m-%d') as date_atg
+							FROM `trans_atg`
+							WHERE storage_id = '$storage_id' AND (DATE_FORMAT(trans_date, '%Y-%m-%d') BETWEEN '$start' AND '$end')
+							GROUP BY trans_atg.atg_id, DATE_FORMAT(trans_date, '%Y-%m-%d')
+							ORDER BY trans_date DESC, trans_time DESC";
+	
+		}else{
+			$SQL = "SELECT ROUND(SUM(volume)) as volume, DATE_FORMAT(trans_date, '%M') as date_atg 
+							FROM `trans_atg`
+							WHERE storage_id = '$storage_id' AND (DATE_FORMAT(trans_date, '%Y-%m-%d') BETWEEN '$start' AND '$end')
+							GROUP BY trans_atg.atg_id, DATE_FORMAT(trans_date, '%M')
+							ORDER BY trans_date DESC, trans_time DESC";
 		}
 		$query = $this->db->query($SQL);
 

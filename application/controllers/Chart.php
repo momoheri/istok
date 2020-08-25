@@ -1245,6 +1245,195 @@ class Chart extends CI_Controller {
 	
 	/*------------------------------------------------------------------------------*/
 	
+	public function availability_performance($storage_id)	{
+		$p_period = $this->input->get('p_period');
+		$label_type = 'month';
+		if ($p_period == 'daily') {
+			$label_type = 'day';
+			$tgl = $this->input->get('p_period_sub_date');
+			$tanggal_dari = (empty($tgl))? date('Y-m-d') : $tgl;
+			$tanggal_sampai = $tanggal_dari;
+		}
+		if ($p_period == 'monthly' || empty($p_period)) {
+			$label_type = 'day';
+			$tahun = $this->input->get('p_year');
+			$tahun = (empty($tahun))? date('Y') : $tahun;
+			$bulan = $this->input->get('p_period_sub_month');
+			$bulan = (empty($bulan))? date('n') : $bulan;
+			$bulan = substr(('0' .$bulan),-2);
+			
+			$tanggal_dari = ($tahun .'-'. $bulan .'-01');
+			$tanggal_sampai = date('Y-m-t', strtotime($tanggal_dari));
+		}
+		if ($p_period == 'quarterly') {
+			$tahun = $this->input->get('p_year');
+			if ($this->input->get('p_period_sub_quarter')=='q1') {
+				$label_type = 'quarterly';
+				$bulan1 = '01';				
+				$tanggal_dari = ($tahun .'-'. $bulan1 .'-01');
+				
+				$bulan2 = '03';				
+				$tanggal2 = ($tahun .'-'. $bulan2 .'-01');
+				$tanggal_sampai = date('Y-m-t', strtotime($tanggal2));
+			}
+			
+			if ($this->input->get('p_period_sub_quarter')=='q2') {				
+				$label_type = 'quarterly';
+				$bulan1 = '04';				
+				$tanggal_dari = ($tahun .'-'. $bulan1 .'-01');
+				
+				$bulan2 = '06';				
+				$tanggal2 = ($tahun .'-'. $bulan2 .'-01');
+				$tanggal_sampai = date('Y-m-t', strtotime($tanggal2));
+			}
+			
+			if ($this->input->get('p_period_sub_quarter')=='q3') {
+				$label_type = 'quarterly';
+				$bulan1 = '07';				
+				$tanggal_dari = ($tahun .'-'. $bulan1 .'-01');
+				
+				$bulan2 = '09';				
+				$tanggal2 = ($tahun .'-'. $bulan2 .'-01');
+				$tanggal_sampai = date('Y-m-t', strtotime($tanggal2));
+			}
+			
+			if ($this->input->get('p_period_sub_quarter')=='q4') {
+				$label_type = 'quarterly';
+				$bulan1 = '10';				
+				$tanggal_dari = ($tahun .'-'. $bulan1 .'-01');
+				
+				$bulan2 = '12';				
+				$tanggal2 = ($tahun .'-'. $bulan2 .'-01');
+				$tanggal_sampai = date('Y-m-t', strtotime($tanggal2));
+			}
+		}
+		if ($p_period == 'yearly') {
+				$label_type = 'month';
+			$tahun = $this->input->get('p_year');
+			
+			$tanggal_dari = ($tahun .'-01-01');
+			$tanggal_sampai = ($tahun .'-12-31');
+		}
+		$start = $tanggal_dari;
+		$end = $tanggal_sampai;
+		
+		$availability_performance 	= $this->Model_supply->get_availability_performance($storage_id,$start, $end, $label_type);
+		$parameters = $this->Model_supply->get_parameters($storage_id);
+		print_r($availability_performance);
+		print_r($parameters);
+		die();
+		if($label_type == 'month'){
+			$x = 0;
+			while($x++ < 12) {
+				$MonthNumbers[] = $x;
+			}
+
+			foreach ($MonthNumbers as $MonthNumber) {
+				$mon = $MonthNumber-1;
+				$monmin = $MonthNumber-2;
+				$months[] = date("F", strtotime("+".$mon."month",strtotime('2020-01-01')));
+				$months_before[] = date("F", strtotime("+".$monmin."month",strtotime('2020-01-01')));
+			}
+		}elseif($label_type == 'quarterly'){
+			$start = date("n", strtotime($tanggal_dari));
+			$end = date("n", strtotime($tanggal_sampai));
+			$x = $start-1;
+			while($x++ < $end) {
+				$MonthNumbers[] = $x;
+			}
+			foreach ($MonthNumbers as $MonthNumber) {
+				$mon = $MonthNumber-1;
+				$monmin = $MonthNumber-2;
+				$months[] = date("F", strtotime("+".$mon."month",strtotime('2020-01-01')));
+				$months_before[] = date("F", strtotime("+".$monmin."month",strtotime('2020-01-01')));
+			}
+		}elseif($label_type == 'day'){
+			$start = $tanggal_dari;
+			$end = $tanggal_sampai;
+			while(strtotime($start) <= strtotime($end)) {
+				$months[] = $start;
+				$start = date ("Y-m-d", strtotime("+1 day", strtotime($start)));
+				$months_before[] = date ("Y-m-d", strtotime("-2 day", strtotime($start)));
+			}
+		}
+		
+		foreach ($inventory_performance as $inventory) {
+			$data[$inventory['month_date']]['average'] = $inventory['vol'] + $inventory['qty_observe']; 
+		}
+		
+		foreach ($forecast as $item_forecast) {
+			$data[$item_forecast['trans_date']]['forecast'] = $item_forecast['inventory']; 
+		}
+		
+		foreach ($parameters as $inventory) {  
+			$data[1]['maximal'] = $inventory['maximal']; 
+			$data[1]['minimum'] = $inventory['minimum']; 
+			$data[1]['safety'] = $inventory['safety']; 
+		}
+		$label = array();
+		$average = array();
+		$data_forecast = array();
+		$maximal = array();
+		$minimum = array();
+		$safety = array();
+		$temp_average = 0;
+		$i=0;
+		foreach($months as $item){
+			if(isset($data[$item])){
+				$label[$i] = $item;
+				if(isset($data[$item]['average'])){
+					$average[$i] = $data[$item]['average'];
+					$temp_average = $data[$item]['average'];
+				}elseif(isset($data[$item]['forecast'])){
+					if(isset($data[$months_before[$i]]['forecast']) && !empty($data[$months_before[$i]]['forecast']) && $temp_average > 0){
+						$average[$i] = ($temp_average-$data[$months_before[$i]]['forecast'])+$data[$item]['forecast'];
+						$temp_average = $average[$i];
+					}else{
+						$temp_average = $data[$item]['forecast'];
+						$average[$i] = $data[$item]['forecast'];
+					}
+					
+				}else{
+					$average[$i] = 0;
+				}
+				$data_forecast[$i] = (isset($data[$item]['forecast']))? $data[$item]['forecast'] : 0;
+			}else{
+				$label[$i] = $item;
+				$average[$i] = 0;
+				$data_forecast[$i] = 0;
+			}	
+			$maximal[$i] = $data[1]['maximal'];
+			$minimum[$i] = $data[1]['minimum'];
+			$safety[$i] = $data[1]['safety'];
+			$i++;
+		}
+		
+		$res['chart'] = array();
+		$res['chart_fill'] = array();
+		$res['labels'] = implode(',', $label);
+		$res['chart'][0]['label'] = 'Status Stock';
+		$res['chart'][0]['datas'] = implode(',', $average);
+		$res['chart'][0]['color'] = 'orange';
+		$res['chart'][1]['label'] = 'Forecast';
+		$res['chart'][1]['datas'] = implode(',', $data_forecast);
+		$res['chart'][1]['color'] = '#0080ff';
+		$res['chart_fill'][1]['label'] = 'Stock Max';
+		$res['chart_fill'][1]['datas'] = implode(',', $maximal);
+		$res['chart_fill'][1]['color'] = '#90EE90';
+		$res['chart_fill'][1]['fill'] = '3';
+		$res['chart_fill'][2]['label'] = 'Stock Min';
+		$res['chart_fill'][2]['datas'] = implode(',', $minimum);
+		$res['chart_fill'][2]['color'] = '#FFFACD';
+		$res['chart_fill'][2]['fill'] = '4';
+		$res['chart_fill'][3]['label'] = 'Safety Stock';
+		$res['chart_fill'][3]['datas'] = implode(',', $safety);
+		$res['chart_fill'][3]['color'] = '#FFC0CB';
+		$res['chart_fill'][3]['fill'] = 'start';
+		echo json_encode($res);
+	}
+	
+	/*------------------------------------------------------------------------------*/
+	
 	public function getColor($num) {
 		$hash = md5('color' . $num); // modify 'color' to get a different palette
 		return array(
