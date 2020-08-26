@@ -12,7 +12,7 @@
 	
 <div class="leftmenufilter card shadow">
 	<div class="leftmenufilter"><center>
-		<?php echo form_open("schedule/cari"); ?>
+		<?php echo form_open("schedule", array('method'=>'get')); ?>
 		<table cellpadding="2">
 		  <tr>
 			<td colspan="3" align="center"><h3>Snapshot</h3></td>
@@ -157,7 +157,7 @@
 						<td align="right"><?php echo number_format($rec->distribution, 0, ',', '.'); ?> L</td>
 						<td align="right"><font color="<?php echo $warna; ?>"><?php echo $quantity; ?></font></td>
 						<td align="right"><font color="<?php echo $warna; ?>"><?php echo $rec->barge_name; ?></font></td>
-						<td align="right"><font color="<?php echo $warna; ?>"><?php echo $rec->po_res_number; ?></font></td>
+						<td align="right"><font color="<?php echo $warna; ?>"><?php echo substr($rec->po_res_number,11); ?></font></td>
 					  </tr>
 						<?php 
 							} 				
@@ -238,7 +238,7 @@
 							<td align="right"><?php echo number_format($rec->distribution, 0, ',', '.'); ?> L</td>
 							<td align="right"><font color="<?php echo $warna; ?>"><?php echo $quantity; ?></font></td>
 							<td align="right"><font color="<?php echo $warna; ?>"><?php echo $rec->barge_name; ?></font></td>
-							<td align="right"><font color="<?php echo $warna; ?>"><?php echo $rec->po_res_number; ?></font></td>
+							<td align="right"><font color="<?php echo $warna; ?>"><?php echo substr($rec->po_res_number,11); ?></font></td>
 						  </tr>
 							<?php 
 								} 				
@@ -319,7 +319,7 @@
 							<td align="right"><?php echo number_format($rec->distribution, 0, ',', '.'); ?> L</td>
 							<td align="right"><font color="<?php echo $warna; ?>"><?php echo $quantity; ?></font></td>
 							<td align="right"><font color="<?php echo $warna; ?>"><?php echo $rec->barge_name; ?></font></td>
-							<td align="right"><font color="<?php echo $warna; ?>"><?php echo $rec->po_res_number; ?></font></td>
+							<td align="right"><font color="<?php echo $warna; ?>"><?php echo substr($rec->po_res_number,11); ?></font></td>
 						  </tr>
 							<?php 
 								} 				
@@ -336,6 +336,14 @@
 <!-- Filter -->
 <script>
 $(document).ready(function(){
+	var queryString = new URL('<?php echo current_url().'?'.$query_url; ?>');
+		var urlParams = new URLSearchParams(queryString.search);
+		var status = '<?php echo $periode; ?>';
+		var year = urlParams.get('p_year');
+		var date = urlParams.get('p_period_sub_date');
+		var month = urlParams.get('p_period_sub_month');
+		var quarter = urlParams.get('p_period_sub_quarter');
+	
 	$("#p_period_sub_date_text").show();
 	$("#p_period_sub_date").show();
 	$("#p_year_text").hide();
@@ -396,151 +404,127 @@ $(document).ready(function(){
 	});
 });
 </script>
-
 <script>
-var ctx = document.getElementById('myChart').getContext('2d');
-var chart = new Chart(ctx, {
-    // The type of chart we want to create
-    type: 'bar',
-    // The data for our dataset
-    data: {
-        labels: ['LMO', 'SUR', 'SMO'],
-        datasets: [{
-            label: 'PAN',
-            backgroundColor: 'orange',
-            borderColor: 'rgb(255, 99, 132)',
-            data: [<?= $sum_pan_lmo ?>, <?= $sum_pan_sur ?>, <?= $sum_pan_sam ?>]
-        }, {
-            label: 'AKR',
-            backgroundColor: 'green',
-            borderColor: 'rgb(255, 99, 132)',
-            data: [<?= $sum_akr_lati ?>, <?= $sum_akr_sur ?>, <?= $sum_akr_sam ?>]
-		}, {
-            label: 'PTM',
-            backgroundColor: 'blue',
-            borderColor: 'rgb(255, 99, 132)',
-            data: [<?= $sum_ptm_lmo ?>, <?= $sum_ptm_sur ?>, <?= $sum_ptm_sam ?>]
-		}]
-    },
-	
-	options: {
-			title: {
-				display: true,
-				text: 'Confirm Order to Vendor by Release PO'
-			},
-		responsive: true,
-		legend: {
-			display: false,
-			position: 'right' // place legend on the right side of chart
-		},
-		scales: {
-			xAxes: [{
-				stacked: true // this should be set to make the bars stacked
-			}],
-			yAxes: [{
-				stacked: true // this also..
-			}]
+	const api_url_vendor_topo = "<?php echo base_url().'chart/order_tovendor?'.$query_url; ?>";
+
+	var data_vendor = [];
+
+	async function get_data_confirm(){
+		const response = await fetch(api_url_vendor_topo);
+		const data = await response.json();
+		const data_label = data.storage;
+		for(var daven in data.chart){
+			var davenObject = prepareDaven(data.chart[daven].alias, data.chart[daven].total, data.chart[daven].color);
+			data_vendor.push(davenObject);
+		}
+		return {data_label, data_vendor};
+	}
+
+	async function setup(){
+		const ctx = document.getElementById('myChart').getContext('2d');
+		const globalTemps = await get_data_confirm();
+
+		var chartData = {
+			labels: globalTemps.data_label.split('|'),
+			datasets: globalTemps.data_vendor
+		};
+		console.log(chartData);
+		const myChart = new Chart(ctx, {
+			type: 'bar',
+			data: chartData,
+			options: {
+				title: {
+					display: true,
+					text: 'Confirm Order to Vendor by Release PO'
+				},
+				responsive: true,
+				legend: {
+					display: false,
+					position: 'top'
+				},
+				scales: {
+					xAxes: [{
+						stacked: true
+					}],
+					yAxes: [{
+						stacked: true
+					}]
+				}
+			}
+		});
+	}
+
+	function prepareDaven(alias, total, color){
+		return{
+			label : alias,
+			data : total.split(','),
+			backgroundColor : color,
+			borderColor : 'rgb(255, 99, 132)'
 		}
 	}
-});
-</script>
 
+	setup();
+</script>
 <script>
-var ctx = document.getElementById('myChart2').getContext('2d');
-var chart = new Chart(ctx, {
-    // The type of chart we want to create
-    type: 'bar',
-    // The data for our dataset
-    data: {
-        labels: ['WRA', 'TBS', 'BRK', 'AKR'],
-        datasets: [{
-            label: 'LMO',
-            backgroundColor: 'red',
-            borderColor: 'rgb(255, 99, 132)',
-            data: [<?= $sum_wra_lmo ?>, <?= $sum_tbs_lmo ?>, <?= $sum_brk_lmo ?>, <?= $sum_akr_lmo ?>]
-        }, {
-            label: 'SUR',
-            backgroundColor: 'blue',
-            borderColor: 'rgb(255, 99, 132)',
-            data: [<?= $sum_wra_sur ?>, <?= $sum_tbs_sur ?>, <?= $sum_brk_sur ?>, <?= $sum_akr_sur ?>]
-		}, {
-            label: 'SAM',
-            backgroundColor: 'yellow',
-            borderColor: 'rgb(255, 99, 132)',
-            data: [<?= $sum_wra_sam ?>, <?= $sum_tbs_sam ?>, <?= $sum_brk_sam ?>, <?= $sum_trans_akr_sam ?>]
-		}]
-    },
 	
-	options: {
-			title: {
-				display: true,
-				text: 'Transporter Utilization by Confirm PO'
-			},
-		responsive: true,
-		legend: {
-			display: false,
-			position: 'right' // place legend on the right side of chart
-		},
-		scales: {
-			xAxes: [{
-				stacked: true // this should be set to make the bars stacked
-			}],
-			yAxes: [{
-				stacked: true // this also..
-			}]
+	const api_url_transporter_utilization = "<?php echo base_url().'chart/transporter_byconfirm?'.$query_url ?>";
+
+	var transporter_util = [];
+
+	async function getData_trnsporter_util(){
+		const response = await fetch(api_url_transporter_utilization);
+		const data = await response.json();
+		const data_label = data.transporter;
+		for(var transutil in data.chart){
+			var transUtilObject = prepareTransutil(data.chart[transutil].storage_code, data.chart[transutil].total, data.chart[transutil].color);
+			transporter_util.push(transUtilObject);
+		}
+		return {data_label, transporter_util};
+	}
+
+	async function setup(){
+		const ctx = document.getElementById('myChart2').getContext('2d');
+		const globalTemps = await getData_trnsporter_util();
+
+		var chartData = {
+			labels : globalTemps.data_label.split('|'),
+			datasets : globalTemps.transporter_util
+		};
+		console.log(chartData);
+		const myChart = new Chart(ctx, {
+			type: 'bar',
+			data: chartData,
+			options: {
+				title: {
+					display: true,
+					text: 'Transporter Utilization by Confirm PO'
+				},
+				responsive: true,
+				legend: {
+					display: false,
+					position: 'top'
+				},
+				scales: {
+					xAxes: [{
+					stacked: true // this should be set to make the bars stacked
+				}],
+				yAxes: [{
+					stacked: true // this also..
+				}]
+				}
+			}
+		});
+	}
+
+
+	function prepareTransutil(alias,total,color){
+		return {
+			label : alias,
+			data : total.split(','),
+			backgroundColor : color,
+			borderColor : 'rgb(255, 99, 132)'
 		}
 	}
-});
-</script>
-
-<script>
-// var ctx = document.getElementById('myChart').getContext('2d');
-// var chart = new Chart(ctx, {
-    // // The type of chart we want to create
-    // type: 'bar',
-
-    // // The data for our dataset
-    // data: {
-        // labels: ['January', 'February', 'March'],
-        // datasets: [{
-            // label: 'My First dataset',
-            // backgroundColor: 'rgb(255, 99, 132)',
-            // borderColor: 'rgb(255, 99, 132)',
-            // data: [20, 30, 45]
-        // }]
-    // },
-
-    // // Configuration options go here
-	// options: {
-			// title: {
-				// display: true,
-				// text: 'Confirm Order to Vendor'
-			// }
-    // },
-// });
-
-// var ctx = document.getElementById('myChart2').getContext('2d');
-// var chart = new Chart(ctx, {
-    // // The type of chart we want to create
-    // type: 'bar',
-
-    // // The data for our dataset
-    // data: {
-        // labels: ['January', 'February', 'March'],
-        // datasets: [{
-            // label: 'My First dataset',
-            // backgroundColor: 'rgb(255, 99, 132)',
-            // borderColor: 'rgb(255, 99, 132)',
-            // data: [20, 30, 45]
-        // }]
-    // },
-
-    // // Configuration options go here
-	// options: {
-			// title: {
-				// display: true,
-				// text: 'Transporter Utilization'
-			// }
-    // },
-// });
+	setup();
+	
 </script>

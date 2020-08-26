@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 	<title>Istok - Dashboard</title>
-	
+
 	<!------ Include the above in your HEAD tag ---------->
 	<link href="<?php echo base_url(); ?>assets/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
 	<script src="<?php echo base_url(); ?>assets/js/bootstrap.min.js"></script>
@@ -97,21 +97,47 @@
       <div class="main">
          <div class="col-md-6 col-sm-12">
             <div class="login-form">
-			   <form action="<?php echo base_url('login/aksi_login'); ?>" method="post">
+			   <!--<form action="<?php echo base_url('login/aksi_login'); ?>" method="post">-->
                   <div class="form-group">
                      <label>User Name</label>
-                     <input type="text" class="form-control" name="email" placeholder="User ID" required autofocus>
+                     <input type="text" class="form-control" id="email" name="email" placeholder="User ID" required autofocus>
                   </div>
                   <div class="form-group">
                      <label>Password</label>
-                     <input type="password" class="form-control" name="password" placeholder="Password" required>
+                     <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
                   </div>
-                  <button type="submit" class="btn btn-black">Login</button>
-               </form>
+                  <button type="submit" class="login btn btn-black">Login</button>
+               <!--</form>-->
             </div>
          </div>
       </div>
 </div>
+<!-- Bootstrap core JavaScript-->
+<script src="<?php echo base_url(); ?>assets/vendor/jquery/jquery.min.js"></script>
+<script src="<?php echo base_url(); ?>assets/vendor/jquery/jquery.min.js"></script>
 
+<script>
+    $('.login').click(function () {
+      var email = document.getElementById('email').value;
+      var password = document.getElementById('password').value;
+
+      $.ajax({
+        url: '<?php echo base_url() ?>index.php/login/aksi_login/',
+        type: 'post',
+        data: {email:email,password:password},
+        dataType: 'json',
+        success: function(result){
+          
+          if(result.toString() == "Success")
+          {
+            window.location.replace("<?php echo base_url() ?>home");
+          }else{
+            alert(result.toString());
+          }
+          
+        }
+      });
+    });
+  </script>
 </body>
 </html>

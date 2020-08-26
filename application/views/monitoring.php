@@ -495,9 +495,13 @@ function prepareDepartmentDetailsBar3(label, datas, color){
         data : datas.split(','),
         backgroundColor: color,
         borderColor: color,
+<<<<<<< HEAD
+        pointBackgroundColor : color
+=======
         pointBackgroundColor : color,
         hoverBackgroundColor : color,
 				pointHoverBackgroundColor : color
+>>>>>>> 3be60e9f841f4ad1282d4b183bcfc63801172f7f
     }
 }
 
@@ -573,6 +577,8 @@ setup_fuel_distribution_to_mining();
 <script>
 const api_url_fuel_distribution_base_on_activity = "<?php echo base_url().'chart/fuel_distribution_base_on_activity?'.$qeury_url; ?>";
 
+<<<<<<< HEAD
+=======
 var departments_fuel_distribution_base_on_activity = [];
 
 async function fuel_distribution_base_on_activity() {
@@ -636,6 +642,7 @@ async function fuel_distribution_base_on_activity() {
 setup_fuel_distribution_base_on_activity();
 </script>
 
+>>>>>>> 3be60e9f841f4ad1282d4b183bcfc63801172f7f
 <script>
 const api_url_fuel_positive = "<?php echo base_url().'chart/fuel_positive?'.$qeury_url; ?>";
 

@@ -36,27 +36,26 @@ class Home extends CI_Controller {
 			redirect('login');
 		}
 	}
-
+	
 	public function index()	{
-		$this->db->query("SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''))");
 		$datasesion = array(
 			'user_id' => $this->session->userdata('user_id'),
 			'user_level' => $this->session->userdata('user_level'),
 			'user_name' => $this->session->userdata('user_name'),
 			'user_name_full' => $this->session->userdata('user_name_full')
 		);
-
+		
 		$data = array(
 			'user_id' => $this->session->userdata('user_id'),
 			'user_level' => $this->session->userdata('user_level'),
 			'user_name' => $this->session->userdata('user_name'),
 			'user_name_full' => $this->session->userdata('user_name_full')
 		);
-
+		
 		date_default_timezone_set('Asia/Jakarta');
 		$tanggal = date('Y-m-d');
 		$data['tanggal'] = $tanggal;
-
+		
 		// Tittle Tank 1
 		$data_mst_storage = $this->Model_home->get_mst_storage('1');
 		$data['data_mst_storage'] = $data_mst_storage;
@@ -64,7 +63,7 @@ class Home extends CI_Controller {
 			$data['s1_storage_name'] = $row->storage_name;
 			$data['s1_storage_height'] = $row->storage_height;
 		}
-
+		
 		// Tittle Tank 2
 		$data_mst_storage = $this->Model_home->get_mst_storage('2');
 		$data['data_mst_storage'] = $data_mst_storage;
@@ -72,7 +71,7 @@ class Home extends CI_Controller {
 			$data['s2_storage_name'] = $row->storage_name;
 			$data['s2_storage_height'] = $row->storage_height;
 		}
-
+		
 		// Tittle Tank 3
 		$data_mst_storage = $this->Model_home->get_mst_storage('3');
 		$data['data_mst_storage'] = $data_mst_storage;
@@ -80,84 +79,40 @@ class Home extends CI_Controller {
 			$data['s3_storage_name'] = $row->storage_name;
 			$data['s3_storage_height'] = $row->storage_height;
 		}
-
+		
 		// Visual Tank 1
         $qty_manual=0;
 		$qty_date ='';
-		$connection = 1;
 		$get_trans_atg = $this->Model_home->get_trans_atg('1');
 		$sum_volume=0; $sum_ullage=0;
-		if($get_trans_atg == null){
-
-			$get_trans_atg = $this->Model_home->get_trans_atg_null('1','1');
-			$connection = 0;
-			if ($get_trans_atg == null) {
-
-				$get_trans_atg = $this->Model_home->get_trans_atg_null('1','2');
-				$connection = 0;
-				if ($get_trans_atg == null) {
-
-					$get_trans_atg = $this->Model_home->get_trans_atg_null('1','3');
-					$connection = 0;
-					if($get_trans_atg == null){
-
-						$get_trans_atg = $this->Model_home->get_trans_atg2('1');
-						$connection = 0;
-					}
-				}
-			}
-		}
 		foreach ($get_trans_atg as $row) {
-		  	
-		    $sum_volume += $row->volume;
-		     if($row->qty_observe != null){
-			$sum_volume -= $row->volume;
-		      }
-            $sum_ullage +=$row->ullage;
-            $qty_manual += $row->qty_observe;
+
+		    $sum_volume = $sum_volume + $row->volume;
+            $sum_ullage = $sum_ullage + $row->ullage;
+            $qty_manual = $qty_manual + $row->qty_observe;
             //$qty_date = $row->update_date;
 		}
-		$data['s1_connection'] = $connection;
+
 		$data['s1_data_manual'] = $qty_manual;
 		$data['s1_date_manual'] = $qty_date;
         $data['s1_data_atg'] = $get_trans_atg;
 		$data['s1_sum_volume'] = $sum_volume;
 		$data['s1_sum_ullage'] = $sum_ullage;
         //$data['query'] = $this->db->last_query();
-
+		
 		// Visual Tank 2
-
 		$get_trans_atg = $this->Model_home->get_trans_atg('2');
 		$sum_volume=0; $sum_ullage=0;
         $qty_manual=0;
         $qty_date ='';
-				$connection = 1;
-				if($get_trans_atg == null){
-					$connection = 0;
-					$get_trans_atg = $this->Model_home->get_trans_atg_null('2','1');
-					if ($get_trans_atg == null) {
-						$connection = 0;
-						$get_trans_atg = $this->Model_home->get_trans_atg_null('2','2');
-						if ($get_trans_atg == null) {
-							$connection = 0;
-							$get_trans_atg = $this->Model_home->get_trans_atg_null('2','3');
-							if($get_trans_atg == null){
-								$connection = 0;
-								$get_trans_atg = $this->Model_home->get_trans_atg2('2');
-							}
-						}
-					}
-				}
+
 		foreach ($get_trans_atg as $row) {
 
 			$sum_volume = $sum_volume + $row->volume;
-			if($row->qty_observe != null){
-			   $sum_volume = $sum_volume - $row->volume;
-			}
 			$sum_ullage = $sum_ullage + $row->ullage;
             $qty_manual = $qty_manual + $row->qty_observe;
 		}
-		$data['s2_connection'] = $connection;
+
         $data['s2_data_manual'] = $qty_manual;
         $data['s2_date_manual'] = $qty_date;
 		$data['s2_data_atg'] = $get_trans_atg;
@@ -169,38 +124,17 @@ class Home extends CI_Controller {
 		$sum_volume=0; $sum_ullage=0;
         $qty_manual=0;
         $qty_date ='';
-				$connection = 1;
-				if($get_trans_atg == null){
-					$connection = 0;
-					$get_trans_atg = $this->Model_home->get_trans_atg_null('3','1');
-					if ($get_trans_atg == null) {
-						$connection = 0;
-						$get_trans_atg = $this->Model_home->get_trans_atg_null('3','2');
-						if ($get_trans_atg == null) {
-							$connection = 0;
-							$get_trans_atg = $this->Model_home->get_trans_atg_null('3','3');
-							if($get_trans_atg == null){
-								$connection = 0;
-								$get_trans_atg = $this->Model_home->get_trans_atg2('3');
-							}
-						}
-					}
-				}
 		foreach ($get_trans_atg as $row) {
 			$sum_volume = $sum_volume + $row->volume;
-			if($row->qty_observe != null){
-			   $sum_volume = $sum_volume - $row->volume; 
-			}	
 			$sum_ullage = $sum_ullage + $row->ullage;
             $qty_manual = $qty_manual + $row->qty_observe;
 		}
-		$data['s3_connection'] = $connection;
         $data['s3_data_manual'] = $qty_manual;
         $data['s3_date_manual'] = $qty_date;
         $data['s3_data_atg'] = $get_trans_atg;
 		$data['s3_sum_volume'] = $sum_volume;
 		$data['s3_sum_ullage'] = $sum_ullage;
-
+		
 		// Parameter Tank 1
 		$get_mst_parameter = $this->Model_home->get_mst_parameter('1');
 		$stock_max=0; $stock_min=0; $reorder_point=0; $safety_stock=0;
@@ -213,12 +147,12 @@ class Home extends CI_Controller {
 			$safety_stock = $row->safety_stock;
 			$average_distribution = $row->average_distribution;
 			// cleanliness
-			$inlet_iso4 = $row->inlet_iso4;
-			$inlet_iso6 = $row->inlet_iso6;
-			$inlet_iso14 = $row->inlet_iso14;
-			$outlet_iso4 = $row->outlet_iso4;
-			$outlet_iso6 = $row->outlet_iso6;
-			$outlet_iso14 = $row->outlet_iso14;
+			$inlet_iso4 = $row->inlet_iso4;			
+			$inlet_iso6 = $row->inlet_iso6;			
+			$inlet_iso14 = $row->inlet_iso14;			
+			$outlet_iso4 = $row->outlet_iso4;			
+			$outlet_iso6 = $row->outlet_iso6;			
+			$outlet_iso14 = $row->outlet_iso14;			
 		}
 		$data['s1_stock_max'] = $stock_max;
 		$data['s1_stock_min'] = $stock_min;
@@ -244,12 +178,12 @@ class Home extends CI_Controller {
 			$safety_stock = $row->safety_stock;
 			$average_distribution = $row->average_distribution;
 			// cleanliness
-			$inlet_iso4 = $row->inlet_iso4;
-			$inlet_iso6 = $row->inlet_iso6;
-			$inlet_iso14 = $row->inlet_iso14;
-			$outlet_iso4 = $row->outlet_iso4;
-			$outlet_iso6 = $row->outlet_iso6;
-			$outlet_iso14 = $row->outlet_iso14;
+			$inlet_iso4 = $row->inlet_iso4;			
+			$inlet_iso6 = $row->inlet_iso6;			
+			$inlet_iso14 = $row->inlet_iso14;			
+			$outlet_iso4 = $row->outlet_iso4;			
+			$outlet_iso6 = $row->outlet_iso6;			
+			$outlet_iso14 = $row->outlet_iso14;			
 		}
 		$data['s2_stock_max'] = $stock_max;
 		$data['s2_stock_min'] = $stock_min;
@@ -275,12 +209,12 @@ class Home extends CI_Controller {
 			$safety_stock = $row->safety_stock;
 			$average_distribution = $row->average_distribution;
 			// cleanliness
-			$inlet_iso4 = $row->inlet_iso4;
-			$inlet_iso6 = $row->inlet_iso6;
-			$inlet_iso14 = $row->inlet_iso14;
-			$outlet_iso4 = $row->outlet_iso4;
-			$outlet_iso6 = $row->outlet_iso6;
-			$outlet_iso14 = $row->outlet_iso14;
+			$inlet_iso4 = $row->inlet_iso4;			
+			$inlet_iso6 = $row->inlet_iso6;			
+			$inlet_iso14 = $row->inlet_iso14;			
+			$outlet_iso4 = $row->outlet_iso4;			
+			$outlet_iso6 = $row->outlet_iso6;			
+			$outlet_iso14 = $row->outlet_iso14;			
 		}
 		$data['s3_stock_max'] = $stock_max;
 		$data['s3_stock_min'] = $stock_min;
@@ -293,7 +227,7 @@ class Home extends CI_Controller {
 		$data['s3_outlet_iso4'] = $outlet_iso4;
 		$data['s3_outlet_iso6'] = $outlet_iso6;
 		$data['s3_outlet_iso14'] = $outlet_iso14;
-
+		
 		// Tank 1
 		// Cleanliness In
 		$get_trans_cleanliness = $this->Model_home->get_trans_cleanliness_in('1');
@@ -413,7 +347,7 @@ class Home extends CI_Controller {
 		}
 		$data['chart1_label'] = $chart1_label;
 		$data['chart1_value'] = $chart1_value;
-
+		
 		// Tank 2
 		// History Distribution Consumption
 		$chart2_label = array();
@@ -425,7 +359,7 @@ class Home extends CI_Controller {
 		}
 		$data['chart2_label'] = $chart2_label;
 		$data['chart2_value'] = $chart2_value;
-
+		
 		// Tank 3
 		// History Distribution Consumption
 		$chart3_label = array();
@@ -437,13 +371,13 @@ class Home extends CI_Controller {
 		}
 		$data['chart3_label'] = $chart3_label;
 		$data['chart3_value'] = $chart3_value;
-
+		
 		// Tank 1
 		// ETA Status
 		$data_trans_po = $this->Model_home->get_trans_po('1',$tanggal);
 		$posting_date=null; $quantity=0;
 		foreach ($data_trans_po as $row) {
-			$posting_date = $row->tanggal_eta;
+			$posting_date = $row->posting_date;
 			$quantity = $row->quantity;
 		}
 		$data['s1_po_posting_date'] = $posting_date;
@@ -454,7 +388,7 @@ class Home extends CI_Controller {
 		$data_trans_po = $this->Model_home->get_trans_po('2',$tanggal);
 		$posting_date=null; $quantity=0;
 		foreach ($data_trans_po as $row) {
-			$posting_date = $row->tanggal_eta;
+			$posting_date = $row->posting_date;
 			$quantity = $row->quantity;
 		}
 		$data['s2_po_posting_date'] = $posting_date;
@@ -465,7 +399,7 @@ class Home extends CI_Controller {
 		$data_trans_po = $this->Model_home->get_trans_po('3',$tanggal);
 		$posting_date=null; $quantity=0;
 		foreach ($data_trans_po as $row) {
-			$posting_date = $row->tanggal_eta;
+			$posting_date = $row->posting_date;
 			$quantity = $row->quantity;
 		}
 		$data['s3_po_posting_date'] = $posting_date;
@@ -473,17 +407,17 @@ class Home extends CI_Controller {
 
 		// tampilkan query
 		// $this->output->enable_profiler(TRUE);
-
+		
 		$this->load->view('header', $datasesion);
 		$this->load->view('home',$data);
 		$this->load->view('footer');
 	}
-
+	
 	function smartfill_req(){
 		$this->session->sess_destroy();
 		redirect(base_url('login'));
 	}
-
+	
 	function logout(){
 		$this->session->sess_destroy();
 		redirect(base_url('login'));
@@ -528,40 +462,4 @@ class Home extends CI_Controller {
         }
         echo json_encode($result);
     }
-
-		public function save_manual(){
-			$result = '';
-				$this->form_validation->set_rules('qty_observe', 'name', 'trim|required');
-
-				date_default_timezone_set('Asia/Jakarta');
-				if($this->form_validation->run() == FALSE) {
-						$this->index();
-				} else {
-						$id = $this->input->post('id');
-						$data1 = array(
-								'trans_status' => 1
-						);
-						if($this->Model_home->updateManual2($id,$data1)){
-								$data = array(
-										'atg_id' => $id,
-										'qty_observe' => $this->input->post('qty_observe'),
-										'manual_type' => 1,
-										'trans_date' => date('Y-m-d H:i:s')
-								);
-								if($this->Model_home->insert_manual($data)){
-										/*$this->session->set_flashdata('msg','<div class="alert alert-success text-center">You are successfully Added!</div>');
-										$this->index();*/
-										$result = 'Success';
-								} else {
-										/*$this->session->set_flashdata('msg','<div class="alert alert-danger text-center">Oops! Error.  Please try again!!!</div>');
-										$this->index();*/
-										$result = 'Failed';
-								}
-						} else {
-								$result = "Failed";
-						}
-
-				}
-				echo json_encode($result);
-		}
 }

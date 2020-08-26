@@ -11,6 +11,7 @@ class Model_supply extends CI_Model {
 	/*------------------------------------------------------------------------------*/
 	
 	function get_transporter_performance($start, $end) {
+		$this->db->query("SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''))");
 		$SQL = "SELECT mst_movement_reason.movement_reason_id, mst_movement_reason.movement_reason_name, performance.*
 						FROM mst_movement_reason
 						LEFT JOIN (	
@@ -21,7 +22,6 @@ class Model_supply extends CI_Model {
 							WHERE DATE_FORMAT(trans_po.posting_date, '%Y-%m-%d') BETWEEN '$start' AND '$end'
 							GROUP BY transporter_name, movement_reason
 						) AS performance ON mst_movement_reason.movement_reason_id=performance.movement_reason
-
 						ORDER BY mst_movement_reason.movement_reason_id, transporter_id ASC";
 		$query = $this->db->query($SQL);
 
@@ -30,6 +30,7 @@ class Model_supply extends CI_Model {
 	/*------------------------------------------------------------------------------*/
 	
 	function get_vendor_performance($start, $end) {
+		$this->db->query("SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''))");
 		$SQL = "SELECT mst_movement_reason.movement_reason_id, mst_movement_reason.movement_reason_name, performance.*
 						FROM mst_movement_reason
 						LEFT JOIN (	
@@ -40,7 +41,6 @@ class Model_supply extends CI_Model {
 							WHERE DATE_FORMAT(trans_po.posting_date, '%Y-%m-%d') BETWEEN '$start' AND '$end'
 							GROUP BY vendor_name, movement_reason
 						) AS performance ON mst_movement_reason.movement_reason_id=performance.movement_reason
-
 						ORDER BY mst_movement_reason.movement_reason_id, vendor_id ASC";
 		$query = $this->db->query($SQL);
 
@@ -50,6 +50,7 @@ class Model_supply extends CI_Model {
 	/*------------------------------------------------------------------------------*/
 	
 	function get_inventory_performance($storage_id, $start, $end, $label_type) {
+		$this->db->query("SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''))");
 		if($label_type == 'day'){
 			$SQL = "SELECT ROUND(AVG(volume)) as average, stock_max as maximal, stock_min as minimum, safety_stock as safety, DATE_FORMAT(trans_date, '%Y-%m-%d') as month_date
 							FROM `trans_atg`
@@ -102,6 +103,7 @@ class Model_supply extends CI_Model {
 	/*------------------------------------------------------------------------------*/
 	
 	function get_inventory_performance_new($storage_id, $start, $end, $label_type) {
+		$this->db->query("SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''))");
 		if($label_type == 'day'){
 			$SQL = "SELECT ROUND(SUM(volume)) as vol, trans_date, qty_observe, DATE_FORMAT(trans_date, '%Y-%m-%d') as month_date from (
 								SELECT trans_atg.trans_id, trans_atg.atg_id, trans_atg.trans_date,
@@ -176,6 +178,7 @@ class Model_supply extends CI_Model {
 	
 	
 	function get_trans_atg_($id) {
+		$this->db->query("SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''))");
 		$this->db->select('trans_atg.*, mst_storage.*');
 		$this->db->from('trans_atg');
 		$this->db->join('mst_atg', 'trans_atg.atg_id = mst_atg.atg_id');
@@ -195,7 +198,7 @@ class Model_supply extends CI_Model {
 	
 	function get_trans_atg($id) {
 		// $this->db2 = $this->load->database('db2', TRUE);
-		
+		$this->db->query("SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''))");
 		$this->db->select('*');
 		$this->db->from('trans_atg');
 		// $this->db->where('atg_id=', $id);
@@ -212,6 +215,7 @@ class Model_supply extends CI_Model {
 	}
 	
 	function get_data_mst_storage($id) {
+		$this->db->query("SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''))");
 		$this->db->select('mst_storage.*');
 		$this->db->from('mst_storage');
 		$this->db->where('mst_storage.storage_id=', $id);
