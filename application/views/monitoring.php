@@ -71,7 +71,7 @@
 		<?php echo form_close(); ?>
 		<?php echo $filter_result; ?>
 	</div>
-	<div class="leftmenufilter"><canvas id="myChart"  height="300"></canvas></div>	
+	<div class="leftmenufilter"><canvas id="myChart"  height="400"></canvas></div>	
 	<!--div class="leftmenufilter"><center>
 		<table cellpadding="2" border="1" width="100%" style="font-size: small;">
 		  <tr>
@@ -113,9 +113,7 @@
 		</table>
 	</div-->
 	<div class="leftmenufilter card shadow" style="font-size: small;">
-	</br>
-	</br>
-	</br>
+	</br></br></br></br></br></br></br></br>
  	</div>
 </div>
  </div>
@@ -126,13 +124,13 @@
 
 <div class="col-md-12">
 	<div class="row">
-		<div class="col-md-4 card shadow"><canvas id="myChart2" height="300"></canvas></div>
-		<div class="col-md-4 card shadow"><canvas id="myChart3" height="300"></canvas></div>
-		<div class="col-md-4 card shadow"><canvas id="myChart4" height="300"></canvas></div>
-		<div class="col-md-8 card shadow"><canvas id="myChart5" height="400"></canvas></div>
+		<div class="col-md-4 card shadow"><canvas id="myChart2" height="400"></canvas></div>
+		<div class="col-md-4 card shadow"><canvas id="myChart3" height="400"></canvas></div>
+		<div class="col-md-4 card shadow"><canvas id="myChart4" height="400"></canvas></div>
+		<div class="col-md-8 card shadow"><canvas id="myChart5" height="600"></canvas></div>
 		<div class="col-md-4 card shadow">
-			<canvas id="myChart6" height="200"></canvas>
-			<canvas id="myChart7" height="200"></canvas>
+			<canvas id="myChart6" height="300"></canvas>
+			<canvas id="myChart7" height="300"></canvas>
 		</div>
 	</div>
 </div>
@@ -511,57 +509,71 @@ setup_fuel_price_by_history();
 </script>
 
 <script>
-var ctx = document.getElementById('myChart3').getContext('2d');
-var chart = new Chart(ctx, {
-    // The type of chart we want to create
-    type: 'bar',
-    // The data for our dataset
-    data: {
-        labels: ['Mining BMO', 'Mining LMO', 'Mining SMO'],
-        datasets: [{
-            label: 'BUMA',
-            backgroundColor: 'Blue',
-            borderColor: 'rgb(255, 99, 132)',
-            data: [1200000, 1300000, 0]
-        }, {
-            label: 'PAMA',
-            backgroundColor: 'Red',
-            borderColor: 'rgb(255, 99, 132)',
-            data: [1500000, 0, 0]
-		}, {
-            label: 'RBA',
-            backgroundColor: 'Green',
-            borderColor: 'rgb(255, 99, 132)',
-            data: [0, 600000, 300000]
-		}, {
-            label: 'SIS',
-            backgroundColor: 'Yellow',
-            borderColor: 'rgb(255, 99, 132)',
-            data: [0, 0, 800000]
-		}]
-    },
+const api_url_fuel_distribution_to_mining = "<?php echo base_url().'chart/fuel_distribution_to_mining?'.$qeury_url; ?>";
+
+var departments_fuel_distribution_to_mining = [];
+
+async function fuel_distribution_to_mining() {
+	const response = await fetch(api_url_fuel_distribution_to_mining);
+	const data = await response.json();
+	const data_label = data.storage;
+	for (var department in data.chart) {
+		var departmentObject = prepareDepartmentDetailsBar(data.chart[department].description, data.chart[department].quantity, data.chart[department].color);
+		departments_fuel_distribution_to_mining.push(departmentObject);
+	}
+	return {data_label, departments_fuel_distribution_to_mining};	
+}
+
+
+ async function setup_fuel_distribution_to_mining() {
+	const ctx = document.getElementById('myChart3').getContext('2d');
+	const globalTemps = await fuel_distribution_to_mining();
 	
-	options: {
+	var chartData = {
+			labels: globalTemps.data_label.split('|'),
+			datasets : globalTemps.departments_fuel_distribution_to_mining
+	};
+	const myChart = new Chart(ctx, {
+		type: 'bar',
+		data: chartData,
+		options: {
 			title: {
 				display: true,
 				text: 'Fuel Distribution to Mining Contractor'
 			},
-		responsive: true,
-		// legend: {
-			// display: false,
-			// position: 'right' // place legend on the right side of chart
-		// },
-		scales: {
-			xAxes: [{
-				stacked: true // this should be set to make the bars stacked
-			}],
-			yAxes: [{
-				stacked: true // this also..
-			}]
+			responsive: true,
+			tooltips: {
+				mode: 'nearest',
+			  callbacks: {
+					label: function(tooltipItem, data) {
+						var value = tooltipItem.yLabel;
+						value = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+						return data.datasets[tooltipItem.datasetIndex].label+' : '+value;
+					}
+			  } // end callbacks:
+			},
+			scales: {
+				
+				xAxes: [{
+					stacked: false // this also..
+				}],
+				yAxes: [{
+					stacked: false, // this should be set to make the bars stacked
+					ticks: {
+									// Include a dollar sign in the ticks
+									callback: function(value, index, values) {
+											return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+									}
+                }
+				}]
+			}
 		}
-	}
-});
+	});
+}
+
+setup_fuel_distribution_to_mining();
 </script>
+
 <script>
 const api_url_fuel_distribution_base_on_activity = "<?php echo base_url().'chart/fuel_distribution_base_on_activity?'.$qeury_url; ?>";
 
@@ -595,7 +607,7 @@ async function fuel_distribution_base_on_activity() {
 		options: {
 			title: {
 				display: true,
-				text: 'Fuel Distribution base on Activity'
+				text: 'Fuel Distribution Base On Activity'
 			},
 			responsive: true,
 			tooltips: {
@@ -632,109 +644,136 @@ setup_fuel_distribution_base_on_activity();
 
 >>>>>>> 3be60e9f841f4ad1282d4b183bcfc63801172f7f
 <script>
-var ctx = document.getElementById('myChart6').getContext('2d');
-var chart = new Chart(ctx, {
-    // The type of chart we want to create
-    type: 'bar',
-    // The data for our dataset
-    data: {
-        labels: ['Mining BMO', 'Mining LMO', 'Mining SMO'],
-        datasets: [{
-            label: 'LMO',
-            backgroundColor: 'Blue',
-            borderColor: 'rgb(255, 99, 132)',
-            data: [1200000, 1300000, 0]
-        }, {
-            label: 'PAMA',
-            backgroundColor: 'Red',
-            borderColor: 'rgb(255, 99, 132)',
-            data: [1500000, 0, 0]
-		}, {
-            label: 'RBA',
-            backgroundColor: 'Green',
-            borderColor: 'rgb(255, 99, 132)',
-            data: [0, 600000, 300000]
-		}, {
-            label: 'SIS',
-            backgroundColor: 'Yellow',
-            borderColor: 'rgb(255, 99, 132)',
-            data: [0, 0, 800000]
-		}]
-    },
+const api_url_fuel_positive = "<?php echo base_url().'chart/fuel_positive?'.$qeury_url; ?>";
+
+async function fuel_positive() {
+	const response = await fetch(api_url_fuel_positive);
+	const data = await response.json();
+	const data_label = data.storage;
+	const data_color = data.color;
+	const data_fuel = data.fuel;
 	
-	options: {
-			title: {
-				display: true,
-				text: 'Fuel Positive Diference Receiving From Vendor'
-			},
-		responsive: true,
-		// legend: {
-			// display: false,
-			// position: 'right' // place legend on the right side of chart
-		// },
-		scales: {
-			xAxes: [{
-				stacked: true // this should be set to make the bars stacked
-			}],
-			yAxes: [{
-				stacked: true // this also..
+	return {data_label, data_color, data_fuel};	
+}
+
+
+ async function setup_fuel_positive() {
+	const ctx = document.getElementById('myChart6').getContext('2d');
+	const globalTemps = await fuel_positive();
+	
+	const myChart = new Chart(ctx, {
+		type: 'pie',
+		data: {
+			labels: globalTemps.data_label.split(','),
+			datasets: [{
+				data: globalTemps.data_fuel.split(','),
+				backgroundColor: globalTemps.data_color.split(','),
+				borderWidth: 3
 			}]
+		},
+		options: {
+			title: {
+					display: true,
+					text: 'Fuel Positive Diference Receiving From Vendor'
+				},
+			cutoutPercentage: 0,
+			responsive: true,
+			tooltips: {
+			  callbacks: {
+					label: function(tooltipItem, data) {
+						var value = data.datasets[0].data[tooltipItem.index];
+						value = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+						return data.labels[tooltipItem.index]+' : '+value;
+					}
+			  } // end callbacks:
+			}
+
 		}
-	}
-});
+	});
+	console.log(myChart);
+}
+
+setup_fuel_positive();
 </script>
 
 <script>
-var ctx = document.getElementById('myChart7').getContext('2d');
-var chart = new Chart(ctx, {
-    // The type of chart we want to create
-    type: 'bar',
-    // The data for our dataset
-    data: {
-        labels: ['Mining BMO', 'Mining LMO', 'Mining SMO'],
-        datasets: [{
-            label: 'LMO',
-            backgroundColor: 'Blue',
-            borderColor: 'rgb(255, 99, 132)',
-            data: [1200000, 1300000, 0]
-        }, {
-            label: 'PAMA',
-            backgroundColor: 'Red',
-            borderColor: 'rgb(255, 99, 132)',
-            data: [1500000, 0, 0]
-		}, {
-            label: 'RBA',
-            backgroundColor: 'Green',
-            borderColor: 'rgb(255, 99, 132)',
-            data: [0, 600000, 300000]
-		}, {
-            label: 'SIS',
-            backgroundColor: 'Yellow',
-            borderColor: 'rgb(255, 99, 132)',
-            data: [0, 0, 800000]
-		}]
-    },
+const api_url_fuel_negative = "<?php echo base_url().'chart/fuel_negative?'.$qeury_url; ?>";
+
+var departments_fuel_negative = [];
+
+async function getData_fuel_negative() {
+	const response = await fetch(api_url_fuel_negative);
+	const data = await response.json();
+	const data_label = data.quarter;
+	for (var department in data.chart) {
+		var departmentObject = prepareDepartmentDetails_fuel_negative(data.chart[department].storage, data.chart[department].quantity, data.chart[department].color);
+		departments_fuel_negative.push(departmentObject);
+	}
+	return {data_label, departments_fuel_negative};	
+}
+
+
+ async function setup() {
+	const ctx = document.getElementById('myChart7').getContext('2d');
+	const globalTemps = await getData_fuel_negative();
 	
-	options: {
+	var chartData = {
+			labels: globalTemps.data_label.split('|'),
+			datasets : globalTemps.departments_fuel_negative
+	};
+console.log(chartData);
+	const myChart = new Chart(ctx, {
+		type: 'bar',
+		data: chartData,
+		options: {
 			title: {
 				display: true,
 				text: 'Fuel Negative Diference Base on Distribution'
 			},
-		responsive: true,
-		// legend: {
-			// display: false,
-			// position: 'right' // place legend on the right side of chart
-		// },
-		scales: {
-			xAxes: [{
-				stacked: false // this should be set to make the bars stacked
-			}],
-			yAxes: [{
-				stacked: false // this also..
-			}]
+			responsive: true,
+			legend: {
+				display: true,
+				position: 'top', // place legend on the right side of chart
+				align: 'start',
+			},
+			tooltips: {
+				mode: 'nearest',
+			  callbacks: {
+					label: function(tooltipItem, data) {
+						var value = tooltipItem.yLabel;
+						value = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+						return data.datasets[tooltipItem.datasetIndex].label+' : '+value;
+					}
+			  } // end callbacks:
+			},
+			scales: {
+				
+				xAxes: [{
+					stacked: false // this also..
+				}],
+				yAxes: [{
+					stacked: false, // this should be set to make the bars stacked
+					ticks: {
+									// Include a dollar sign in the ticks
+									callback: function(value, index, values) {
+											return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+									}
+                }
+				}]
+			}
 		}
-	}
-});
+	});
+}
+	
+function prepareDepartmentDetails_fuel_negative(storage, quantity, color){
+    return {
+        label : storage,
+        data : quantity.split(','),
+        backgroundColor: color,
+        borderColor: color
+    }
+}
+ setup();
 </script>
 
 <script>

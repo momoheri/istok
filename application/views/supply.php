@@ -769,7 +769,7 @@ var myChart = new Chart(ctx, {
     }]
   },
   options: {
-   	cutoutPercentage: 40,
+   	cutoutPercentage: 0,
     responsive: false,
 
   }
